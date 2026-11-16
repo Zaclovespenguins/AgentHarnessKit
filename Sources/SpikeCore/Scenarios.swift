@@ -1,5 +1,6 @@
 import AnyLanguageModel
 import Foundation
+import HTTPTypes
 
 public final class Locked<T>: @unchecked Sendable {
     private let l = NSLock()
@@ -23,6 +24,16 @@ public struct AddTool: Tool {
     public func call(arguments: Arguments) async throws -> String {
         calls.with { $0.append([arguments.a, arguments.b]) }
         return String(arguments.a + arguments.b)
+    }
+}
+
+/// Wraps the default transport and keeps every request body so a scenario can inspect what was sent.
+struct RecordingTransport: HTTPTransport {
+    let inner: any HTTPTransport = makeDefaultTransport()
+    let bodies = Locked<[Data]>([])
+    func send<R>(request: HTTPRequest, body: Data?, timeout: Duration?, responseHandler: (HTTPResponse, HTTPResponseBody) async throws -> R) async throws -> R {
+        if let body { bodies.with { $0.append(body) } }
+        return try await inner.send(request: request, body: body, timeout: timeout, responseHandler: responseHandler)
     }
 }
 
@@ -179,6 +190,62 @@ public func s4Approval(_ p: Provider) async -> Result {
     }
 }
 
+// MARK: S6 thinking-block replay + parallel tool calls (Anthropic only)
+public func s6Continuity(_ p: Provider) async -> Result {
+    await time("S6", "thinking replay + parallel calls") {
+        let env = ProcessInfo.processInfo.environment
+        guard p.label == "anthropic" else { return (true, "skipped (anthropic only)") }
+        let rec = RecordingTransport()
+        let model = AnthropicLanguageModel(apiKey: env["ANTHROPIC_API_KEY"] ?? "", model: env["SPIKE_MODEL"] ?? "claude-haiku-4-5", transport: rec)
+        var opts = GenerationOptions(maximumResponseTokens: 4096)
+        opts[custom: AnthropicLanguageModel.self] = .init(thinking: .enabled(budgetTokens: 2048))
+
+        // Round 1: thinking on, ask for two independent calls, stop before executing them.
+        let calls = Locked<[[Int]]>([])
+        let s = LanguageModelSession(model: model, tools: [AddTool(calls: calls)])
+        s.toolExecutionDelegate = StopAfterRound()
+        _ = try await s.respond(to: "Compute 2 + 3 and also 4 + 5. Call the add tool twice, both calls in the same turn. [add]", options: opts)
+        let kinds1 = s.transcript.map(\.kind)
+        var sigLen = 0, parallel = 0
+        for e in s.transcript {
+            if case .reasoning(let r) = e { sigLen = max(sigLen, r.signature?.count ?? 0) }
+            if case .toolCalls(let tc) = e { parallel = max(parallel, tc.count) }
+        }
+
+        // Round 2: a "new process" - rebuild from JSON only, run the tools ourselves, continue.
+        let saved = try JSONDecoder().decode(Transcript.self, from: JSONEncoder().encode(s.transcript))
+        var entries = Array(saved)
+        if case .response(let r) = entries.last, r.segments.allSatisfy({ if case .text(let t) = $0 { t.content.isEmpty } else { false } }) { entries.removeLast() }
+        if case .toolCalls(let tc) = entries.last {
+            for c in tc {
+                let out = try await AddTool(calls: calls).call(arguments: .init(c.arguments))
+                entries.append(.toolOutput(.init(id: c.id, toolName: c.toolName, segments: [.text(.init(content: out))])))
+            }
+        }
+        let n1 = rec.bodies.with { $0.count }
+        let s2 = LanguageModelSession(model: model, tools: [AddTool(calls: calls)], transcript: Transcript(entries: entries))
+        let final = try await s2.respond(to: "Continue and give me both answers.", options: opts).content
+
+        // The replayed request must carry the signed thinking block before the tool_use blocks.
+        let req = rec.bodies.with { $0.count > n1 ? $0[n1] : Data() }
+        let json = (try? JSONSerialization.jsonObject(with: req)) as? [String: Any]
+        let msgs = json?["messages"] as? [[String: Any]] ?? []
+        var order: [String] = []
+        var replayedSig = false
+        for m in msgs where m["role"] as? String == "assistant" {
+            for b in m["content"] as? [[String: Any]] ?? [] {
+                let t = b["type"] as? String ?? "?"
+                order.append(t)
+                if t == "thinking", (b["signature"] as? String)?.isEmpty == false { replayedSig = true }
+            }
+        }
+        let ok = kinds1.contains("reasoning") && sigLen > 0 && parallel >= 2 && replayedSig
+            && order.firstIndex(of: "thinking").map { i in order.firstIndex(of: "tool_use").map { i < $0 } ?? false } == true
+            && final.contains("5") && final.contains("9")
+        return (ok, "round1=\(kinds1) sigBytes=\(sigLen) parallelCalls=\(parallel) replayedAssistantBlocks=\(order) signatureInRequest=\(replayedSig) final=\"\(final.prefix(60))\"")
+    }
+}
+
 // MARK: S5
 public func s5Cancel(_ p: Provider) async -> Result {
     await time("S5", "cancel") {
@@ -215,6 +282,7 @@ public func runAll(_ p: Provider, checkpoint: URL, only: Set<String> = []) async
     if want("S3") { out.append(await s3LoopControl(p, checkpoint: checkpoint)) }
     if want("S4") { out.append(await s4Approval(p)) }
     if want("S5") { out.append(await s5Cancel(p)) }
+    if only.contains("S6") { out.append(await s6Continuity(p)) }  // opt-in: --only S6
     return out
 }
 

@@ -75,7 +75,7 @@ Caveat: the mock server is mine, so these results prove the client path, not rea
 
 ## 3. Loop-control verdict
 We can build checkpoint/resume, approvals and sub-agents on the session API, with two workarounds for the quirks in answer 3. The smallest sample is `resumeFromCheckpoint` plus `StopAfterRound` and `DenyOnce` in `Sources/SpikeCore/Scenarios.swift`. We do not have to drive rounds ourselves.
-Two points are unverified: whether these delegate hooks and the empty-response quirk behave the same with real providers, and how parallel tool calls behave.
+Verified against real Anthropic (section 7): the hooks, the empty-response quirk and parallel tool calls behave as on the mock.
 
 ## 4. Blockers and workarounds
 1. iOS is only verified as a command-line binary in the Simulator, not inside an app (ATS and sandbox untested).
@@ -85,10 +85,15 @@ Two points are unverified: whether these delegate hooks and the empty-response q
 3. Empty trailing `.response` after `.stop` (workaround above).
 4. Continuation needs an extra user prompt (workaround above).
 5. No Vertex support (transport shim).
-6. Anthropic and OpenAI proper were not run (no keys), so Anthropic thinking and usage remain source-read only. Only an OpenAI-compatible llama.cpp-style server was exercised for real.
+6. Anthropic was run for real (section 7): thinking replay, usage and parallel calls confirmed. OpenAI proper was not run; only an OpenAI-compatible llama.cpp-style server was exercised.
 
 ## 5. Recommendation
-Leaning adopt. Loop control works on macOS, Linux and an Android emulator with two small workarounds. The remaining gap is a run against Anthropic itself.
+Adopt. Loop control works on macOS, Linux and an Android emulator with two small workarounds, and S1-S6 pass against the real Anthropic API (see section 7).
+
+## 7. Anthropic run (macOS, claude-haiku-4-5)
+S1-S5 PASS (ttft 703ms, usage.total reported, stop/resume/deny/cancel all work; the extra continuation prompt quirk also appears with Anthropic).
+S6 PASS (`swift run spike --only S6`, opt-in): with extended thinking on (2048-token budget), round 1 produced `prompt, reasoning, toolCalls, response` with a 736-byte signature and two parallel `add` calls in one `toolCalls` entry. After a JSON round trip and a rebuilt session, the second request carried the assistant blocks `[thinking, tool_use, tool_use]` with the signature intact, and the final answer used both results.
+Not covered (cover in the real test suite): redacted thinking blocks (`isRedacted` replay path), thinking with `streamResponse`, replay on other Anthropic models (Sonnet/Opus, adaptive thinking). OpenAI Responses opaque-item replay was not tested.
 
 ## 6. Reproduce (macOS)
 ```bash
