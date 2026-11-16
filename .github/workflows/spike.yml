@@ -8,11 +8,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: swift run spike          # mock, in-process
       - run: swift run spike --resume spike-checkpoint.json   # new process
-  macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: swift run spike
   android:
     # Runs the package tests (all scenarios against the in-process mock) on an Android emulator.
     runs-on: ubuntu-24.04
