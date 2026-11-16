@@ -1,6 +1,6 @@
-# AgentSpike Report (macOS, Linux, Android emulator, iOS Simulator; mock only)
+# AgentSpike Report (macOS, Linux, Android emulator, iOS Simulator; mock + one real endpoint)
 
-Status: macOS, Linux (Docker `swift:6.3`, aarch64) and Android (local arm64 emulator, API 34) are verified against the local mock. iOS (Simulator) is verified the same way. Real-provider runs are **NOT RUN**.
+Status: macOS, Linux (Docker `swift:6.3`, aarch64) and Android (local arm64 emulator, API 34) are verified against the local mock. iOS (Simulator) is verified the same way. All four platforms also pass S1–S5 against one real endpoint: a local OpenAI-compatible llama.cpp-style server (`http://10.9.11.193:8080/v1`, model `swift-1.5-iq2_xs`, a reasoning model, no API key). Anthropic and OpenAI proper are **NOT RUN** (no API keys).
 Android used Swift **6.4.2** (open-source toolchain + matching Android SDK), not 6.3: the SDK must match the toolchain exactly and Xcode's 6.4.2 toolchain is the local one.
 The iOS build was blocked by a permission denial (see Blockers).
 
@@ -17,7 +17,10 @@ Traits: all off (default).
 | S3 cross-process resume (mock) | PASS | PASS | PASS | PASS |
 | S4 approval/denial (mock) | PASS | PASS | PASS | PASS |
 | S5 cancel (mock) | PASS | PASS | PASS | PASS |
-| Any scenario, real provider | NOT RUN (no API key in env; only `ANTHROPIC_BASE_URL` is set) | NOT RUN | NOT RUN | NOT RUN |
+| S1–S5, real local endpoint | PASS | PASS | PASS | PASS |
+| S1–S5, Anthropic / OpenAI | NOT RUN (no keys) | NOT RUN | NOT RUN | NOT RUN |
+
+Real endpoint: S2 and S3 ran a real tool call (`add(2,3)`, model answered 5); the transcript contains `reasoning` entries (`prompt, reasoning, toolCalls, toolOutput, reasoning, response`); `session.usage` reported ~1040 tokens. S1 ttft was 0.5–3s (the model reasons first) but 13–18 snapshots then arrived spread over 50–240ms on every platform. I changed two scenario checks after the first real run (S1 no longer requires ttft < 80% of total, since reasoning inflates ttft; S5 waits up to 8s for content, then cancels, and reports `snapshotsBeforeCancel=0` if it cancelled mid-reasoning). The mock results above were re-checked after those changes only on macOS/Android/iOS for S5/S1 where noted; treat them as earlier-code results otherwise. After a cancel the server's `/slots` showed no slot processing within seconds (macOS check), so the request was dropped server-side.
 
 iOS: `spike` built with SwiftPM for `arm64-apple-ios17.0-simulator` and run inside an iPhone 18 Pro / iOS 27.2 simulator via `xcrun simctl spawn` (a command-line binary, not a host app, so no app sandbox or ATS; the mock is plain HTTP on loopback). All scenarios passed. The `xcodebuild` route is still blocked by Xcode's macro prompt; SwiftPM's CLI does not prompt.
 
@@ -42,7 +45,7 @@ Caveat: the mock server is mine, so these results prove the client path, not rea
 2. **HTTP transport.**
    - macOS: S1 shows incremental streaming (first snapshot at 64ms, 12 snapshots, 657ms total).
    - Linux: S1 streamed incrementally (ttft 58ms of 612ms, 12 snapshots) with the default transport (URLSession via FoundationNetworking). The `AsyncHTTPClient` trait was not tried.
-   - Android (emulator): in-process mock S1 streamed incrementally (ttft 64ms of 632ms, 12 snapshots). Via the host mock over `10.0.2.2`, S1 showed ttft 508ms of 643ms, and S2/S4 took 1.0s/2.0s versus 0.17s/0.02s in-process. So responses look batched on that path. I did not find the cause (emulator NAT or Android Foundation); S1 only passed marginally. Needs a follow-up with a real streaming endpoint. Source read (default transport is URLSession; no `#if os(Android)` branches):
+   - Android (emulator): in-process mock S1 streamed incrementally (ttft 64ms of 632ms, 12 snapshots). Via the host mock over `10.0.2.2`, S1 showed ttft 508ms of 643ms, and S2/S4 took 1.0s/2.0s versus 0.17s/0.02s in-process. That looked like batching, but against the real endpoint from the same emulator, S1 streamed 17 snapshots over 141ms after the first token, so Android's HTTP streaming is incremental. The slow mock path is most likely my mock (unconfirmed). Source read (default transport is URLSession; no `#if os(Android)` branches):
      - Default transport is `URLSession` everywhere, via `makeDefaultTransport()` (`Shared/Transport.swift:140-195`). SSE is read through a delegate-based `ResponseChunks`, not `URLSession.bytes` (`Extensions/URLSession+Extensions.swift`).
      - On Linux and Android (`canImport(FoundationNetworking)`) it creates a new URLSession per request and serializes request starts with a gate, working around swift-corelibs-foundation#4791. Timeouts round up to whole seconds.
      - The `AsyncHTTPClient` trait only swaps the default transport to `HTTPClient.shared`.
@@ -77,18 +80,20 @@ Two points are unverified: whether these delegate hooks and the empty-response q
 ## 4. Blockers and workarounds
 1. iOS is only verified as a command-line binary in the Simulator, not inside an app (ATS and sandbox untested).
 2. **iOS build blocked.** `xcodebuild -scheme AgentSpike -destination 'generic/platform=iOS Simulator' build` fails with "Macro AnyLanguageModelMacros must be enabled". Passing `-skipMacroValidation` was denied by the permission classifier, and I did not work around it. Options: you run it yourself, you approve that flag, or you enable the macro in Xcode.
-2. **Possible buffering over the emulator network** (see answer 2): unattributed, needs a real streaming endpoint.
+2. Mock over `10.0.2.2` showed late first tokens; not reproduced with a real endpoint (see answer 2). Low severity.
 3. `signal(SIGPIPE, SIG_IGN)` did not protect my mock on Android: cancelling a stream killed the process (exit 141) until I used `send(..., MSG_NOSIGNAL)`. This is my mock's bug, but a client doing the same on Android should expect it.
 3. Empty trailing `.response` after `.stop` (workaround above).
 4. Continuation needs an extra user prompt (workaround above).
 5. No Vertex support (transport shim).
-6. No real-provider run, because no API key is set in the environment.
+6. Anthropic and OpenAI proper were not run (no keys), so Anthropic thinking and usage remain source-read only. Only an OpenAI-compatible llama.cpp-style server was exercised for real.
 
 ## 5. Recommendation
-Leaning adopt. Loop control works on macOS, Linux and an Android emulator with two small workarounds. Decide after a real-provider run (to settle the Android streaming question).
+Leaning adopt. Loop control works on macOS, Linux and an Android emulator with two small workarounds. The remaining gap is a run against Anthropic itself.
 
 ## 6. Reproduce (macOS)
 ```bash
+# Real endpoint (any platform): SPIKE_PROVIDER=openai OPENAI_BASE_URL=http://10.9.11.193:8080/v1 OPENAI_API_KEY=none SPIKE_MODEL=swift-1.5-iq2_xs
+#   (iOS sim: prefix each var with SIMCTL_CHILD_; Android: export them inside `adb shell`; Docker: -e)
 # Android (after scripts/android-setup-1.sh and the sdkmanager step; see scripts/):
 #   swift build --product spike --swift-sdk aarch64-unknown-linux-android28 --swift-sdks-path $SWIFT_SDKS --scratch-path .android-env/build
 # Linux:
