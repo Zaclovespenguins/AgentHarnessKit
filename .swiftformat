@@ -1,0 +1,4 @@
+--swiftversion 6.0
+--disable trailingCommas
+--disable wrapMultilineStatementBraces
+--exclude Gates,.build
