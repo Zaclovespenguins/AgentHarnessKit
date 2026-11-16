@@ -52,6 +52,8 @@ Core keeps AgentRunKit's Codable `ChatMessage`, `AssistantMessage`, `ToolCall`, 
 
 One core assistant can correspond to adjacent reasoning, response, and tool-call entries. Preserve the generated suffix and provider-native ordering in `AssistantContinuity` when semantic fields alone would lose it, especially for multiple signed/redacted blocks and opaque Responses items. Known unproven or potentially lossy paths are redacted thinking, streaming thinking, adaptive/other Anthropic models, OpenAI Responses opaque items, OpenRouter reasoning details, custom tool kinds, and multimodal variants. Nil usage remains nil rather than becoming zero.
 
+**Phase 2 implementation.** `AssistantContinuity.payload` is `{"almEntries": [...]}`: the turn's ALM `Transcript.Entry` values as JSON, stored only when the turn has reasoning and the client was given a `replaySubstrate`. A later request on the same substrate replays those entries verbatim; any other substrate rebuilds the turn from semantic fields. ALM's Anthropic provider drops reasoning whose metadata does not name it as origin (`metadata["provider"] == "anthropic"`), so a turn rebuilt from `ReasoningContent` alone is sent without its thinking block: continuity is the only replay path. Streaming delivers the same payload through the package-level `streamForRun` (`RunStreamElement.finalizedContinuity`). Streamed tool calls are emitted once, complete, just before `.finished`. Not supported and rejected with `featureUnsupported` rather than dropped: video/PDF/audio input, OpenAI custom tools and `allowed_tools`, Responses hosted tools, Gemini `VALIDATED` mode / allowed function names / `extraFields`. `RequestContext.onResponse` is not called (ALM does not expose the HTTP response). ALM reports unreported usage as zero, so all-zero usage maps to nil.
+
 ## 3. Adapter workarounds
 
 **Final choice: call the model directly, not the session.** Per request, `HarnessModelClient` builds `LanguageModelSession(model:tools:transcript:)` from the converted history, sets a delegate that returns `.stop` for every call, and calls `model.respond(within: session, to: Prompt(""), ...)` (or `streamResponse(within:...)`). Both quirks disappear: the session commits nothing, so there is no empty trailing `.response`, and the transcript is the whole request, so no prompt is appended. Costs: `session.usage` does not accumulate (read `response.usage` / snapshot usage per request, which is what `TokenUsage` wants anyway), and the empty `Prompt` argument is a dummy.
@@ -105,7 +107,9 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | Real Anthropic S1–S6 | PASS | NOT RUN | NOT RUN |
 | Option A one-request adapter proof (mock) | PASS | NOT RUN | PASS |
 | Package skeleton `swift build` + `swift test` | PASS | build PASS (SwiftPM `--triple arm64-apple-ios17.0-simulator`) | PASS |
-| AgentHarnessKit core/adapters and ported tests | NOT RUN | NOT RUN | NOT RUN |
+| AgentHarnessKit core tests + Phase 2 adapter mock tests | PASS | NOT RUN | NOT RUN (Phase 2) |
+| Phase 2 live tool loop, generate + stream, local OpenAI-compatible endpoint (`AHK_LIVE_BASE_URL`) | PASS | NOT RUN | NOT RUN |
+| Phase 2 live Anthropic signed-thinking replay through the adapter | NOT RUN | NOT RUN | NOT RUN |
 | GRDB pool, migration, FTS5, second process | NOT RUN | NOT RUN | NOT RUN |
 | OpenAI proper and Responses opaque replay | NOT RUN | NOT RUN | NOT RUN |
 | Apple Foundation Models / MLX adapters | NOT RUN | NOT RUN | N/A |

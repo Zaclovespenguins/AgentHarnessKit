@@ -66,5 +66,14 @@ let package = Package(
             dependencies: ["AgentHarnessKit"],
             swiftSettings: swiftSettings
         ),
+        .testTarget(
+            name: "AgentHarnessKitALMTests",
+            dependencies: [
+                "AgentHarnessKit",
+                "AgentHarnessKitALM",
+                .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
+            ],
+            swiftSettings: swiftSettings
+        ),
     ]
 )
