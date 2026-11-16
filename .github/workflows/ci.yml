@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Build
+        run: swift build
+      - name: Test
+        run: swift test
+
+  linux:
+    name: Linux (Swift 6.3)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      # The job runs the swift:6.3 image through docker instead of `container:`
+      # because the swift image ships no Node.js, so node-based actions such as
+      # actions/checkout cannot run inside it. This is the same command that is
+      # verified locally (see ROADMAP Phase 0/8).
+      - name: Build and test
+        run: |
+          docker run --rm -v "$PWD":/src:ro swift:6.3 bash -c '
+            cp -r /src /work && cd /work && rm -rf .build && swift build && swift test'
+
+  ios:
+    name: iOS Simulator
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      # Verified locally on Xcode 27.2 without -skipMacroValidation: BUILD
+      # SUCCEEDED with no macro-trust error. This skeleton expands no AnyLanguageModel
+      # macro yet, so the spike's "Macro AnyLanguageModelMacros must be enabled"
+      # error is not exercised here. Do not add the trust flag without a recorded
+      # decision (ROADMAP Phase 0): it is a pending human decision.
+      - name: Build for iOS Simulator
+        run: xcodebuild -scheme AgentHarnessKit-Package -destination 'generic/platform=iOS Simulator' build

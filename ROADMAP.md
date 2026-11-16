@@ -7,7 +7,7 @@ Expands the phases in [AGENTHARNESSKIT_PARITY_SPEC.md](AGENTHARNESSKIT_PARITY_SP
 - Spike done, decision: **build on AnyLanguageModel (ALM)**. Evidence: `docs/spike/SPIKE_REPORT.md` (S1-S6 pass on Anthropic; S1-S5 on mock + local endpoint across platforms).
 - Spike code is not in the tree. It is tagged `spike-final` (`git show spike-final:Sources/SpikeCore/MockServer.swift`). Reuse from it: `MockServer` (Phase 2 tests), `RecordingTransport` (request-body inspection), and the resume/stop/deny helpers in `Scenarios.swift` as reference for the adapter.
 - Spike quirks to design around: `.stop` leaves an empty trailing `.response`; `respond(to:)` always appends a user prompt; swift-syntax macros prompt for trust in `xcodebuild`.
-- Still unverified: Option A end to end (one request per call, tool calls returned unexecuted), the iOS `xcodebuild` macro prompt, GRDB on Linux/iOS.
+- Option A proven on mock (macOS, Linux); see `docs/ARCHITECTURE.md`. Still unverified: the iOS `xcodebuild` macro prompt with code that expands ALM macros, GRDB on Linux/iOS.
 
 ## Dependency graph
 
