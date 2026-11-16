@@ -9,7 +9,7 @@ if let i = args.firstIndex(of: "--serve-mock") {
     let port = UInt16(args.indices.contains(i + 1) ? args[i + 1] : "") ?? 8080
     let s = try MockServer(port: port)
     print("mock listening on \(s.baseURL)")
-    while true { sleep(3600) }
+    while true { try await Task.sleep(for: .seconds(3600)) }
 }
 
 let provider = try Provider.fromEnvironment()
