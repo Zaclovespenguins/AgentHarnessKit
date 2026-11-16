@@ -1,7 +1,12 @@
 name: spike
-on: [push, workflow_dispatch]
+on:
+  workflow_dispatch:   # run: gh workflow run spike -f linux=true -f android=false
+    inputs:
+      linux: {type: boolean, default: false}
+      android: {type: boolean, default: true}
 jobs:
   linux:
+    if: inputs.linux
     runs-on: ubuntu-latest
     container: swift:6.3
     steps:
@@ -9,6 +14,7 @@ jobs:
       - run: swift run spike          # mock, in-process
       - run: swift run spike --resume spike-checkpoint.json   # new process
   android:
+    if: inputs.android
     # Runs the package tests (all scenarios against the in-process mock) on an Android emulator.
     runs-on: ubuntu-24.04
     steps:
