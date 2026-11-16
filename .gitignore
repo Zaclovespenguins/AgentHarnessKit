@@ -1,4 +1,4 @@
 .build/
-spike-checkpoint.json
+.swiftpm/
 .DS_Store
-.android-env/
+*.checkpoint.json
