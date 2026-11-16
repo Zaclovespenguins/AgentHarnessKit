@@ -13,6 +13,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      # Official images pinned to the Mintfile versions. They avoid building Mint
+      # and the tools on every run. Keep these tags in sync with Mintfile.
+      - name: SwiftFormat
+        run: |
+          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/nicklockwood/swiftformat:0.60.1 --lint .
+      - name: SwiftLint
+        run: |
+          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/realm/swiftlint:0.63.0 lint --strict
+
   macos:
     name: macOS
     runs-on: macos-26
@@ -22,9 +39,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Build
-        run: swift build
+        run: swift build -Xswiftc -warnings-as-errors
       - name: Test
-        run: swift test
+        run: swift test --parallel -Xswiftc -warnings-as-errors
 
   linux:
     name: Linux (Swift 6.3)
@@ -41,7 +58,12 @@ jobs:
       - name: Build and test
         run: |
           docker run --rm -v "$PWD":/src:ro swift:6.3 bash -c '
-            cp -r /src /work && cd /work && rm -rf .build && swift build && swift test'
+            cp -r /src /work && cd /work && rm -rf .build &&
+            swift build -Xswiftc -warnings-as-errors &&
+            swift test --parallel -Xswiftc -warnings-as-errors'
+
+  # Real-provider tests are not in the repo yet. When added, gate them behind
+  # repository secrets in a separate job and never commit keys.
 
   ios:
     name: iOS Simulator

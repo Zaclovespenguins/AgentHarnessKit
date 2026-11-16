@@ -2,9 +2,9 @@
 
 import PackageDescription
 
-// Swift 6 language mode implies complete strict-concurrency checking. PackageDescription
-// has no separate `strictConcurrency` setting at tools version 6.3, and `-strict-concurrency`
-// via unsafeFlags would make the package unusable as a dependency.
+/// Swift 6 language mode implies complete strict-concurrency checking. PackageDescription
+/// has no separate `strictConcurrency` setting at tools version 6.3, and `-strict-concurrency`
+/// via unsafeFlags would make the package unusable as a dependency.
 let swiftSettings: [SwiftSetting] = [
     .swiftLanguageMode(.v6),
 ]
