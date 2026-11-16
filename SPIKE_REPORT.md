@@ -1,7 +1,7 @@
-# AgentSpike Report (partial: macOS + Linux)
+# AgentSpike Report (partial: macOS + Linux + Android emulator)
 
-Status: macOS and Linux (Docker `swift:6.3`, aarch64) are verified against the local mock. Android, iOS and the real-provider runs are **NOT RUN**.
-Android needs downloads (SDK, emulator) that were not approved yet.
+Status: macOS, Linux (Docker `swift:6.3`, aarch64) and Android (local arm64 emulator, API 34) are verified against the local mock. iOS and the real-provider runs are **NOT RUN**.
+Android used Swift **6.4.2** (open-source toolchain + matching Android SDK), not 6.3: the SDK must match the toolchain exactly and Xcode's 6.4.2 toolchain is the local one.
 The iOS build was blocked by a permission denial (see Blockers).
 
 Versions: AnyLanguageModel **1.3.0** (`.upToNextMinor(from: "1.3.0")`, latest tag), Swift 6.4.2 (Xcode 27.2), macOS 27.3 arm64.
@@ -11,13 +11,15 @@ Traits: all off (default).
 
 | | macOS | iOS | Linux | Android |
 |---|---|---|---|---|
-| S1 stream (mock) | PASS | NOT RUN | PASS | NOT RUN |
-| S2 tool round trip (mock) | PASS | NOT RUN | PASS | NOT RUN |
-| S3 loop control (mock) | PASS | NOT RUN | PASS | NOT RUN |
-| S3 cross-process resume (mock) | PASS | NOT RUN | PASS | NOT RUN |
-| S4 approval/denial (mock) | PASS | NOT RUN | PASS | NOT RUN |
-| S5 cancel (mock) | PASS | NOT RUN | PASS | NOT RUN |
+| S1 stream (mock) | PASS | NOT RUN | PASS | PASS |
+| S2 tool round trip (mock) | PASS | NOT RUN | PASS | PASS |
+| S3 loop control (mock) | PASS | NOT RUN | PASS | PASS |
+| S3 cross-process resume (mock) | PASS | NOT RUN | PASS | PASS |
+| S4 approval/denial (mock) | PASS | NOT RUN | PASS | PASS |
+| S5 cancel (mock) | PASS | NOT RUN | PASS | PASS |
 | Any scenario, real provider | NOT RUN (no API key in env; only `ANTHROPIC_BASE_URL` is set) | NOT RUN | NOT RUN | NOT RUN |
+
+Android: arm64 emulator (Android 14, API 34), binary built with `--swift-sdk aarch64-unknown-linux-android28`, run with `adb shell`. All scenarios passed with the in-process mock; S1, S2, S4, S5 also passed against a host mock via `10.0.2.2`. The GitHub Actions Android job built the package but its emulator never booted (run cancelled), so CI is not a result.
 
 Linux: Swift 6.3.3 in `swift:6.3`, traits off. Build took 68s. Output matched macOS (S1 ttft=58ms of 612ms, 12 snapshots; S5 server saw the abort; cross-process resume in a second process passed). Same mock caveat applies.
 
@@ -38,7 +40,7 @@ Caveat: the mock server is mine, so these results prove the client path, not rea
 2. **HTTP transport.**
    - macOS: S1 shows incremental streaming (first snapshot at 64ms, 12 snapshots, 657ms total).
    - Linux: S1 streamed incrementally (ttft 58ms of 612ms, 12 snapshots) with the default transport (URLSession via FoundationNetworking). The `AsyncHTTPClient` trait was not tried.
-   - Android: not run. Source read only (unverified at runtime):
+   - Android (emulator): in-process mock S1 streamed incrementally (ttft 64ms of 632ms, 12 snapshots). Via the host mock over `10.0.2.2`, S1 showed ttft 508ms of 643ms, and S2/S4 took 1.0s/2.0s versus 0.17s/0.02s in-process. So responses look batched on that path. I did not find the cause (emulator NAT or Android Foundation); S1 only passed marginally. Needs a follow-up with a real streaming endpoint. Source read (default transport is URLSession; no `#if os(Android)` branches):
      - Default transport is `URLSession` everywhere, via `makeDefaultTransport()` (`Shared/Transport.swift:140-195`). SSE is read through a delegate-based `ResponseChunks`, not `URLSession.bytes` (`Extensions/URLSession+Extensions.swift`).
      - On Linux and Android (`canImport(FoundationNetworking)`) it creates a new URLSession per request and serializes request starts with a gate, working around swift-corelibs-foundation#4791. Timeouts round up to whole seconds.
      - The `AsyncHTTPClient` trait only swaps the default transport to `HTTPClient.shared`.
@@ -56,8 +58,13 @@ Caveat: the mock server is mine, so these results prove the client path, not rea
    - Usage: `session.usage` is cumulative, `Response.usage` is the last request, and `Snapshot.usage` is available while streaming. It has input, cached and reasoning counts plus a metadata dictionary. `session.usage` returned 63 tokens in S2 on the mock. One catch: OpenAI streaming sends `include_usage` only for the official endpoint, so a custom `baseURL` gets none unless you set it through `extraBody`.
    - Passthrough: `extraBody: [String: JSONValue]` exists on both the Anthropic and OpenAI custom options and is merged last.
    - Vertex: no support. Auth headers and the `v1/messages` path are hard-coded. Workaround: a custom `HTTPTransport` that rewrites the URL, headers and body. For OpenAI-compatible Vertex endpoints, a custom `baseURL` with a token-provider closure should work.
-5. **Cancellation.** macOS and Linux: cancelling the task stopped it in 0ms and `isResponding` went false. The mock saw the socket drop within 500ms (`serverSawAbort=true`). Android is not run.
-6. **Android.** Not run. Needs the Swift SDK for Android, an emulator, and `adb`, none of which are installed (`adb` is not found). Waiting for OK.
+5. **Cancellation.** macOS and Linux: cancelling the task stopped it in 0ms and `isResponding` went false. The mock saw the socket drop within 500ms (`serverSawAbort=true`). Android: also passes, but see Blockers for a SIGPIPE issue in my mock.
+6. **Android specifics.**
+   - Needed: open-source Swift 6.4.2 toolchain (Xcode's will not do), the matching Swift SDK for Android (`swift sdk install ...swift-6.4.2-RELEASE_android.artifactbundle.tar.gz --checksum ...`), NDK r30 (only for `libc++_shared.so`), JDK + Android cmdline-tools, `platform-tools`, `emulator`, system image `android-34;google_apis;arm64-v8a`. About 5 GB. `scripts/android-setup-1.sh` does the Swift/NDK/JDK part, all inside `.android-env/`.
+   - Launch: `adb push` the `spike` binary, the Swift runtime `.so` files from the SDK (`swift-resources/usr/lib/swift-aarch64/android`) and `libc++_shared.so` to `/data/local/tmp/spike`, then `LD_LIBRARY_PATH=. ./spike`. Env vars are passed on the `adb shell` command line.
+   - `--static-swift-stdlib` fails to link: undefined OpenSSL symbols (`SSL_get_peer_cert_chain`, `BIO_new`, ...). Use dynamic linking.
+   - DNS and TLS work: `SPIKE_PROVIDER=openai OPENAI_API_KEY=<fake> ./spike --only S2` got `HTTP error (Status 401)` from api.openai.com in 851ms.
+   - Emulator reaches the host mock at `10.0.2.2` (host mock must be running; bound to 127.0.0.1 works).
 7. **Traits.** macOS and Linux build and run with traits off as a consuming package (this spike). The documented SwiftPM trait bug did not appear (I did not enable traits). Android and iOS are not run.
 8. **Toolchain floor.** Confirmed in `swift:6.2` (6.2.4): `swift build` fails immediately with `package 'work' is using Swift tools version 6.3.0 but the installed version is 6.2.4`. That is my manifest; AnyLanguageModel's own manifest is also 6.3, so 6.2 can't resolve the dependency either. It did not get as far as compiling AnyLanguageModel, so compile-level failures on 6.2 (as SPI shows) are not independently reproduced.
 
@@ -66,18 +73,22 @@ We can build checkpoint/resume, approvals and sub-agents on the session API, wit
 Two points are unverified: whether these delegate hooks and the empty-response quirk behave the same with real providers, and how parallel tool calls behave.
 
 ## 4. Blockers and workarounds
-1. Android and iOS are unverified. That is the main open risk; Android needs approval for downloads.
+1. iOS is unverified.
 2. **iOS build blocked.** `xcodebuild -scheme AgentSpike -destination 'generic/platform=iOS Simulator' build` fails with "Macro AnyLanguageModelMacros must be enabled". Passing `-skipMacroValidation` was denied by the permission classifier, and I did not work around it. Options: you run it yourself, you approve that flag, or you enable the macro in Xcode.
+2. **Possible buffering over the emulator network** (see answer 2): unattributed, needs a real streaming endpoint.
+3. `signal(SIGPIPE, SIG_IGN)` did not protect my mock on Android: cancelling a stream killed the process (exit 141) until I used `send(..., MSG_NOSIGNAL)`. This is my mock's bug, but a client doing the same on Android should expect it.
 3. Empty trailing `.response` after `.stop` (workaround above).
 4. Continuation needs an extra user prompt (workaround above).
 5. No Vertex support (transport shim).
 6. No real-provider run, because no API key is set in the environment.
 
 ## 5. Recommendation
-Leaning adopt. Loop control works on macOS and Linux with two small workarounds. Decide after the Android run and a real-provider run.
+Leaning adopt. Loop control works on macOS, Linux and an Android emulator with two small workarounds. Decide after a real-provider run (to settle the Android streaming question) and iOS.
 
 ## 6. Reproduce (macOS)
 ```bash
+# Android (after scripts/android-setup-1.sh and the sdkmanager step; see scripts/):
+#   swift build --product spike --swift-sdk aarch64-unknown-linux-android28 --swift-sdks-path $SWIFT_SDKS --scratch-path .android-env/build
 # Linux:
 docker run --rm -v "$PWD":/src:ro swift:6.3 bash -c 'cp -r /src /work && cd /work && rm -rf .build && swift run spike'
 # macOS:

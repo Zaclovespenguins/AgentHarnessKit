@@ -1,3 +1,4 @@
 .build/
 spike-checkpoint.json
 .DS_Store
+.android-env/

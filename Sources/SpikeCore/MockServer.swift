@@ -165,7 +165,12 @@ public final class MockServer: @unchecked Sendable {
     private func put(_ fd: Int32, _ s: String) -> Bool {
         var bytes = Array(s.utf8)[...]
         while !bytes.isEmpty {
+            #if canImport(Darwin)
             let n = bytes.withUnsafeBytes { write(fd, $0.baseAddress, $0.count) }
+#else
+            // MSG_NOSIGNAL: a client that cancelled must not SIGPIPE the whole process.
+            let n = bytes.withUnsafeBytes { send(fd, $0.baseAddress!, $0.count, Int32(MSG_NOSIGNAL)) }
+#endif
             if n <= 0 { return false }
             bytes = bytes.dropFirst(n)
         }
