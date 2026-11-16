@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(Android)
+    import Android
+#endif
 
 // Minimal OpenAI Chat Completions SSE mock on plain BSD sockets (no extra deps, so it runs
 // unchanged on macOS/Linux/Android). Behavior is keyed off markers in the last user message:
@@ -77,8 +80,8 @@ public final class MockServer: @unchecked Sendable {
         }
         lock.withLock { _requests += 1 }
         let json = (try? JSONSerialization.jsonObject(with: body)) as? [String: Any] ?? [:]
-        if json["stream"] as? Bool != true { _ = write(fd, completion(plan(json).steps)); return }
-        guard write(fd, "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nConnection: close\r\n\r\n") else { return }
+        if json["stream"] as? Bool != true { _ = put(fd, completion(plan(json).steps)); return }
+        guard put(fd, "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nConnection: close\r\n\r\n") else { return }
         let ok = stream(plan(json), to: fd)
         if !ok { lock.withLock { _aborted += 1 } }
     }
@@ -139,30 +142,30 @@ public final class MockServer: @unchecked Sendable {
             let d = try! JSONSerialization.data(withJSONObject: o)
             return "data: \(String(decoding: d, as: UTF8.self))\n\n"
         }
-        guard write(fd, chunk(["role": "assistant", "content": ""])) else { return false }
+        guard put(fd, chunk(["role": "assistant", "content": ""])) else { return false }
         var finish = "stop"
         for step in p.steps {
             usleep(p.delayMs * 1000)
             switch step {
-            case .text(let t): guard write(fd, chunk(["content": t])) else { return false }
+            case .text(let t): guard put(fd, chunk(["content": t])) else { return false }
             case .toolCall(let name, let args):
                 finish = "tool_calls"
                 let call: [String: Any] = ["index": 0, "id": "call_mock_1", "type": "function",
                                            "function": ["name": name, "arguments": args]]
-                guard write(fd, chunk(["tool_calls": [call]])) else { return false }
+                guard put(fd, chunk(["tool_calls": [call]])) else { return false }
             case .usage(let i, let o):
-                guard write(fd, chunk([:], finish: finish)),
-                      write(fd, chunk([:], usage: ["prompt_tokens": i, "completion_tokens": o, "total_tokens": i + o]))
+                guard put(fd, chunk([:], finish: finish)),
+                      put(fd, chunk([:], usage: ["prompt_tokens": i, "completion_tokens": o, "total_tokens": i + o]))
                 else { return false }
             }
         }
-        return write(fd, "data: [DONE]\n\n")
+        return put(fd, "data: [DONE]\n\n")
     }
 
-    private func write(_ fd: Int32, _ s: String) -> Bool {
+    private func put(_ fd: Int32, _ s: String) -> Bool {
         var bytes = Array(s.utf8)[...]
         while !bytes.isEmpty {
-            let n = bytes.withUnsafeBytes { Foundation.write(fd, $0.baseAddress, $0.count) }
+            let n = bytes.withUnsafeBytes { write(fd, $0.baseAddress, $0.count) }
             if n <= 0 { return false }
             bytes = bytes.dropFirst(n)
         }
