@@ -15,7 +15,7 @@ jobs:
       - run: swift run spike
   android:
     # Runs the package tests (all scenarios against the in-process mock) on an Android emulator.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: skiptools/swift-android-action@v2
