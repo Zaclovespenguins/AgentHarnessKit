@@ -1,6 +1,6 @@
 # Architecture
 
-Status: decision record for Phase 0. Option A is selected and proven against the mock (section 1); the GRDB gate remains open. Evidence references are to `docs/spike/SPIKE_REPORT.md` and `spike-final:Sources/SpikeCore/Scenarios.swift`.
+Status: decision record for Phase 0. Option A is selected and proven against the mock (section 1); the GRDB gate passed on macOS, Linux and the iOS Simulator (section 4). Evidence references are to `docs/spike/SPIKE_REPORT.md` and `spike-final:Sources/SpikeCore/Scenarios.swift`.
 
 ## 1. Decision: ALM is transport, not the agent loop
 
@@ -73,7 +73,21 @@ Fallback only if a provider turns out to read the `to:` prompt:
 - Cross-process resume requires reopening the same configured database URL. WAL permits concurrent readers but still has one writer; this is preferred here over uncoordinated per-session stores.
 - The checkpoint identifies the expected context state, while the database owns folded text and originals. No folded snapshot is duplicated into checkpoint JSON.
 
-The GRDB gate is **still pending**: dependency resolution alongside ALM, migrations/read-write, `DatabasePool`, FTS5 capabilities/SQLite version, and second-process open must be measured separately on macOS, Linux, and iOS before `AgentHarnessKitContext` is accepted.
+**GRDB gate: PASS** (2026-11-16, GRDB 7.12.0 resolved alongside ALM 1.3.0). macOS (Swift 6.4.2): SQLite 3.54.0, `ENABLE_FTS5`, `THREADSAFE=2`, WAL, second process reads and writes. Linux (`swift:6.3` container): SQLite 3.45.1 from the system `libsqlite3-dev` package, `ENABLE_FTS5`, `THREADSAFE=1`, WAL, second process passes. iOS Simulator (Xcode 27.2, iPhone 17, iOS 27.0, `xcodebuild test -scheme GRDBGate-Package -skipMacroValidation`): pool, migration, FTS5 and WAL pass; the second-process check does not apply on iOS. Linux builds need `libsqlite3-dev` installed.
+
+### 4b. Context design decisions (Phase 4b)
+
+Re-implements billion-context (`acp-kernel`) in Swift. Defaults were checked against `kernel/src/config.ts` on 2026-11-16 and differ from the paper where the kernel changed:
+
+- Recent protected zone: 3 messages (kernel `preserveRecentMessages`, reduced from the paper's 5) **or** 5000 tokens, whichever covers more; nudge floor 0.45; nudge growth gate 20000 tokens (`minGrowthFloor`); emergency truncation at 0.95; promotion to old generation after 5 survivals; minimum summary 50 characters. All live in `ContextConfiguration`.
+- Token estimate: ceil(characters / 4) (`render-refs.ts` default), frozen per message ref.
+- Refs `m00001`, block ids `b0`, tags `<acp tokens="1.2K" type="bash">m00042</acp>` on user and tool messages only (the spec's rule; the kernel tags all roles).
+- Tool names follow the spec: `context_status`, not the kernel's `acp_status`. `compress` takes structured JSON `{"ranges":[{startRef,endRef,topic,summary}]}` rather than the kernel's single free-text string. A range may absorb whole active blocks, producing tier min(3, max+1); it may not split a block or a tool call/result pair.
+- Not ported: the kernel's `ccr-store`, `absorb`, `crush`, `recommend`, old-generation batch merge, and the paper's "prune to budget" (emergency truncation is the budget backstop). Adjacent-range merging exists only as the compressible-range list shown in the nudge and in `context_status`.
+- Nudge and doctrine are rendered, not stored: the doctrine is appended to the system prompt; the nudge is a trailing user message. The nudge uses the rendered token estimate, not the provider's last input count (which lags one request and would re-nudge right after a fold); `lastInputTokens` is stored for status.
+- The checkpoint's block-state version changes only on a successful `compress` or `decompress`, so appending messages never invalidates a checkpoint. Resume with a different version, or without the store, fails with `AgentCheckpointError.contextStateMismatch`.
+- Search covers all messages (folded originals included) and active block summaries, whole-word, all terms required.
+- `decompress` with `toFile` writes only plain file names inside a caller-configured `exportDirectory`; it is off by default.
 
 ## 5. Session identity, loop, checkpoints, and sub-agents
 
@@ -110,7 +124,7 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | AgentHarnessKit core tests + Phase 2 adapter mock tests | PASS | NOT RUN | NOT RUN (Phase 2) |
 | Phase 2 live tool loop, generate + stream, local OpenAI-compatible endpoint (`AHK_LIVE_BASE_URL`) | PASS | NOT RUN | NOT RUN |
 | Phase 2 live Anthropic signed-thinking replay through the adapter | NOT RUN | NOT RUN | NOT RUN |
-| GRDB pool, migration, FTS5, second process | NOT RUN | NOT RUN | NOT RUN |
+| GRDB pool, migration, FTS5, second process (`Gates/GRDBGate`, GRDB 7.12.0) | PASS, SQLite 3.54.0 | PASS, second process N/A on iOS | PASS, SQLite 3.45.1, needs `libsqlite3-dev` |
 | OpenAI proper and Responses opaque replay | NOT RUN | NOT RUN | NOT RUN |
 | Apple Foundation Models / MLX adapters | NOT RUN | NOT RUN | N/A |
 | App sandbox and ATS | N/A | NOT RUN | N/A |
