@@ -119,6 +119,8 @@ Starts after P3 and the GRDB gate. Needs P4 only for the checkpoint integration 
 
 **Exit:** both build under their guards; smoke test per adapter on a real device/simulator, recorded honestly.
 
+Status: in progress; results in docs/ARCHITECTURE.md section 7.
+
 ## Phase 8: CI and release
 
 Skeleton starts in P0; this phase completes it.

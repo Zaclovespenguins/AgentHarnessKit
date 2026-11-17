@@ -106,9 +106,14 @@ Re-implements billion-context (`acp-kernel`) in Swift. Defaults were checked aga
 | `AgentHarnessKitContext` | GRDB context implementation and migrations | Core + GRDB |
 | `AgentHarnessKitMCP` | MCP protocol, HTTP everywhere, stdio on macOS/Linux | Core + platform networking/process facilities |
 | `AgentHarnessKitTesting` | Scripted `TestLLMClient` and test support | Core |
-| `AgentHarnessKitFoundationModels` / MLX targets | Future opt-in Apple adapters | Core and only their guarded provider dependencies |
+| `AgentHarnessKitFoundationModels` | Apple Foundation Models adapter (`FoundationModelsClient`), guarded by `#if canImport(FoundationModels)` | Core, ALM, AnyLanguageModel |
+| `AgentHarnessKitMLX` | MLX adapter (`MLXClient`), guarded by `#if MLX`; Apple Silicon only | Core, ALM, AnyLanguageModel |
 
 Agent code depends on protocols, never concrete adapters. Context, ALM, and MCP do not depend on one another. Core declares context events and storage contracts without database types. Apple-only source is isolated or guarded; Observation is verified or gated. Swift 6.3+ strict concurrency remains enabled. ALM is pinned `.upToNextMinor(from: "1.3.0")`; CoreML, MLX, Llama, and AsyncHTTPClient traits are off by default and selected only by opt-in products/targets.
+
+- The package trait `MLX` (default off) enables ALM's `MLX` trait and `AgentHarnessKitMLX`. Enable with `swift build --traits MLX`, or `.package(url: ..., traits: ["MLX"])` from a dependent package.
+- Core and Linux default builds never pull FoundationModels or MLX.
+- Both adapters reuse `HarnessModelClient`, so tool calls return unexecuted and streaming matches other providers. No new mapping code.
 
 ## 7. Platform status
 
@@ -131,5 +136,17 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | `xcodebuild` package build | N/A | PASS (skeleton, no `-skipMacroValidation`) | N/A |
 
 The iOS simulator pass used `simctl spawn`, not a host app. Android spike evidence is intentionally deferred with Android.
+
+### Phase 7: Apple Foundation Models and MLX
+
+| Check | Platform | Result |
+| --- | --- | --- |
+| Foundation Models build | macOS | PENDING |
+| Foundation Models build | iOS Simulator | PENDING |
+| Foundation Models build (empty target) | Linux | PENDING |
+| Foundation Models on-device smoke test (generate, stream, tool call) | Apple device or simulator | PENDING |
+| MLX build, trait off | macOS (Apple Silicon) | PENDING |
+| MLX build, trait on (`--traits MLX`) | macOS (Apple Silicon) | PENDING |
+| MLX smoke test (generate, stream, tool call) | macOS (Apple Silicon) | PENDING |
 
 **Macro trust:** the maintainer enabled `AnyLanguageModelMacros` in Xcode locally. CI runners cannot click the trust prompt, and the iOS CI build failed with "Macro AnyLanguageModelMacros must be enabled". Decision (2026-11-17, maintainer): the iOS CI job passes `-skipMacroValidation`.
