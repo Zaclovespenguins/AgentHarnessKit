@@ -37,7 +37,7 @@ public final class ToolApprovalQueue: Sendable {
 
     /// Resolves the parked request with `toolCallId == id`. Returns `false` if no request has that id.
     ///
-    /// `.approveAlways` also approves every other parked request for the same tool name with `.approve`.
+    /// `.approveAlways` resolves only this request. Other parked requests for the same tool stay parked.
     public func resolve(id: String, decision: ToolApprovalDecision) async -> Bool {
         await store.resolve(id: id, decision: decision)
     }
@@ -101,17 +101,8 @@ private actor ToolApprovalQueueStore {
     func resolve(id: String, decision: ToolApprovalDecision) -> Bool {
         guard let index = entries.firstIndex(where: { $0.request.toolCallId == id }) else { return false }
         let entry = entries.remove(at: index)
-        var others: [Entry] = []
-        if decision == .approveAlways {
-            let toolName = entry.request.toolName
-            others = entries.filter { $0.request.toolName == toolName }
-            entries.removeAll { $0.request.toolName == toolName }
-        }
         publish()
         entry.continuation.resume(returning: decision)
-        for other in others {
-            other.continuation.resume(returning: .approve)
-        }
         return true
     }
 
