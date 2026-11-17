@@ -126,7 +126,8 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | Real Anthropic S1–S6 | PASS | NOT RUN | NOT RUN |
 | Option A one-request adapter proof (mock) | PASS | NOT RUN | PASS |
 | Package skeleton `swift build` + `swift test` | PASS | build PASS (SwiftPM `--triple arm64-apple-ios17.0-simulator`) | PASS |
-| AgentHarnessKit core tests + Phase 2 adapter mock tests | PASS | NOT RUN | NOT RUN (Phase 2) |
+| AgentHarnessKit core tests + Phase 2 adapter mock tests | PASS | PASS, `AgentHarnessKitTests` 715 tests in 133 suites, 715 passed, 0 failed, 0 skipped (`xcodebuild test`, iOS Simulator iPhone 17 Pro, iOS 27.0) | NOT RUN (Phase 2) |
+| `AgentHarnessKitALMTests` mock-server tests (Phase 8 DoD) | PASS, 45 tests in 10 suites (`swift test`, 2 env-gated skips) | PASS, `AgentHarnessKitALMTests` 45 tests in 10 suites, 43 passed, 0 failed, 2 skipped (`LiveEndpointTests`, skipped when `AHK_LIVE_BASE_URL` is unset, not an iOS-specific gate), `xcodebuild test` on iOS Simulator (iPhone 17 Pro, `-skipMacroValidation`) | NOT RUN |
 | Phase 2 live tool loop, generate + stream, local OpenAI-compatible endpoint (`AHK_LIVE_BASE_URL`) | PASS | NOT RUN | NOT RUN |
 | Phase 2 live Anthropic signed-thinking replay through the adapter | NOT RUN | NOT RUN | NOT RUN |
 | GRDB pool, migration, FTS5, second process (`Gates/GRDBGate`, GRDB 7.12.0) | PASS, SQLite 3.54.0 | PASS, second process N/A on iOS | PASS, SQLite 3.45.1, needs `libsqlite3-dev` |

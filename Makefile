@@ -1,4 +1,4 @@
-.PHONY: build test test-ci lint format format-check check dev-check clean bootstrap
+.PHONY: acceptance build test test-ci lint format format-check check dev-check clean bootstrap
 
 bootstrap:
 	brew install mint
@@ -28,3 +28,6 @@ check: format-check lint test-ci
 
 clean:
 	swift package clean
+
+acceptance:
+	python3 scripts/phase8_acceptance.py

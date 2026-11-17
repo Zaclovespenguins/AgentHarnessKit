@@ -29,6 +29,8 @@ jobs:
       - name: SwiftLint
         run: |
           docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/realm/swiftlint:0.63.0 lint --strict
+      - name: Release acceptance checks
+        run: python3 scripts/phase8_acceptance.py
 
   macos:
     name: macOS
@@ -63,8 +65,56 @@ jobs:
             swift build -Xswiftc -warnings-as-errors &&
             swift test --parallel -Xswiftc -warnings-as-errors'
 
-  # Real-provider tests are not in the repo yet. When added, gate them behind
-  # repository secrets in a separate job and never commit keys.
+  # Live provider tests (LiveEndpointTests) run only when the repository secrets
+  # are set. Without AHK_LIVE_BASE_URL every live step is skipped, so forks and
+  # PRs without secrets stay green. Secrets are mapped into env here and never
+  # interpolated into run scripts; do not echo them.
+  live:
+    name: Live provider (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos
+            runner: macos-26
+          - platform: linux
+            runner: ubuntu-latest
+          - platform: ios
+            runner: macos-26
+    env:
+      AHK_LIVE_BASE_URL: ${{ secrets.AHK_LIVE_BASE_URL }}
+      AHK_LIVE_API_KEY: ${{ secrets.AHK_LIVE_API_KEY }}
+      AHK_LIVE_MODEL: ${{ secrets.AHK_LIVE_MODEL }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Live tests (macOS)
+        if: env.AHK_LIVE_BASE_URL != '' && matrix.platform == 'macos'
+        run: swift test --filter LiveEndpointTests -Xswiftc -warnings-as-errors
+      # Same docker pattern as the linux job. -e with a bare name forwards the
+      # value from the step environment, so no secret text appears in the script.
+      - name: Live tests (Linux, Swift 6.3)
+        if: env.AHK_LIVE_BASE_URL != '' && matrix.platform == 'linux'
+        run: |
+          docker run --rm -e AHK_LIVE_BASE_URL -e AHK_LIVE_API_KEY -e AHK_LIVE_MODEL -v "$PWD":/src:ro swift:6.3 bash -c '
+            cp -r /src /work && cd /work && rm -rf .build &&
+            apt-get update -qq && apt-get install -y -qq libsqlite3-dev &&
+            swift test --filter LiveEndpointTests -Xswiftc -warnings-as-errors'
+      # xcodebuild forwards TEST_RUNNER_-prefixed variables to the test process
+      # with the prefix removed.
+      - name: Live tests (iOS Simulator)
+        if: env.AHK_LIVE_BASE_URL != '' && matrix.platform == 'ios'
+        env:
+          TEST_RUNNER_AHK_LIVE_BASE_URL: ${{ env.AHK_LIVE_BASE_URL }}
+          TEST_RUNNER_AHK_LIVE_API_KEY: ${{ env.AHK_LIVE_API_KEY }}
+          TEST_RUNNER_AHK_LIVE_MODEL: ${{ env.AHK_LIVE_MODEL }}
+        run: >-
+          xcodebuild test -scheme AgentHarnessKit-Package
+          -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+          -skipMacroValidation -only-testing:AgentHarnessKitALMTests/LiveEndpointTests
 
   ios:
     name: iOS Simulator
@@ -81,3 +131,9 @@ jobs:
         run: >-
           xcodebuild -scheme AgentHarnessKit-Package -destination 'generic/platform=iOS Simulator'
           -skipMacroValidation build
+      # Core and ALM mock-server tests must pass on a concrete simulator
+      # (ROADMAP Phase 8 definition of done). Live tests are skipped here.
+      - name: Test on iOS Simulator
+        run: >-
+          xcodebuild test -scheme AgentHarnessKit-Package -destination 'platform=iOS Simulator,name=iPhone 17 Pro'
+          -skipMacroValidation -only-testing:AgentHarnessKitTests -only-testing:AgentHarnessKitALMTests
