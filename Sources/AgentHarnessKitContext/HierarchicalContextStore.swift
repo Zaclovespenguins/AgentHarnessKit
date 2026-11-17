@@ -13,8 +13,8 @@ public enum ContextStoreError: Error, Equatable {
 ///
 /// Message alignment (render and record): the loop's messages are append-only. `render` receives the full
 /// history: message `i` (0-based) is `MessageRef(i + 1)`; every stored message must equal the loop message at
-/// the same position, else `ContextStoreError.historyDiverged(at:)` (also when more messages are stored than
-/// passed). Messages beyond the stored count are appended with `ContextPipeline.assignRefs`. `record` receives
+/// the same position, else `ContextStoreError.historyDiverged(at:)` naming the first mismatching ref (when more
+/// messages are stored than passed, the first stored ref with no loop message: `MessageRef(messages.count + 1)`). Messages beyond the stored count are appended with `ContextPipeline.assignRefs`. `record` receives
 /// only the newest messages: find the largest `k` such that the last `k` stored messages equal the first `k`
 /// given, append the rest, and store `usage?.input` as `lastInputTokens` when usage is non-nil.
 ///
