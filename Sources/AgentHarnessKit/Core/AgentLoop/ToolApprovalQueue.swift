@@ -37,6 +37,7 @@ import Foundation
 public final class ToolApprovalQueue: Sendable {
     private let store = ToolApprovalQueueStore()
 
+    /// Creates an empty queue with no parked requests.
     public init() {}
 
     /// A handler that parks each request in this queue until it is resolved, denied or cancelled.
