@@ -498,4 +498,44 @@ struct CustomCompletionExclusivityTests {
         #expect(await lookupInvocations.value == 0)
         #expect(await completionInvocations.value == 0)
     }
+
+    @Test
+    func aSubAgentCompletionToolCommitsItsChildResultVerbatim() async throws {
+        let childAgent = Agent<SubAgentContext<EmptyContext>>(
+            client: MockLLMClient(responses: [
+                AssistantMessage(content: "", toolCalls: [
+                    ToolCall(id: "child_finish", name: "finish", arguments: #"{"content":"child result"}"#)
+                ])
+            ]),
+            tools: []
+        )
+        let delegate = try SubAgentTool<LookupParams, EmptyContext>(
+            name: "delegate",
+            description: "Delegates the final answer. Call it alone.",
+            agent: childAgent,
+            messageBuilder: { $0.query }
+        )
+        let agent = Agent<SubAgentContext<EmptyContext>>(
+            client: MockLLMClient(responses: [
+                AssistantMessage(content: "", toolCalls: [
+                    ToolCall(id: "delegate_call", name: "delegate", arguments: #"{"query": "wrap up"}"#)
+                ])
+            ]),
+            tools: [], completionTool: delegate
+        )
+
+        let result = try await agent.run(
+            userMessage: "Go", context: SubAgentContext(inner: EmptyContext(), maxDepth: 3)
+        )
+
+        #expect(result.finishReason == .completed)
+        #expect(try requireContent(result) == "child result")
+        guard case let .tool(id, name, content) = result.history.last else {
+            Issue.record("Expected the delegated result as the final history entry")
+            return
+        }
+        #expect(id == "delegate_call")
+        #expect(name == "delegate")
+        #expect(content == "child result")
+    }
 }

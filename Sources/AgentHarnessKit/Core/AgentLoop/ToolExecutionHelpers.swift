@@ -62,20 +62,73 @@ func withToolTimeout<T: Sendable>(
     }
 }
 
+struct SubAgentStreamWiring {
+    let emit: StreamEmitter
+    let parentDepth: Int
+    let historyEmissionDepthLimit: Int?
+
+    func childEventHandler(toolCallId: String, toolName: String) -> @Sendable (StreamEvent) -> Void {
+        { event in
+            emit.yield(.subAgentEvent(
+                toolCallId: toolCallId,
+                toolName: toolName,
+                event: applyHistoryEmissionLimitToSubAgentEvent(
+                    event, parentDepth: parentDepth, limit: historyEmissionDepthLimit
+                )
+            ))
+        }
+    }
+}
+
+enum SubAgentDispatch {
+    case blocking
+    case streaming(SubAgentStreamWiring)
+}
+
 struct ToolCallRunner<C: ToolContext> {
     let context: C
     let defaultTimeout: Duration
     let approvalHandler: ToolApprovalHandler?
+    let subAgentDispatch: SubAgentDispatch
 
     func run(_ call: ToolCall, tool: (any AnyTool<C>)?) async throws -> ToolResult {
         guard let tool else {
             return .error(AgentError.toolNotFound(name: call.name).feedbackMessage)
         }
         let timeout = tool.toolTimeout ?? defaultTimeout
-        return try await convertingToolErrors {
-            try await withToolTimeout(timeout, toolName: call.name) {
-                try await tool.execute(arguments: call.argumentsData, context: context)
+        guard let subAgentTool = tool as? any SubAgentExecutableTool<C> else {
+            return try await convertingToolErrors {
+                try await withToolTimeout(timeout, toolName: call.name) {
+                    try await tool.execute(arguments: call.argumentsData, context: context)
+                }
             }
+        }
+        switch subAgentDispatch {
+        case .blocking:
+            return try await convertingToolErrors {
+                try await withToolTimeout(timeout, toolName: call.name) {
+                    try await subAgentTool.executeSubAgent(
+                        arguments: call.argumentsData,
+                        context: context,
+                        approvalHandler: approvalHandler
+                    )
+                }
+            }
+        case let .streaming(wiring):
+            wiring.emit.yield(.subAgentStarted(toolCallId: call.id, toolName: call.name))
+            let eventHandler = wiring.childEventHandler(toolCallId: call.id, toolName: call.name)
+            let result = try await convertingToolErrors {
+                try await withToolTimeout(timeout, toolName: call.name) {
+                    try await subAgentTool.executeSubAgentStreaming(
+                        arguments: call.argumentsData,
+                        context: context,
+                        eventHandler: eventHandler,
+                        approvalHandler: approvalHandler
+                    )
+                }
+            }
+            wiring.emit.yield(.subAgentCompleted(toolCallId: call.id, toolName: call.name, result: result))
+            return result
         }
     }
 }
