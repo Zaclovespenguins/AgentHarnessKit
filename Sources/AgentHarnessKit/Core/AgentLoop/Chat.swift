@@ -220,7 +220,13 @@ private extension Chat {
                 return
             }
 
-            let runner = makeToolRunner(context: context, approvalHandler: approvalHandler)
+            let runner = try makeToolRunner(
+                for: iteration.toolCalls,
+                messages: messages,
+                context: context,
+                approvalHandler: approvalHandler,
+                emit: emit
+            )
 
             for call in iteration.toolCalls {
                 let result = try await resolveAndExecuteTool(
@@ -247,13 +253,27 @@ private extension Chat {
     }
 
     func makeToolRunner(
+        for toolCalls: [ToolCall],
+        messages: [ChatMessage],
         context: C,
-        approvalHandler: ToolApprovalHandler?
-    ) -> ToolCallRunner<C> {
-        ToolCallRunner(
-            context: context,
+        approvalHandler: ToolApprovalHandler?,
+        emit: StreamEmitter
+    ) throws -> ToolCallRunner<C> {
+        let hasSubAgentCalls = toolCalls.contains {
+            firstTool(named: $0.name, in: tools) is any SubAgentExecutableTool<C>
+        }
+        let executionContext = hasSubAgentCalls
+            ? try context.withParentHistory(messages.resolvedPrefixForInheritance())
+            : context
+        return ToolCallRunner(
+            context: executionContext,
             defaultTimeout: toolTimeout,
-            approvalHandler: approvalHandler
+            approvalHandler: approvalHandler,
+            subAgentDispatch: .streaming(SubAgentStreamWiring(
+                emit: emit,
+                parentDepth: currentDepth(of: context),
+                historyEmissionDepthLimit: nil
+            ))
         )
     }
 

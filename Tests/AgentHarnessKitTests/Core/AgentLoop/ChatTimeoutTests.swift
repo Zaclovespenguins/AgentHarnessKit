@@ -96,4 +96,64 @@ struct ChatTimeoutTests {
         }
         #expect(toolCompletedEvent != nil)
     }
+
+    @Test
+    func chatHonorsSubAgentToolTimeoutOverride() async throws {
+        let delayTool = try Tool<NoopParams, NoopOutput, SubAgentContext<EmptyContext>>(
+            name: "delay",
+            description: "Delays",
+            executor: { _, _ in
+                try await Task.sleep(for: .seconds(10))
+                return NoopOutput()
+            }
+        )
+        let childDeltas1: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "c0", name: "delay", kind: .function),
+            .toolCallDelta(index: 0, arguments: "{}"),
+            .finished(usage: nil),
+        ]
+        let childDeltas2: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "c1", name: "finish", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"content": "child done"}"#),
+            .finished(usage: nil),
+        ]
+        let childClient = StreamingMockLLMClient(streamSequences: [childDeltas1, childDeltas2])
+        let childAgent = Agent<SubAgentContext<EmptyContext>>(client: childClient, tools: [delayTool])
+
+        let slowSub = try SubAgentTool<EchoParams, EmptyContext>(
+            name: "slow_sub",
+            description: "Slow sub-agent",
+            agent: childAgent,
+            toolTimeout: .milliseconds(50),
+            messageBuilder: { $0.message }
+        )
+
+        let firstStreamDeltas: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "sub_call", name: "slow_sub", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"message":"hi"}"#),
+            .finished(usage: nil),
+        ]
+        let secondStreamDeltas: [StreamDelta] = [
+            .content("recovered"),
+            .finished(usage: nil),
+        ]
+        let client = StreamingMockLLMClient(streamSequences: [firstStreamDeltas, secondStreamDeltas])
+        let chat = Chat<SubAgentContext<EmptyContext>>(
+            client: client, tools: [slowSub], toolTimeout: .seconds(30)
+        )
+
+        var events: [StreamEvent] = []
+        let ctx = SubAgentContext(inner: EmptyContext(), maxDepth: 3)
+        for try await event in chat.stream("Go", context: ctx) {
+            events.append(event)
+        }
+
+        let timedOut = events.contains { event in
+            if case let .toolCallCompleted(_, name, result) = event.kind {
+                return name == "slow_sub" && result.isError && result.content.contains("timed out")
+            }
+            return false
+        }
+        #expect(timedOut)
+    }
 }

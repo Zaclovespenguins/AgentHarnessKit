@@ -460,3 +460,33 @@ private func parseContentDisposition(_ value: String) -> [String: String] {
 
     return params
 }
+
+struct BlockingSubAgentTool: AnyTool, SubAgentExecutableTool {
+    typealias Context = SubAgentContext<EmptyContext>
+
+    let name = "blocking"
+    let description = "Blocks until cancelled"
+    let parametersSchema: JSONSchema = .object(properties: ["query": .string()], required: ["query"])
+
+    func execute(arguments _: Data, context _: Context) async throws -> ToolResult {
+        throw AgentError.toolExecutionFailed(tool: name, message: "ordinary execute path used")
+    }
+
+    func executeSubAgent(
+        arguments _: Data,
+        context _: Context,
+        approvalHandler _: ToolApprovalHandler?
+    ) async throws -> ToolResult {
+        throw AgentError.toolExecutionFailed(tool: name, message: "non-streaming sub-agent path used")
+    }
+
+    func executeSubAgentStreaming(
+        arguments _: Data,
+        context _: Context,
+        eventHandler _: @Sendable (StreamEvent) -> Void,
+        approvalHandler _: ToolApprovalHandler?
+    ) async throws -> ToolResult {
+        try await Task.sleep(for: .seconds(60))
+        return .error("streaming path completed without cancellation")
+    }
+}

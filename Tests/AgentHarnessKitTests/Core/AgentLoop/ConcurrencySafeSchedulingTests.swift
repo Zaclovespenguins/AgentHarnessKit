@@ -444,6 +444,136 @@ private struct NoopParams: Codable, SchemaProviding {
     static var jsonSchema: JSONSchema {
         .object(properties: [:], required: [])
     }
+
+    @Test
+    func defaultUnsafeSiblingSubAgentsDoNotOverlap() async throws {
+        let detector = OverlapDetector()
+
+        func makeChild(name: String) throws -> Agent<SubAgentContext<EmptyContext>> {
+            let sleepTool = try Tool<NoopParams, NoopOutput, SubAgentContext<EmptyContext>>(
+                name: "work",
+                description: "Does work",
+                executor: { _, _ in
+                    await detector.enter(name)
+                    try? await Task.sleep(for: .milliseconds(50))
+                    await detector.exit(name)
+                    return NoopOutput()
+                }
+            )
+            let workDeltas: [StreamDelta] = [
+                .toolCallStart(index: 0, id: "\(name)_w", name: "work", kind: .function),
+                .toolCallDelta(index: 0, arguments: "{}"),
+                .finished(usage: nil),
+            ]
+            let finishDeltas: [StreamDelta] = [
+                .toolCallStart(index: 0, id: "\(name)_f", name: "finish", kind: .function),
+                .toolCallDelta(index: 0, arguments: #"{"content":"\#(name) done"}"#),
+                .finished(usage: nil),
+            ]
+            return Agent<SubAgentContext<EmptyContext>>(
+                client: StreamingMockLLMClient(streamSequences: [workDeltas, finishDeltas]),
+                tools: [sleepTool]
+            )
+        }
+
+        let tool1 = try SubAgentTool<QueryParams, EmptyContext>(
+            name: "sub1", description: "Sub 1",
+            agent: makeChild(name: "sub1"),
+            messageBuilder: { $0.query }
+        )
+        let tool2 = try SubAgentTool<QueryParams, EmptyContext>(
+            name: "sub2", description: "Sub 2",
+            agent: makeChild(name: "sub2"),
+            messageBuilder: { $0.query }
+        )
+
+        let parentDeltas1: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "cs1", name: "sub1", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"query":"q1"}"#),
+            .toolCallStart(index: 1, id: "cs2", name: "sub2", kind: .function),
+            .toolCallDelta(index: 1, arguments: #"{"query":"q2"}"#),
+            .finished(usage: nil),
+        ]
+        let parentDeltas2: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "pf", name: "finish", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"content":"parent done"}"#),
+            .finished(usage: nil),
+        ]
+        let parentClient = StreamingMockLLMClient(streamSequences: [parentDeltas1, parentDeltas2])
+        let parentAgent = Agent<SubAgentContext<EmptyContext>>(client: parentClient, tools: [tool1, tool2])
+
+        let ctx = SubAgentContext(inner: EmptyContext(), maxDepth: 3)
+        for try await _ in parentAgent.stream(userMessage: "Go", context: ctx) {}
+
+        let overlaps = await detector.overlapPairs
+        #expect(overlaps.isEmpty)
+    }
+
+    @Test
+    func explicitSafeSiblingSubAgentsCanOverlap() async throws {
+        let detector = OverlapDetector()
+
+        func makeChild(name: String) throws -> Agent<SubAgentContext<EmptyContext>> {
+            let sleepTool = try Tool<NoopParams, NoopOutput, SubAgentContext<EmptyContext>>(
+                name: "work",
+                description: "Does work",
+                executor: { _, _ in
+                    await detector.enter(name)
+                    try? await Task.sleep(for: .milliseconds(100))
+                    await detector.exit(name)
+                    return NoopOutput()
+                }
+            )
+            let workDeltas: [StreamDelta] = [
+                .toolCallStart(index: 0, id: "\(name)_w", name: "work", kind: .function),
+                .toolCallDelta(index: 0, arguments: "{}"),
+                .finished(usage: nil),
+            ]
+            let finishDeltas: [StreamDelta] = [
+                .toolCallStart(index: 0, id: "\(name)_f", name: "finish", kind: .function),
+                .toolCallDelta(index: 0, arguments: #"{"content":"\#(name) done"}"#),
+                .finished(usage: nil),
+            ]
+            return Agent<SubAgentContext<EmptyContext>>(
+                client: StreamingMockLLMClient(streamSequences: [workDeltas, finishDeltas]),
+                tools: [sleepTool]
+            )
+        }
+
+        let tool1 = try SubAgentTool<QueryParams, EmptyContext>(
+            name: "sub1", description: "Sub 1",
+            agent: makeChild(name: "sub1"),
+            isConcurrencySafe: true,
+            messageBuilder: { $0.query }
+        )
+        let tool2 = try SubAgentTool<QueryParams, EmptyContext>(
+            name: "sub2", description: "Sub 2",
+            agent: makeChild(name: "sub2"),
+            isConcurrencySafe: true,
+            messageBuilder: { $0.query }
+        )
+
+        let parentDeltas1: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "cs1", name: "sub1", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"query":"q1"}"#),
+            .toolCallStart(index: 1, id: "cs2", name: "sub2", kind: .function),
+            .toolCallDelta(index: 1, arguments: #"{"query":"q2"}"#),
+            .finished(usage: nil),
+        ]
+        let parentDeltas2: [StreamDelta] = [
+            .toolCallStart(index: 0, id: "pf", name: "finish", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"content":"parent done"}"#),
+            .finished(usage: nil),
+        ]
+        let parentClient = StreamingMockLLMClient(streamSequences: [parentDeltas1, parentDeltas2])
+        let parentAgent = Agent<SubAgentContext<EmptyContext>>(client: parentClient, tools: [tool1, tool2])
+
+        let ctx = SubAgentContext(inner: EmptyContext(), maxDepth: 3)
+        for try await _ in parentAgent.stream(userMessage: "Go", context: ctx) {}
+
+        let overlaps = await detector.overlapPairs
+        #expect(overlaps.contains("sub1+sub2"))
+    }
 }
 
 private struct NoopOutput: Codable {}

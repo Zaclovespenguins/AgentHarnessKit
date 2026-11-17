@@ -58,7 +58,8 @@ extension Agent {
             let runner = ToolCallRunner(
                 context: executionContext,
                 defaultTimeout: configuration.toolTimeout,
-                approvalHandler: options.approvalHandler
+                approvalHandler: options.approvalHandler,
+                subAgentDispatch: .blocking
             )
             result = try await runner.run(approvedCall, tool: completionTool)
         }
@@ -87,7 +88,12 @@ extension Agent {
             let runner = ToolCallRunner(
                 context: executionContext,
                 defaultTimeout: configuration.toolTimeout,
-                approvalHandler: options.approvalHandler
+                approvalHandler: options.approvalHandler,
+                subAgentDispatch: .streaming(SubAgentStreamWiring(
+                    emit: emit,
+                    parentDepth: currentDepth(of: context),
+                    historyEmissionDepthLimit: configuration.historyEmissionDepthLimit
+                ))
             )
             result = try await runner.run(approvedCall, tool: completionTool)
         }
@@ -158,7 +164,12 @@ extension Agent {
         let runner = ToolCallRunner(
             context: context,
             defaultTimeout: configuration.toolTimeout,
-            approvalHandler: options.approvalHandler
+            approvalHandler: options.approvalHandler,
+            subAgentDispatch: .streaming(SubAgentStreamWiring(
+                emit: emit,
+                parentDepth: currentDepth(of: context),
+                historyEmissionDepthLimit: configuration.historyEmissionDepthLimit
+            ))
         )
         var allResults: [(call: ToolCall, result: ToolResult)] = []
         for wave in executionWaves(calls) {
@@ -190,7 +201,8 @@ extension Agent {
         let runner = ToolCallRunner(
             context: context,
             defaultTimeout: configuration.toolTimeout,
-            approvalHandler: approvalHandler
+            approvalHandler: approvalHandler,
+            subAgentDispatch: .blocking
         )
         var allResults: [(call: ToolCall, result: ToolResult)] = []
         for wave in executionWaves(calls) {
