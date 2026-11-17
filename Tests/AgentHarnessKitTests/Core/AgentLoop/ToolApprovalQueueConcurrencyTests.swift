@@ -10,7 +10,9 @@ private struct ConcurrentEchoOutput: Codable {
     let echoed: String
 }
 
-private func makeConcurrentEchoTool(name: String) throws -> Tool<ConcurrentEchoParams, ConcurrentEchoOutput, EmptyContext> {
+private func makeConcurrentEchoTool(
+    name: String
+) throws -> Tool<ConcurrentEchoParams, ConcurrentEchoOutput, EmptyContext> {
     try Tool(
         name: name,
         description: "Echoes \(name)",

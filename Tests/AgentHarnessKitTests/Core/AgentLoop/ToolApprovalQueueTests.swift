@@ -17,7 +17,7 @@ private func makeRequest(_ id: String, tool: String = "shell") -> ToolApprovalRe
 
 /// Polls `pending()` until it holds at least `count` requests, so tests do not depend on scheduling.
 private func waitForPending(_ queue: ToolApprovalQueue, count: Int) async -> [ToolApprovalRequest] {
-    for _ in 0..<500 {
+    for _ in 0 ..< 500 {
         let pending = await queue.pending()
         if pending.count >= count { return pending }
         try? await Task.sleep(for: .milliseconds(2))
@@ -27,7 +27,7 @@ private func waitForPending(_ queue: ToolApprovalQueue, count: Int) async -> [To
 
 /// Polls `pending()` until it is empty, bounded to about one second.
 private func waitForEmptyPending(_ queue: ToolApprovalQueue) async -> Bool {
-    for _ in 0..<500 {
+    for _ in 0 ..< 500 {
         if await queue.pending().isEmpty { return true }
         try? await Task.sleep(for: .milliseconds(2))
     }
@@ -43,7 +43,6 @@ private func park(
     return task
 }
 
-@Suite("ToolApprovalQueue")
 struct ToolApprovalQueueTests {
     @Test func parkedRequestsListInCallOrder() async {
         let queue = ToolApprovalQueue()
