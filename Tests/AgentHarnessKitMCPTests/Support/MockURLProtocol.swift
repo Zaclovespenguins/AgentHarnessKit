@@ -5,7 +5,7 @@ import Foundation
 
 /// Serves canned HTTP responses to a `URLSession`. Each test registers a handler under a unique host,
 /// so parallel tests never share state. Use `MockHTTPServer.make()` to get an endpoint and session.
-final class MockURLProtocol: URLProtocol, @unchecked Sendable {
+final class MockURLProtocol: URLProtocol {
     typealias Handler = @Sendable (URLRequest, Data) throws -> (status: Int, headers: [String: String], body: Data)
 
     private static let lock = NSLock()
