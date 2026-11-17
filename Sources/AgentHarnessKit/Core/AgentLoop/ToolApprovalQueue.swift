@@ -2,20 +2,37 @@ import Foundation
 
 /// A FIFO queue of parked tool approval requests, usable as a ``ToolApprovalHandler`` provider.
 ///
-/// Create one queue, pass ``handler`` to `Agent`, `Chat` or `AgentStream`, and resolve parked requests from UI
-/// code. Requests resolve independently and in any order. Cancelling the awaiting task removes the request and
-/// resolves it as `.deny(reason: "Cancelled")`.
+/// Create one queue, pass ``handler`` as the `approvalHandler` of `Agent.stream`, `Chat.stream` or
+/// `AgentStream.send`, and resolve parked requests from UI code. Requests resolve independently and in any order.
+/// Cancelling the awaiting task removes the request and resolves it as `.deny(reason: "Cancelled")`.
+///
+/// Within one run the loop asks for approvals one at a time, so several requests are waiting only when several
+/// runs or sub-agents share a queue. `.approveAlways` resolves only the request it is given; the run's allowlist
+/// then skips later calls to that tool, and other parked requests for that tool stay parked. `denyAll` only
+/// affects requests waiting at the time, so cancel the stream too.
 ///
 /// ```swift
 /// let queue = ToolApprovalQueue()
-/// let stream = agent.stream(userMessage: text, approvalHandler: queue.handler)
+/// let stream = AgentStream(agent: agent)  // agent built with AgentConfiguration(approvalPolicy: .allTools)
+/// stream.send(text, context: context, approvalHandler: queue.handler)
 ///
-/// // Approve from the UI, in any order:
-/// await queue.resolve(id: request.toolCallId, decision: .approve)
+/// // Show parked requests. `updates` emits the FIFO snapshot after every change.
+/// Task {
+///     for await requests in queue.updates {
+///         for request in requests {
+///             print(request.toolName, request.arguments)  // render an Approve/Deny row
+///         }
+///     }
+/// }
 ///
-/// // Stop button: deny everything still parked, then cancel the stream.
-/// await queue.denyAll(reason: nil)
-/// stream.cancel()
+/// // Approve or deny one request, in any order. Returns false for an unknown id.
+/// _ = await queue.resolve(id: request.toolCallId, decision: .approve)
+///
+/// // Stop button (inside a Task, because denyAll is async): deny everything still parked, then cancel.
+/// Task {
+///     await queue.denyAll(reason: nil)
+///     stream.cancel()
+/// }
 /// ```
 public final class ToolApprovalQueue: Sendable {
     private let store = ToolApprovalQueueStore()
