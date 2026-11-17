@@ -21,11 +21,22 @@ let package = Package(
         .library(name: "AgentHarnessKitContext", targets: ["AgentHarnessKitContext"]),
         .library(name: "AgentHarnessKitMCP", targets: ["AgentHarnessKitMCP"]),
         .library(name: "AgentHarnessKitTesting", targets: ["AgentHarnessKitTesting"]),
+        .library(name: "AgentHarnessKitFoundationModels", targets: ["AgentHarnessKitFoundationModels"]),
+        .library(name: "AgentHarnessKitMLX", targets: ["AgentHarnessKitMLX"]),
+    ],
+    traits: [
+        // Opt-in: enables ALM's MLX trait and the AgentHarnessKitMLX adapter (Apple Silicon only).
+        .trait(name: "MLX"),
+        .default(enabledTraits: []),
     ],
     dependencies: [
-        // Provider and transport layer for AgentHarnessKitALM only. ALM's traits (MLX,
-        // CoreML, Llama, AsyncHTTPClient) stay off: we rely on its default (empty) set.
-        .package(url: "https://github.com/huggingface/AnyLanguageModel", .upToNextMinor(from: "1.3.0")),
+        // Provider and transport layer for AgentHarnessKitALM only. ALM's traits stay off except
+        // MLX, which follows our own opt-in MLX trait.
+        .package(
+            url: "https://github.com/huggingface/AnyLanguageModel",
+            .upToNextMinor(from: "1.3.0"),
+            traits: [.trait(name: "MLX", condition: .when(traits: ["MLX"]))]
+        ),
         // AgentHarnessKitContext only. GRDB gate passed on macOS and Linux (docs/ARCHITECTURE.md section 4).
         .package(url: "https://github.com/groue/grdb.swift", .upToNextMajor(from: "7.12.0")),
     ],
@@ -40,6 +51,26 @@ let package = Package(
             name: "AgentHarnessKitALM",
             dependencies: [
                 "AgentHarnessKit",
+                .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // Apple Foundation Models adapter; compiles empty where FoundationModels is unavailable.
+        .target(
+            name: "AgentHarnessKitFoundationModels",
+            dependencies: [
+                "AgentHarnessKit",
+                "AgentHarnessKitALM",
+                .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        // MLX adapter; compiles empty unless the MLX trait is enabled.
+        .target(
+            name: "AgentHarnessKitMLX",
+            dependencies: [
+                "AgentHarnessKit",
+                "AgentHarnessKitALM",
                 .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
             ],
             swiftSettings: swiftSettings
@@ -86,6 +117,24 @@ let package = Package(
             dependencies: [
                 "AgentHarnessKit",
                 "AgentHarnessKitALM",
+                .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "AgentHarnessKitFoundationModelsTests",
+            dependencies: [
+                "AgentHarnessKit",
+                "AgentHarnessKitFoundationModels",
+                .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
+            ],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "AgentHarnessKitMLXTests",
+            dependencies: [
+                "AgentHarnessKit",
+                "AgentHarnessKitMLX",
                 .product(name: "AnyLanguageModel", package: "AnyLanguageModel"),
             ],
             swiftSettings: swiftSettings
