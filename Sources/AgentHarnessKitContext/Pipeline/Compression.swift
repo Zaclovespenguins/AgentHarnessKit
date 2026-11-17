@@ -1,8 +1,6 @@
 import AgentHarnessKit
 import Foundation
 
-// TASK H3. Stubs return placeholder values; replace the bodies, keep the signatures.
-
 /// One range of a `compress` call, as the model sends it: `{"ranges":[{"startRef","endRef","topic","summary"}]}`.
 public struct CompressRange: Sendable, Equatable, Codable {
     public let startRef: String
@@ -62,7 +60,103 @@ public extension ContextPipeline {
         callID: String?,
         configuration: ContextConfiguration
     ) -> CompressOutcome {
-        CompressOutcome(blocks: blocks, created: [], nextBlockOrdinal: nextBlockOrdinal, errors: [])
+        var blocks = blocks
+        var nextOrdinal = nextBlockOrdinal
+        var created: [ContextBlockID] = []
+        var errors: [String] = []
+        // Call and result owners never change during one compress call.
+        var callOwner: [String: MessageRef] = [:]
+        var resultOwner: [String: MessageRef] = [:]
+        for stored in messages {
+            switch stored.message {
+            case let .assistant(assistant):
+                for call in assistant.toolCalls { callOwner[call.id] = stored.ref }
+            case let .tool(id, _, _):
+                resultOwner[id] = stored.ref
+            default:
+                break
+            }
+        }
+
+        for range in ranges {
+            let label = "Range \(range.startRef)–\(range.endRef): "
+            guard let start = MessageRef(range.startRef), let end = MessageRef(range.endRef) else {
+                errors.append(label + "invalid ref")
+                continue
+            }
+            guard max(start.ordinal, end.ordinal) <= messages.count else {
+                errors.append(label + "unknown ref")
+                continue
+            }
+            guard start <= end else {
+                errors.append(label + "start after end")
+                continue
+            }
+            guard range.summary.count >= configuration.minSummaryLength else {
+                errors.append(label + "summary too short")
+                continue
+            }
+            let span = start.ordinal...end.ordinal
+            let refsIn = messages.map(\.ref).filter { span.contains($0.ordinal) }
+            if let first = refsIn.first(where: { protected.contains($0) }) {
+                errors.append(label + "protected ref \(first)")
+                continue
+            }
+            let active = blocks.filter(\.active)
+            let splitBlock = active.first { block in
+                let hits = block.effectiveMessageRefs.filter { span.contains($0.ordinal) }.count
+                return hits > 0 && hits < block.effectiveMessageRefs.count
+            }
+            if let splitBlock {
+                errors.append(label + "splits block \(splitBlock.id.rawValue)")
+                continue
+            }
+            let absorbed = active
+                .filter { $0.effectiveMessageRefs.allSatisfy { span.contains($0.ordinal) } }
+                .sorted { ($0.ordinal ?? 0) < ($1.ordinal ?? 0) }
+            let unfolded = refsIn.filter { ref in !active.contains { $0.effectiveMessageRefs.contains(ref) } }
+            let splitCall = messages.filter { span.contains($0.ref.ordinal) }.lazy.compactMap { stored -> String? in
+                switch stored.message {
+                case let .assistant(assistant):
+                    return assistant.toolCalls.map(\.id).first { id in
+                        resultOwner[id].map { !span.contains($0.ordinal) } ?? false
+                    }
+                case let .tool(id, _, _):
+                    return callOwner[id].map { !span.contains($0.ordinal) } == true ? id : nil
+                default:
+                    return nil
+                }
+            }.first
+            if let splitCall {
+                errors.append(label + "splits tool call \(splitCall)")
+                continue
+            }
+            if unfolded.isEmpty && absorbed.count <= 1 {
+                errors.append(label + "already folded")
+                continue
+            }
+
+            let tier = absorbed.map(\.tier).max().map { min(3, $0 + 1) } ?? 1
+            let effective = Set(unfolded + absorbed.flatMap(\.effectiveMessageRefs)).sorted()
+            let absorbedIDs = Set(absorbed.map(\.id))
+            for index in blocks.indices where absorbedIDs.contains(blocks[index].id) {
+                blocks[index].active = false
+            }
+            let block = ContextBlock(
+                id: ContextBlockID("b\(nextOrdinal)"),
+                tier: tier,
+                topic: range.topic ?? "",
+                summary: range.summary,
+                directMessageRefs: unfolded,
+                directBlockIDs: absorbed.map(\.id),
+                effectiveMessageRefs: effective,
+                createdByCallID: callID
+            )
+            blocks.append(block)
+            created.append(block.id)
+            nextOrdinal += 1
+        }
+        return CompressOutcome(blocks: blocks, created: created, nextBlockOrdinal: nextOrdinal, errors: errors)
     }
 
     /// Deactivates block `blockID`. Not `full`: its `directBlockIDs` become active again (one tier down);
@@ -73,13 +167,41 @@ public extension ContextPipeline {
         full: Bool,
         blocks: [ContextBlock]
     ) throws(ContextToolError) -> [ContextBlock] {
-        blocks
+        guard let index = blocks.firstIndex(where: { $0.id.rawValue == blockID }) else {
+            throw ContextToolError.unknownBlock(blockID)
+        }
+        guard blocks[index].active else {
+            throw ContextToolError.blockInactive(blockID)
+        }
+        var result = blocks
+        result[index].active = false
+        if !full {
+            for child in blocks[index].directBlockIDs {
+                if let childIndex = result.firstIndex(where: { $0.id == child }) {
+                    result[childIndex].active = true
+                }
+            }
+        }
+        return result
     }
 
     /// Original text of every message the block covers: for each effective ref, `"<ref> [<role>]\n<text>"`
     /// joined by `"\n\n"`, where role is `system`, `user`, `assistant` or `tool:<name>` and text is
     /// `ContextTokens.text(of:)`.
     static func originalText(of block: ContextBlock, messages: [StoredMessage]) -> String {
-        ""
+        block.effectiveMessageRefs.compactMap { ref in
+            messages.first { $0.ref == ref }.map { stored in
+                "\(ref) [\(roleName(stored.message))]\n\(ContextTokens.text(of: stored.message))"
+            }
+        }.joined(separator: "\n\n")
+    }
+
+    private static func roleName(_ message: ChatMessage) -> String {
+        switch message {
+        case .system: "system"
+        case .user, .userMultimodal: "user"
+        case .assistant: "assistant"
+        case let .tool(_, name, _): "tool:\(name)"
+        }
     }
 }
