@@ -9,7 +9,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 First release. It covers the work in ROADMAP.md Phases 0 to 8, built on
 [AnyLanguageModel](https://github.com/huggingface/AnyLanguageModel) (ALM) 1.3.0
-as the provider and transport layer. The tag itself is pending maintainer approval.
+as the provider and transport layer.
 
 ### Added
 
