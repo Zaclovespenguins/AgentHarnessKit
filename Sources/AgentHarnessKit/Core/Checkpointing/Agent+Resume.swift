@@ -96,8 +96,7 @@ extension Agent {
 
     private func validateMCPBindings(_ checkpointed: Set<MCPToolBinding>) throws {
         guard !checkpointed.isEmpty else { return }
-        // shortcut: no MCPTool type until Phase 6, so no live bindings exist; collect them from MCPTool there.
-        let liveBindings: Set<MCPToolBinding> = []
+        let liveBindings = Set(tools.compactMap { ($0 as? any MCPBindingProviding)?.mcpToolBinding })
         let missing = checkpointed.subtracting(liveBindings)
         guard missing.isEmpty else {
             throw AgentCheckpointError.mcpBindingMismatch(

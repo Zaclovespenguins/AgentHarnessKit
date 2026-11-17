@@ -1,5 +1,11 @@
 import Foundation
 
+/// A tool backed by an MCP server. Checkpoints record its binding when it took part in the run,
+/// and resume fails unless the resuming agent has a tool with the same binding.
+public protocol MCPBindingProviding {
+    var mcpToolBinding: MCPToolBinding { get }
+}
+
 /// Identifies a live MCP tool binding required to resume a checkpoint.
 public struct MCPToolBinding: Sendable, Codable, Hashable {
     public let serverName: String

@@ -77,6 +77,11 @@ let package = Package(
             swiftSettings: swiftSettings
         ),
         .testTarget(
+            name: "AgentHarnessKitMCPTests",
+            dependencies: ["AgentHarnessKit", "AgentHarnessKitMCP", "AgentHarnessKitTesting"],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
             name: "AgentHarnessKitALMTests",
             dependencies: [
                 "AgentHarnessKit",
