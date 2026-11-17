@@ -19,7 +19,8 @@ struct InvocationOptions {
         approvalHandler: ToolApprovalHandler?,
         sessionID: SessionID? = nil,
         runID: RunID? = nil,
-        checkpointer: (any AgentCheckpointer)? = nil
+        checkpointer: (any AgentCheckpointer)? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) {
         self.tokenBudget = tokenBudget
         self.requestContext = requestContext
@@ -28,6 +29,7 @@ struct InvocationOptions {
         self.sessionID = sessionID
         self.runID = runID
         self.checkpointer = checkpointer
+        self.partialTurnRecorder = partialTurnRecorder
         eventFactory = StreamEventFactory(sessionID: sessionID, runID: runID, origin: .live)
     }
 }
