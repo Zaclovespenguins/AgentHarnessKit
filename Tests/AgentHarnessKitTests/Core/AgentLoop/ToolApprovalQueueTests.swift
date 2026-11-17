@@ -1,6 +1,15 @@
 @testable import AgentHarnessKit
+import AgentHarnessKitTesting
 import Foundation
 import Testing
+
+private struct QueueEchoParams: Codable, SchemaProviding {
+    let message: String
+}
+
+private struct QueueEchoOutput: Codable {
+    let echoed: String
+}
 
 private func makeRequest(_ id: String, tool: String = "shell") -> ToolApprovalRequest {
     ToolApprovalRequest(toolCallId: id, toolName: tool, arguments: "{}", toolDescription: "Test tool")
@@ -14,6 +23,15 @@ private func waitForPending(_ queue: ToolApprovalQueue, count: Int) async -> [To
         try? await Task.sleep(for: .milliseconds(2))
     }
     return await queue.pending()
+}
+
+/// Polls `pending()` until it is empty, bounded to about one second.
+private func waitForEmptyPending(_ queue: ToolApprovalQueue) async -> Bool {
+    for _ in 0..<500 {
+        if await queue.pending().isEmpty { return true }
+        try? await Task.sleep(for: .milliseconds(2))
+    }
+    return await queue.pending().isEmpty
 }
 
 /// Starts a handler call in its own task and waits until it is parked, so calls enqueue in a known order.
@@ -108,5 +126,53 @@ struct ToolApprovalQueueTests {
 
         _ = await first.value
         _ = await second.value
+    }
+
+    @Test func cancelledHandlerCallDeniesAndLeavesNothingParked() async {
+        let queue = ToolApprovalQueue()
+        let task = Task { await queue.handler(makeRequest("a")) }
+        #expect(await waitForPending(queue, count: 1).map(\.toolCallId) == ["a"])
+
+        task.cancel()
+
+        #expect(await task.value == .deny(reason: "Cancelled"))
+        #expect(await queue.pending().isEmpty)
+    }
+
+    @Test func cancelledConsumerLeavesNoRequestParkedInLoop() async throws {
+        let queue = ToolApprovalQueue()
+        let echoTool = try Tool<QueueEchoParams, QueueEchoOutput, EmptyContext>(
+            name: "echo",
+            description: "Echoes input",
+            executor: { params, _ in QueueEchoOutput(echoed: params.message) }
+        )
+        let agent = Agent<EmptyContext>(
+            client: TestLLMClient(seed: 1),
+            tools: [echoTool],
+            configuration: AgentConfiguration(approvalPolicy: .allTools)
+        )
+        let (requested, requestedContinuation) = AsyncStream<Void>.makeStream()
+        let consumer = Task {
+            for try await event in agent.stream(
+                userMessage: "Go", context: EmptyContext(), approvalHandler: queue.handler
+            ) {
+                if case .toolApprovalRequested = event.kind {
+                    requestedContinuation.yield()
+                }
+            }
+        }
+
+        // A request is parked only after its event is emitted, so a non-empty queue means the event is on its way.
+        let parked = await waitForPending(queue, count: 1)
+        if !parked.isEmpty {
+            var signals = requested.makeAsyncIterator()
+            _ = await signals.next()
+        }
+        #expect(parked.count == 1)
+
+        consumer.cancel()
+        _ = try? await consumer.value
+
+        #expect(await waitForEmptyPending(queue))
     }
 }
