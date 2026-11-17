@@ -81,4 +81,33 @@ struct AgentOverAdapterTests {
         #expect(finishedContent == "The sum is 5.")
         #expect(server.requestCount == 2)
     }
+
+    @Test func followUpRequestBodyHoldsTheFinishAnswerOnce() async throws {
+        let server = try MockServer()
+        let answer = "The sum is five (terminal-answer-marker)."
+        server.enqueue(
+            .toolCall(id: "call_1", name: "finish", arguments: #"{"content":"\#(answer)"}"#),
+            .usage(input: 10, output: 3)
+        )
+        server.enqueue(.text("Anything else?"), .usage(input: 20, output: 3))
+        let agent = try makeAgent(server)
+
+        let first = try await agent.run(userMessage: "What is 2 + 3?", context: EmptyContext())
+        guard case let .assistant(restored) = first.history.last else {
+            Issue.record("Expected the finish answer to end history")
+            return
+        }
+        #expect(restored.content == answer)
+        #expect(restored.toolCalls.isEmpty)
+
+        _ = try await agent.run(userMessage: "Thanks", history: first.history, context: EmptyContext())
+
+        #expect(server.requestCount == 2)
+        let sent = server.requestJSON(1)["messages"] as? [[String: Any]] ?? []
+        let body = try String(decoding: JSONSerialization.data(withJSONObject: sent), as: UTF8.self)
+        #expect(body.components(separatedBy: answer).count - 1 == 1)
+        let assistants = sent.filter { $0["role"] as? String == "assistant" }
+        #expect(assistants.count == 1)
+        #expect(assistants.first?["tool_calls"] == nil)
+    }
 }

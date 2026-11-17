@@ -44,11 +44,12 @@ struct AgentHistoryTests {
         let agent = Agent<EmptyContext>(client: client, tools: [])
         let result = try await agent.run(userMessage: "Test", context: EmptyContext())
 
-        #expect(result.history.count == 1)
+        #expect(result.history.count == 2)
         guard case .user = result.history[0] else {
             Issue.record("Expected user message first in history")
             return
         }
+        #expect(result.history[1] == .assistant(AssistantMessage(content: "done")))
     }
 
     @Test
@@ -112,7 +113,8 @@ struct AgentHistoryTests {
         let agent = Agent<EmptyContext>(client: client, tools: [echoTool])
         let result = try await agent.run(userMessage: "Test", context: EmptyContext())
 
-        #expect(result.history.count == 3)
+        #expect(result.history.count == 4)
+        #expect(result.history[3] == .assistant(AssistantMessage(content: "done")))
 
         guard case .user = result.history[0] else {
             Issue.record("Expected user message first in history")
@@ -155,21 +157,18 @@ struct AgentHistoryTests {
         )
 
         let capturedMessages = await client2.capturedMessages
-        #expect(capturedMessages.count == 2)
+        #expect(capturedMessages == [
+            .user("First message"),
+            .assistant(AssistantMessage(content: "response 1")),
+            .user("Second message"),
+        ])
 
-        guard case let .user(first) = capturedMessages[0] else {
-            Issue.record("Expected first user message")
-            return
-        }
-        #expect(first == "First message")
-
-        guard case let .user(second) = capturedMessages[1] else {
-            Issue.record("Expected second user message")
-            return
-        }
-        #expect(second == "Second message")
-
-        #expect(result2.history.count == 2)
+        #expect(result2.history == [
+            .user("First message"),
+            .assistant(AssistantMessage(content: "response 1")),
+            .user("Second message"),
+            .assistant(AssistantMessage(content: "response 2")),
+        ])
     }
 }
 

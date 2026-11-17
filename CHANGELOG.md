@@ -5,6 +5,16 @@ All notable changes to AgentHarnessKit are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Terminal `finish` answers are kept in history as an assistant message; consumers can drop their own restore step. The merge of assistant text and finish content follows the "Terminal answer in history" rule in `AGENTHARNESSKIT_PARITY_SPEC.md`.
+
+### Notes
+
+- The v0.2 history summarizer (roadmap item 3) is closed as won't-do in favour of `HierarchicalContextStore` and `compress`.
+
 ## [0.1.0] - 2026-11-17
 
 First release. It covers the work in ROADMAP.md Phases 0 to 8, built on

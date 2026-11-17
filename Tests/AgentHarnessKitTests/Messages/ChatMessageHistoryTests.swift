@@ -109,7 +109,7 @@ struct AgentMessageHistoryValidationTests {
 
 struct ChatMessageTerminalHistoryTests {
     @Test
-    func terminalFinishOnlyAssistantIsRemoved() throws {
+    func terminalFinishOnlyAssistantRestoresAnswer() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -120,11 +120,11 @@ struct ChatMessageTerminalHistoryTests {
 
         let sanitized = try history.sanitizedTerminalHistory()
 
-        #expect(sanitized == [.user("Hi")])
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "done"))])
     }
 
     @Test
-    func terminalFinishStrippingKeepsAssistantContent() throws {
+    func terminalFinishWithDifferentTextJoinsTextAndAnswer() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -140,7 +140,7 @@ struct ChatMessageTerminalHistoryTests {
             Issue.record("Expected assistant message")
             return
         }
-        #expect(message.content == "Final answer")
+        #expect(message.content == "Final answer\n\ndone")
         #expect(message.toolCalls.isEmpty)
         #expect(message.continuity == nil)
     }
@@ -185,7 +185,7 @@ struct ChatMessageTerminalHistoryTests {
             Issue.record("Expected assistant message")
             return
         }
-        #expect(message.content == "Final answer")
+        #expect(message.content == "Final answer\n\ndone")
         #expect(message.toolCalls.isEmpty)
         #expect(message.continuity == AssistantContinuity(
             substrate: .responses,
@@ -231,7 +231,7 @@ struct ChatMessageTerminalHistoryTests {
             Issue.record("Expected assistant message")
             return
         }
-        #expect(message.content.isEmpty)
+        #expect(message.content == "done")
         #expect(message.toolCalls.isEmpty)
         #expect(message.reasoning == ReasoningContent(content: "Reasoning only"))
         #expect(message.continuity == AssistantContinuity(
@@ -273,7 +273,7 @@ struct ChatMessageTerminalHistoryTests {
             Issue.record("Expected assistant message")
             return
         }
-        #expect(message.content.isEmpty)
+        #expect(message.content == "done")
         #expect(message.toolCalls.isEmpty)
         #expect(message.reasoning == nil)
         #expect(message.reasoningDetails == [
@@ -292,7 +292,7 @@ struct ChatMessageTerminalHistoryTests {
     }
 
     @Test
-    func terminalFinishOnlyAssistantIsRemovedEvenWithContinuity() throws {
+    func terminalFinishOnlyAssistantRestoresAnswerWithContinuity() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -309,9 +309,218 @@ struct ChatMessageTerminalHistoryTests {
 
         let sanitized = try history.sanitizedTerminalHistory()
 
+        #expect(sanitized == [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "done",
+                continuity: AssistantContinuity(
+                    substrate: .responses,
+                    payload: .object([
+                        "response_id": .string("resp_123"),
+                    ])
+                )
+            )),
+        ])
+    }
+}
+
+struct ChatMessageTerminalAnswerRestoreTests {
+    @Test
+    func terminalFinishWithEqualTextKeepsAssistantTextOnce() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "  The answer is 42.\n",
+                toolCalls: [ToolCall(
+                    id: "finish_1",
+                    name: "finish",
+                    arguments: #"{"content":"The answer is 42."}"#
+                )]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "  The answer is 42.\n"))])
+    }
+
+    @Test
+    func terminalFinishWithEmptyContentKeepsAssistantText() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "Final answer",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":""}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "Final answer"))])
+    }
+
+    @Test
+    func terminalFinishWithMissingContentKeepsAssistantText() throws {
+        // `content` is required, so missing content fails to decode; the
+        // sanitizer falls back to the assistant text instead of throwing.
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "Final answer",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"reason":"completed"}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "Final answer"))])
+    }
+
+    @Test
+    func terminalFinishWithUndecodableArgumentsKeepsAssistantText() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "Final answer",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: "not json")]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "Final answer"))])
+    }
+
+    @Test
+    func terminalFinishWithBothEmptyIsRemoved() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":""}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
         #expect(sanitized == [.user("Hi")])
     }
 
+    @Test
+    func terminalFinishWithBothBlankIsRemoved() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: " \n",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"  "}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [.user("Hi")])
+    }
+
+    @Test
+    func terminalFinishRestoreKeepsReasoningAndUsage() throws {
+        let usage = TokenUsage(input: 10, output: 5)
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#)],
+                tokenUsage: usage,
+                reasoning: ReasoningContent(content: "Thinking")
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "done",
+                tokenUsage: usage,
+                reasoning: ReasoningContent(content: "Thinking")
+            )),
+        ])
+    }
+
+    @Test
+    func terminalFinishRestoreLeavesEarlierMessagesUntouched() throws {
+        let earlier: [ChatMessage] = [
+            .system("Be brief"),
+            .user("Look it up"),
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [ToolCall(id: "call_1", name: "lookup", arguments: "{}")]
+            )),
+            .tool(id: "call_1", name: "lookup", content: "42"),
+        ]
+        let history = earlier + [
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"42"}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        #expect(sanitized == earlier + [.assistant(AssistantMessage(content: "42"))])
+    }
+
+    @Test
+    func restoredTerminalHistoryPassesValidation() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "Working on it",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#)]
+            )),
+        ]
+
+        let sanitized = try history.sanitizedTerminalHistory()
+
+        try sanitized.validateForLLMRequest()
+        try sanitized.validateForAgentHistory()
+    }
+
+    @Test
+    func restoredTerminalHistoryIsNotRestoredTwice() throws {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#)]
+            )),
+        ]
+
+        let once = try history.sanitizedTerminalHistory()
+        let twice = try once.sanitizedTerminalHistory()
+
+        #expect(twice == once)
+    }
+
+    @Test
+    func terminalFinishWithOtherToolCallsStillThrows() {
+        let history: [ChatMessage] = [
+            .user("Hi"),
+            .assistant(AssistantMessage(
+                content: "",
+                toolCalls: [
+                    ToolCall(id: "call_1", name: "lookup", arguments: "{}"),
+                    ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#),
+                ]
+            )),
+        ]
+
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try history.sanitizedTerminalHistory()
+        }
+    }
+}
+
+struct ChatMessageInheritanceTests {
     @Test
     func inheritanceDropsTrailingUnresolvedToolBatch() throws {
         let history: [ChatMessage] = [
