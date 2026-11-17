@@ -19,6 +19,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
   Within one run the loop asks approvals one at a time, so several requests
   wait together only when runs or sub-agents share a queue.
 
+### Changed
+
+- Terminal `finish` answers are kept in history as an assistant message; consumers can drop their own restore step. The merge of assistant text and finish content follows the "Terminal answer in history" rule in `AGENTHARNESSKIT_PARITY_SPEC.md`.
+- The restored terminal answer message drops its provider continuity, so adapters that replay continuity verbatim (for example `HarnessModelClient` with `replaySubstrate`) rebuild that turn from its fields instead of resending a dangling `finish` call. That one turn is no longer replayed verbatim.
+
+### Notes
+
+- The v0.2 history summarizer (roadmap item 3) is closed as won't-do in favour of `HierarchicalContextStore` and `compress`.
+
 ## [0.1.0] - 2026-11-17
 
 First release. It covers the work in ROADMAP.md Phases 0 to 8, built on

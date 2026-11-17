@@ -40,8 +40,10 @@ struct StreamingContinuityTests {
             return nil
         }
 
-        #expect(assistantMessages.count == 1)
+        #expect(assistantMessages.count == 2)
         #expect(assistantMessages[0].continuity == continuity)
+        #expect(assistantMessages[1].content == "done")
+        #expect(assistantMessages[1].toolCalls.isEmpty)
     }
 }
 

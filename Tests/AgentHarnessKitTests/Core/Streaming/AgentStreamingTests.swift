@@ -58,7 +58,7 @@ struct AgentStreamingTests {
         _ = try await secondAgent.run(userMessage: "Second", history: history, context: EmptyContext())
 
         let capturedMessages = await secondClient.capturedMessages
-        #expect(capturedMessages == [.user("First"), .user("Second")])
+        #expect(capturedMessages == [.user("First"), .assistant(AssistantMessage(content: "done")), .user("Second")])
     }
 
     @Test
@@ -134,7 +134,7 @@ struct AgentStreamingTests {
         #expect(tokenUsage.input == 30)
         #expect(tokenUsage.output == 15)
         #expect(content == "Echoed successfully")
-        #expect(history.count == 3)
+        #expect(history.count == 4)
     }
 
     @Test
@@ -995,6 +995,6 @@ struct AgentAudioStreamingTests {
             if case let .assistant(assistant) = msg { return assistant }
             return nil
         }.first
-        #expect(assistantMessage?.content == "Response")
+        #expect(assistantMessage?.content == "Response\n\nDone")
     }
 }
