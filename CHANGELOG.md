@@ -7,6 +7,8 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## Unreleased
 
+## [0.2.0] - 2026-11-17
+
 ### Added
 
 - `AgentStream.partialHistory`, the interrupted turn as valid history after `cancel()`. Pass it as `history:` to the next `send`. A parked approval cancelled this way gets the synthetic result `"Cancelled by user before this tool returned."`.
@@ -22,12 +24,20 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Changed
 
-- Terminal `finish` answers are kept in history as an assistant message; consumers can drop their own restore step. The merge of assistant text and finish content follows the "Terminal answer in history" rule in `AGENTHARNESSKIT_PARITY_SPEC.md`.
+- Terminal `finish` answers are kept in history as an assistant message. The merge of assistant text and finish content follows the "Terminal answer in history" rule in `AGENTHARNESSKIT_PARITY_SPEC.md`.
+- **Consumers that re-add the finish answer themselves (for example, a `TerminalAnswer.restore` step) will now see it twice. Delete that step.**
 - The restored terminal answer message drops its provider continuity, so adapters that replay continuity verbatim (for example `HarnessModelClient` with `replaySubstrate`) rebuild that turn from its fields instead of resending a dangling `finish` call. That one turn is no longer replayed verbatim.
 
 ### Notes
 
 - The v0.2 history summarizer (roadmap item 3) is closed as won't-do in favour of `HierarchicalContextStore` and `compress`.
+
+### Known gaps
+
+- Cancel between the `finish` commit and `.finished` (6.1): `partialHistory` can hold the `finish` call with the synthetic `"Cancelled by user before this tool returned."` result, although the answer was already given. A resend still completes.
+- `denyAll(reason:)` followed by `cancel()` is racy (6.2): the loop can record the deny text or the synthetic cancelled text. Call `stream.cancel()` first, then `denyAll(reason:)`.
+- Duplicate `toolCallId` across runs that share a `ToolApprovalQueue` (6.4): `resolve(id:)` takes the oldest request. Use ids that are unique across runs sharing a queue.
+- Partial history is only available through `AgentStream` (6.5). `Chat.stream` and `Agent.stream` do not expose it.
 
 ## [0.1.0] - 2026-11-17
 
