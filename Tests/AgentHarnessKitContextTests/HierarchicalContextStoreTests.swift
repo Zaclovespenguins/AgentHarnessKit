@@ -219,6 +219,14 @@ struct HierarchicalContextStoreTests {
             ToolCall(id: "s2", name: "search_context", arguments: #"{"query":"question","limit":2}"#), sessionID: session
         )
         #expect(limited.result.content.split(separator: "\n").count == 2)
+        let huge = SessionID()
+        let bigText = "needle " + String(repeating: "line of output\n", count: 500)
+        _ = try await contextStore.render(sessionID: huge, messages: [.user(bigText)], windowSize: 100_000)
+        let bounded = try await contextStore.executeTool(
+            ToolCall(id: "s4", name: "search_context", arguments: #"{"query":"needle"}"#), sessionID: huge
+        )
+        #expect(!bounded.result.content.contains("\n"))
+        #expect(bounded.result.content.count < 400)
         let none = try await contextStore.executeTool(
             ToolCall(id: "s3", name: "search_context", arguments: #"{"query":"giraffe"}"#), sessionID: session
         )
