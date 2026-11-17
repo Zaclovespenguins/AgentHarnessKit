@@ -37,11 +37,15 @@ public struct ToolCallInfo: Sendable, Identifiable {
         public private(set) var sessionID: SessionID?
         public private(set) var iterationsReplayed: Int = 0
         public private(set) var currentCheckpoint: CheckpointID?
+        /// History of the interrupted turn after `cancel()`; pass it as `history:` to the next `send`.
+        public private(set) var partialHistory: [ChatMessage]?
 
         private let agent: Agent<C>
         let buffer: StreamEventBuffer?
         private var activeTask: Task<Void, Never>?
         var sendGeneration: UInt64 = 0
+        /// Recorder for the turn of the current generation, read by `cancel()` while the turn is still running.
+        private var currentRecorder: PartialTurnRecorder?
 
         public init(agent: Agent<C>, bufferCapacity: Int? = nil) {
             self.agent = agent
@@ -82,14 +86,19 @@ public struct ToolCallInfo: Sendable, Identifiable {
             let generation = sendGeneration
             isStreaming = true
             self.sessionID = sessionID
-            let stream = agent.stream(
-                userMessage: message, history: history, context: context,
+            let recorder = PartialTurnRecorder()
+            currentRecorder = recorder
+            // Built here, not through the public `Agent.stream` overloads, so the recorder can be passed.
+            let options = InvocationOptions(
                 tokenBudget: tokenBudget, requestContext: requestContext,
-                approvalHandler: approvalHandler, sessionID: sessionID,
+                systemPromptOverride: nil, approvalHandler: approvalHandler,
+                sessionID: sessionID ?? SessionID(), runID: RunID(),
                 checkpointer: checkpointer.map {
                     SaveObservingCheckpointer(inner: $0, stream: self, generation: generation)
-                }
+                },
+                partialTurnRecorder: recorder
             )
+            let stream = agent.stream(userMessage: message, history: history, context: context, options: options)
             activeTask = Task { await self.runStreamTask(generation: generation, stream: stream) }
         }
 
@@ -116,6 +125,14 @@ public struct ToolCallInfo: Sendable, Identifiable {
         }
 
         public func cancel() {
+            // Snapshot before bumping the generation. A finished turn has no recorder, so partialHistory stays nil.
+            // A turn cancelled before the loop recorded anything also leaves it nil: an empty history would drop
+            // the user message if passed back as `history:`.
+            if let recorder = currentRecorder {
+                let snapshot = recorder.snapshot()
+                partialHistory = snapshot.isEmpty ? nil : snapshot
+                currentRecorder = nil
+            }
             activeTask?.cancel()
             activeTask = nil
             sendGeneration &+= 1
@@ -135,6 +152,8 @@ public struct ToolCallInfo: Sendable, Identifiable {
             reset()
             sendGeneration &+= 1
             let generation = sendGeneration
+            let recorder = PartialTurnRecorder()
+            currentRecorder = recorder
             let target = try await checkpointer.load(checkpointID)
             guard generation == sendGeneration else { return }
             let resumedStream = try await agent.resume(
@@ -143,7 +162,8 @@ public struct ToolCallInfo: Sendable, Identifiable {
                     inner: checkpointer, stream: self, generation: generation
                 ),
                 context: context, tokenBudget: tokenBudget, requestContext: requestContext,
-                approvalHandler: approvalHandler
+                approvalHandler: approvalHandler,
+                partialTurnRecorder: recorder
             )
             guard generation == sendGeneration else { return }
             isStreaming = true
@@ -262,6 +282,8 @@ public struct ToolCallInfo: Sendable, Identifiable {
             toolCallIdPath: [String]
         ) {
             guard toolCallIdPath.isEmpty else { return }
+            partialHistory = nil
+            currentRecorder = nil
             tokenUsage = usage
             finishReason = reason
             terminalContent = finishContent
@@ -324,6 +346,8 @@ public struct ToolCallInfo: Sendable, Identifiable {
         }
 
         private func reset() {
+            partialHistory = nil
+            currentRecorder = nil
             content = ""
             reasoning = ""
             error = nil
