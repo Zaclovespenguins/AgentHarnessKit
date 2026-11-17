@@ -9,6 +9,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- `AgentStream.partialHistory`, the interrupted turn as valid history after `cancel()`. Pass it as `history:` to the next `send`. A parked approval cancelled this way gets the synthetic result `"Cancelled by user before this tool returned."`.
 - `ToolApprovalQueue`, a `ToolApprovalHandler` provider that parks approval
   requests in FIFO order for a UI to resolve. Requests resolve by id in any
   order (`resolve(id:decision:)`), `denyAll(reason:)` clears every waiting
