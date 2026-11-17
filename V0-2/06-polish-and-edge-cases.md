@@ -9,8 +9,8 @@ Findings from the Phase 5 run (5.1 spec pass, 5.2 API audit, 5.3 local check, cr
 | 5.1 Spec consistency | Done | Cancel text aligned between the Approval and Partial history bullets; one-approval-per-run rule added to the spec; changelog entry for `partialHistory`. Two behavioral findings: 6.1 and 6.2. |
 | 5.2 Public API audit | Done | Table in [5.2-public-api-audit.md](5.2-public-api-audit.md). Doc comments added to `ToolApprovalQueue.init()` and `AgentStream.cancel()`. Paste the table into the release PR description. |
 | 5.3 Full local check | Done | `swiftformat --lint` 0/222, `swiftlint --strict` 0 violations, `swift test --parallel -Xswiftc -warnings-as-errors` 1116 tests / 191 suites pass, `make acceptance` 0 failures (Linux, Swift 6.3.1). `make check` itself needs `mint`; its three parts were run directly. |
-| 5.4 CI | **Blocked** | `ci.yml` runs only on `pull_request` and on push to `main`. Pushing `claude/lucid-wozniak-1149gt` does not start the macOS, Linux or iOS Simulator jobs. Needs a PR from this branch. |
-| 5.5 Changelog and version | Not started | Waits on 5.4. |
+| 5.4 CI | Done | Merged to `main` directly at `3042004`; [CI run 12](https://github.com/Zaclovespenguins/AgentHarnessKit/actions/runs/44185720070) green: Lint (SwiftFormat, SwiftLint, acceptance), macOS, Linux (Swift 6.3), iOS Simulator. Live provider jobs skipped (secret-gated). |
+| 5.5 Changelog and version | Not started | Unblocked. |
 | 5.6, 5.7 | Human | App-side deletions and the `v0.2.0` tag. |
 
 Branch note: items 1 and 2/3 were on unmerged branches (`claude/v0-2-phase-1-distribution-l20lsp`, `claude/wizardly-thompson-bauhgg`) and were merged into `claude/lucid-wozniak-1149gt` at the start of Phase 5.
@@ -83,7 +83,7 @@ Branch note: items 1 and 2/3 were on unmerged branches (`claude/v0-2-phase-1-dis
 6.1, 6.2, 6.3, 6.4 decisions (human) ─► fixes + their tests (6.9)
 6.7, 6.8, 6.10 – 6.14 tests          parallel-safe with each other
 6.15 – 6.18 polish                   parallel-safe
-then 5.4 (PR + CI) ─► 5.5 ─► 5.6 ─► 5.7
+5.5 ─► 5.6 ─► 5.7   (5.4 done)
 ```
 
 6.5 and 6.6 are scope questions; they can move to v0.3 without blocking the release.
