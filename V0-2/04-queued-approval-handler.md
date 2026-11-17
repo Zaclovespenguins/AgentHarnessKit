@@ -1,6 +1,6 @@
 # 4. Queued approval handler — sub-tasks
 
-**Roadmap goal:** the kit ships the FIFO queue behind `ToolApprovalCoordinator` as a `ToolApprovalHandler` provider, Linux-safe, so the app keeps only a thin `@Observable` wrapper.
+**Roadmap goal:** the kit ships the FIFO queue behind `ToolApprovalCoordinator` (the app's class) as a `ToolApprovalHandler` provider, Linux-safe, so the app keeps only a thin `@Observable` wrapper.
 
 **What exists:**
 
@@ -44,7 +44,7 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 - **Depends on:** 4.1.
 - **Do:**
   - `handler` enqueues and awaits; wrap the wait in `withTaskCancellationHandler` so cancellation removes the entry and resumes it with `.deny(reason: "Cancelled")`.
-  - Cancellation can arrive before the entry is enqueued (the loop cancels the handler's task, and `onCancel` runs synchronously, possibly before the actor has stored the continuation). Handle it: give each call a unique token, and have the actor remember tokens cancelled before enqueue so the later enqueue resumes immediately with `.deny(reason: "Cancelled")` instead of parking. Also check `Task.isCancelled` at the start of `handler`.
+  - Cancellation can arrive before the entry is enqueued (the loop cancels the handler's task, and `onCancel` runs synchronously, possibly before the actor has stored the continuation). Handle it by checking `Task.isCancelled` inside `park` (`ToolApprovalQueueStore.park`) before appending the entry: a cancel that ran earlier has already set the task's flag, so the request resumes immediately with `.deny(reason: "Cancelled")` instead of parking. Each call still carries a unique ticket so `cancel(ticket:)` removes the right entry.
   - `resolve(id:decision:)` resumes and removes that entry, publishes, returns `true`; unknown id returns `false`. `.approveAlways` resolves only that entry (per 4.0).
   - `denyAll(reason:)` resumes every entry with `.deny(reason:)` in FIFO order, empties the queue, publishes once.
   - Every continuation is resumed exactly once on every path.

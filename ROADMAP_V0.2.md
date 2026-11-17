@@ -56,7 +56,7 @@ If built: summary request is a normal `LLMClient` call (no new provider coupling
 
 ## 4. Queued approval handler
 
-**Problem:** `ToolApprovalCoordinator` is a FIFO of parked continuations with deny-all on stop. Only its `@Observable` pending property is UI. The queue itself is generic.
+**Problem:** `ToolApprovalCoordinator` (the app's class) is a FIFO of parked continuations with deny-all on stop. Only its `@Observable` pending property is UI. The queue itself is generic.
 
 - Kit ships the queue as a `ToolApprovalHandler` implementation: parked requests in FIFO order, `resolve(id, decision)`, and deny-all on stop/cancel so the loop never hangs on an abandoned continuation.
 - Exposes a pending-requests stream (or snapshot plus change notification) rather than `@Observable`, so it builds on Linux. The app wraps it in its own `@Observable` for the UI.

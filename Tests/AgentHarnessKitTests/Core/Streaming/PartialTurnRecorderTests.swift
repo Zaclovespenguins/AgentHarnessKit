@@ -127,6 +127,37 @@ struct PartialTurnRecorderTests {
     }
 
     @Test
+    func finishOnlyCommitRestoresAnswerAsPlainText() throws {
+        let recorder = PartialTurnRecorder()
+        recorder.begin(baseHistory: [.user("Go")])
+        let finish = ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#)
+        recorder.commitAssistant(AssistantMessage(content: "", toolCalls: [finish]))
+
+        let snapshot = recorder.snapshot()
+        try snapshot.validateForLLMRequest()
+        #expect(snapshot == [.user("Go"), .assistant(AssistantMessage(content: "done"))])
+        #expect(!snapshot.contains { if case .tool = $0 { true } else { false } })
+    }
+
+    @Test
+    func finishWithTextMergesPerTerminalAnswerRule() throws {
+        let recorder = PartialTurnRecorder()
+        recorder.begin(baseHistory: [.user("Go")])
+        let finish = ToolCall(id: "finish_1", name: "finish", arguments: #"{"content":"done"}"#)
+        recorder.commitAssistant(AssistantMessage(content: "Checking.", toolCalls: [finish]))
+
+        let snapshot = recorder.snapshot()
+        try snapshot.validateForLLMRequest()
+        let committed: [ChatMessage] = [
+            .user("Go"),
+            .assistant(AssistantMessage(content: "Checking.", toolCalls: [finish])),
+        ]
+        let expected = try committed.sanitizedTerminalHistory()
+        #expect(snapshot == expected)
+        #expect(!snapshot.contains { if case .tool = $0 { true } else { false } })
+    }
+
+    @Test
     func snapshotIsNonMutating() throws {
         let recorder = PartialTurnRecorder()
         recorder.begin(baseHistory: [.user("Go")])

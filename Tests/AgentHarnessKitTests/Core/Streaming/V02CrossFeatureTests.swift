@@ -90,6 +90,31 @@
         }
     }
 
+    /// Streams some text, then fails.
+    private struct FailingAfterTextClient: LLMClient {
+        let providerIdentifier: ProviderIdentifier = .custom("FailingAfterTextClient")
+
+        func generate(
+            messages _: [ChatMessage],
+            tools _: [ToolDefinition],
+            responseFormat _: ResponseFormat?,
+            requestContext _: RequestContext?
+        ) async throws -> AssistantMessage {
+            throw AgentError.llmError(.other("generate is not used"))
+        }
+
+        func stream(
+            messages _: [ChatMessage],
+            tools _: [ToolDefinition],
+            requestContext _: RequestContext?
+        ) -> AsyncThrowingStream<StreamDelta, Error> {
+            AsyncThrowingStream { continuation in
+                continuation.yield(.content("Half an answer"))
+                continuation.finish(throwing: AgentError.llmError(.other("boom")))
+            }
+        }
+    }
+
     private func echoCallDeltas(id: String, message: String = "hi") -> [StreamDelta] {
         [
             .toolCallStart(index: 0, id: id, name: "echo", kind: .function),
@@ -236,7 +261,29 @@
             #expect(cancelled == 1)
         }
 
-        /// The documented Stop flow: `denyAll` first, then `cancel()`. The loop has already recorded the deny
+        /// The documented Stop flow: `cancel()` first, then `denyAll`. The snapshot is taken while the call is
+        /// parked, so it holds the synthetic cancelled result and never the deny reason.
+        @MainActor @Test
+        func cancelWhileParkedThenDenyAllKeepsTheSyntheticResult() async throws {
+            let queue = ToolApprovalQueue()
+            let client = CrossScriptedClient(turns: [CrossTurn(deltas: echoCallDeltas(id: "echo_1"))])
+            let stream = try makeApprovalStream(client: client)
+
+            stream.send("Go", context: EmptyContext(), approvalHandler: queue.handler)
+            _ = await waitForPending(queue, count: 1)
+            stream.cancel()
+            await queue.denyAll(reason: "Stopped")
+
+            let partial = try #require(stream.partialHistory)
+            try partial.validateForLLMRequest()
+            let results = toolResults(partial)
+            #expect(results.map(\.id) == ["echo_1"])
+            #expect(results.first?.content == PartialTurnRecorder.cancelledToolResultContent)
+            #expect(!results.contains { $0.content.contains("Stopped") })
+            #expect(await queue.pending().isEmpty)
+        }
+
+        /// The slow path of Stop: `denyAll` first, then `cancel()`. The loop has already recorded the deny
         /// result, so `partialHistory` keeps that result and does not add a synthetic one.
         @MainActor @Test
         func denyAllThenCancelKeepsTheDenyResult() async throws {
@@ -265,6 +312,22 @@
             #expect(await queue.pending().isEmpty)
         }
 
+        /// Pins the 6.3 decision: the recorder survives an error, so a later `cancel()` exposes the failed turn.
+        @MainActor @Test
+        func cancelAfterErrorExposesFailedTurnAsPartialHistory() async throws {
+            let agent = try Agent<EmptyContext>(client: FailingAfterTextClient(), tools: [makeEcho()])
+            let stream = AgentStream(agent: agent)
+
+            stream.send("Go", context: EmptyContext())
+            await awaitCondition("stream to fail") { !stream.isStreaming }
+            #expect(stream.error != nil)
+
+            stream.cancel()
+            let partial = try #require(stream.partialHistory)
+            try partial.validateForLLMRequest()
+            #expect(assistants(partial).last?.content == "Half an answer")
+        }
+
         // MARK: Item 1 x item 2: cancel around a finish call
 
         /// A cancel that lands after the `finish` call is committed but before `.finished` is handled. The
@@ -279,7 +342,9 @@
 
             let snapshot = recorder.snapshot()
             try snapshot.validateForLLMRequest()
-            #expect(toolResults(snapshot).map(\.id) == ["finish_call"])
+            #expect(toolResults(snapshot).isEmpty)
+            #expect(assistants(snapshot).last?.content == "done")
+            #expect(assistants(snapshot).last?.toolCalls.isEmpty == true)
         }
 
         @MainActor @Test

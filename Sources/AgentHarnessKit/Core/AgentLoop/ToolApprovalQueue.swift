@@ -6,10 +6,14 @@ import Foundation
 /// `AgentStream.send`, and resolve parked requests from UI code. Requests resolve independently and in any order.
 /// Cancelling the awaiting task removes the request and resolves it as `.deny(reason: "Cancelled")`.
 ///
+/// Request ids are the model's tool call ids, which are only unique within one conversation. Runs that share a
+/// queue must therefore not park the same id at once; `resolve(id:decision:)` resolves the oldest request with a
+/// matching id.
+///
 /// Within one run the loop asks for approvals one at a time, so several requests are waiting only when several
 /// runs or sub-agents share a queue. `.approveAlways` resolves only the request it is given; the run's allowlist
 /// then skips later calls to that tool, and other parked requests for that tool stay parked. `denyAll` only
-/// affects requests waiting at the time, so cancel the stream too.
+/// affects requests waiting at the time, so cancel the stream too, and cancel it first.
 ///
 /// ```swift
 /// let queue = ToolApprovalQueue()
@@ -28,10 +32,11 @@ import Foundation
 /// // Approve or deny one request, in any order. Returns false for an unknown id.
 /// _ = await queue.resolve(id: request.toolCallId, decision: .approve)
 ///
-/// // Stop button (inside a Task, because denyAll is async): deny everything still parked, then cancel.
+/// // Stop button (inside a Task, because denyAll is async): cancel first, so `partialHistory` is
+/// // taken before anything resumes, then deny whatever other runs still have parked.
+/// stream.cancel()
 /// Task {
 ///     await queue.denyAll(reason: nil)
-///     stream.cancel()
 /// }
 /// ```
 public final class ToolApprovalQueue: Sendable {
@@ -125,6 +130,7 @@ private actor ToolApprovalQueueStore {
     }
 
     func denyAll(reason: String?) {
+        guard !entries.isEmpty else { return }
         let all = entries
         entries.removeAll()
         publish()
