@@ -10,16 +10,15 @@ import Foundation
 /// All mutable state sits behind an `NSLock`. `Synchronization.Mutex` is not used because the package
 /// targets macOS 14 / iOS 17.
 package final class PartialTurnRecorder: @unchecked Sendable {
+    /// Content of the synthetic `.tool` result given to a tool call that was cancelled before it returned.
+    package static let cancelledToolResultContent = "Cancelled by user before this tool returned."
+
     private let lock = NSLock()
 
     /// Messages that are complete: base history, committed assistant messages, and their tool results.
     private var committedMessages: [ChatMessage] = []
     /// Assistant text received for the in-flight response that has not been committed yet.
     private var uncommittedText = ""
-    /// Tool calls of the most recently committed assistant message, in the order the model issued them.
-    private var lastAssistantToolCalls: [ToolCall] = []
-    /// Ids of tool calls that already have a `.tool` result in `committedMessages`.
-    private var answeredCallIDs: Set<String> = []
 
     package init() {}
 
@@ -29,8 +28,6 @@ package final class PartialTurnRecorder: @unchecked Sendable {
         defer { lock.unlock() }
         committedMessages = baseHistory
         uncommittedText = ""
-        lastAssistantToolCalls = []
-        answeredCallIDs = []
     }
 
     /// Appends an assistant text delta for the in-flight response.
@@ -46,7 +43,6 @@ package final class PartialTurnRecorder: @unchecked Sendable {
         defer { lock.unlock() }
         committedMessages.append(.assistant(message))
         uncommittedText = ""
-        lastAssistantToolCalls = message.toolCalls
     }
 
     /// Records a tool result as it is appended to the loop's messages.
@@ -54,7 +50,6 @@ package final class PartialTurnRecorder: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         committedMessages.append(.tool(id: id, name: name, content: result.content))
-        answeredCallIDs.insert(id)
     }
 
     /// Replaces the recorded state with the loop's validated messages at the end of an iteration.
@@ -63,29 +58,56 @@ package final class PartialTurnRecorder: @unchecked Sendable {
         defer { lock.unlock() }
         committedMessages = messages
         uncommittedText = ""
-        lastAssistantToolCalls = messages.reversed().lazy
-            .compactMap { message -> [ToolCall]? in
-                guard case let .assistant(assistant) = message else { return nil }
-                return assistant.toolCalls
-            }
-            .first ?? []
-        answeredCallIDs = Set(messages.compactMap { message -> String? in
-            guard case let .tool(id, _, _) = message else { return nil }
-            return id
-        })
     }
 
-    /// The history of the turn so far.
+    /// The history of the turn so far, sealed so that it passes `validateForLLMRequest()`.
     ///
-    /// Placeholder: returns committed messages plus any uncommitted text as an assistant message.
-    /// Task 1.2 replaces this with the sealing rules (synthetic results for dangling calls, dropping empty assistants).
+    /// Non-mutating: the stored state is left as it is, so calling this more than once returns the same result
+    /// and the synthetic results never reach the committed messages.
+    ///
+    /// - Empty assistant messages (no content, no tool calls, no reasoning) are dropped. This includes the empty
+    ///   `.response` that `.stop` leaves behind.
+    /// - Tool calls of the most recent assistant message that have no `.tool` result get a synthetic result,
+    ///   `cancelledToolResultContent`, in call order, placed directly after that assistant's existing results.
+    /// - Uncommitted text is appended as an assistant message with no tool calls, after any synthetic results.
     package func snapshot() -> [ChatMessage] {
         lock.lock()
         defer { lock.unlock() }
-        var result = committedMessages
+
+        var result = committedMessages.filter { !Self.isEmptyAssistant($0) }
+
+        if let assistantIndex = result.lastIndex(where: Self.isAssistant) {
+            var insertionIndex = assistantIndex + 1
+            var answeredIDs: Set<String> = []
+            while insertionIndex < result.count, case let .tool(id, _, _) = result[insertionIndex] {
+                answeredIDs.insert(id)
+                insertionIndex += 1
+            }
+            let syntheticResults = result[assistantIndex].toolCalls
+                .filter { !answeredIDs.contains($0.id) }
+                .map { call -> ChatMessage in
+                    .tool(id: call.id, name: call.name, content: Self.cancelledToolResultContent)
+                }
+            result.insert(contentsOf: syntheticResults, at: insertionIndex)
+        }
+
         if !uncommittedText.isEmpty {
             result.append(.assistant(AssistantMessage(content: uncommittedText)))
         }
         return result
+    }
+
+    private static func isAssistant(_ message: ChatMessage) -> Bool {
+        guard case .assistant = message else { return false }
+        return true
+    }
+
+    /// Same emptiness rule as the terminal-finish sanitizer in `ChatMessageHistory.swift`.
+    private static func isEmptyAssistant(_ message: ChatMessage) -> Bool {
+        guard case let .assistant(assistant) = message else { return false }
+        return assistant.content.isEmpty
+            && assistant.toolCalls.isEmpty
+            && assistant.reasoning == nil
+            && (assistant.reasoningDetails?.isEmpty ?? true)
     }
 }
