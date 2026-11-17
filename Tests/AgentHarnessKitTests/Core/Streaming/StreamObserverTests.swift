@@ -398,10 +398,11 @@ struct StreamObserverTests {
     }
 
     @Test
-    func consumerCancellationObservesCancelledCompletion() async throws {
+    func consumerCancellationObservesCancelledCompletion() async {
         let recorder = StreamObserverRecorder()
         let client = ObserverScriptedClient(streamSteps: [.hangingAfterDeltas([.content("partial")])])
         let agent = Agent<EmptyContext>(client: client, tools: [])
+        let (firstEvent, firstEventSignal) = AsyncStream<Void>.makeStream()
         let task = Task {
             var iterator = agent.stream(
                 userMessage: "Go",
@@ -409,10 +410,15 @@ struct StreamObserverTests {
                 requestContext: recorder.completionOnlyRequestContext
             ).makeAsyncIterator()
             _ = try await iterator.next()
+            firstEventSignal.yield()
             try await Task.sleep(for: .seconds(60))
         }
 
-        try await Task.sleep(for: .milliseconds(50))
+        // Cancel only once the LLM stream is live: a cancel before the stream call starts
+        // correctly reports no completion ("at most once per LLM stream call").
+        for await _ in firstEvent {
+            break
+        }
         task.cancel()
         _ = await task.result
         await recorder.waitForCompletions(1)
