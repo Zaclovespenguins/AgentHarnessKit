@@ -24,13 +24,14 @@ extension Agent {
         context: C,
         tokenBudget: Int? = nil,
         requestContext: RequestContext? = nil,
-        approvalHandler: ToolApprovalHandler? = nil
+        approvalHandler: ToolApprovalHandler? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) async throws -> AsyncThrowingStream<StreamEvent, Error> {
         let options = InvocationOptions(
             tokenBudget: tokenBudget, requestContext: requestContext,
             systemPromptOverride: nil, approvalHandler: approvalHandler,
             sessionID: target.sessionID, runID: RunID(),
-            checkpointer: checkpointer
+            checkpointer: checkpointer, partialTurnRecorder: partialTurnRecorder
         )
         if let expected = target.contextStateVersion {
             let actual = try await configuration.contextStore?.stateVersion(sessionID: target.sessionID)

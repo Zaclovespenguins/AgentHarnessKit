@@ -88,6 +88,7 @@ Re-implements billion-context (`acp-kernel`) in Swift. Defaults were checked aga
 - The checkpoint's block-state version changes only on a successful `compress` or `decompress`, so appending messages never invalidates a checkpoint. Resume with a different version, or without the store, fails with `AgentCheckpointError.contextStateMismatch`.
 - Search covers all messages (folded originals included) and active block summaries, whole-word, all terms required.
 - `decompress` with `toFile` writes only plain file names inside a caller-configured `exportDirectory`; it is off by default.
+- v0.2 item 3 (history summarizer): not built. `HierarchicalContextStore` with the `compress` tool covers manual compaction; the app migrates to it instead.
 
 ## 5. Session identity, loop, checkpoints, and sub-agents
 

@@ -750,3 +750,158 @@ private actor ApprovalCounter {
         value += 1
     }
 }
+
+// v0.2 item 2.5: checkpoint resume does not restore the terminal answer twice.
+//
+// Finding: the built-in `finish` path writes no checkpoint for the iteration that
+// ends with `finish` (`Agent.performStreamIteration` returns before
+// `checkpointIfConfigured` when the iteration finishes; only `completionTool` runs
+// store a terminal outcome). Checkpoints therefore hold raw, unsanitized messages
+// from earlier iterations. Resuming re-runs the final model call, and
+// `sanitizedTerminalHistory()` runs exactly once, on the live `.finished` path.
+// A checkpoint whose messages already include a restored answer (from an earlier
+// turn's history) passes through unchanged, because the restored message has no
+// `finish` call left to sanitize.
+
+private let resumeAnswer = "Resumed answer (terminal-answer-marker)."
+
+private func resumeFinishDeltas(id: String, content: String) -> [StreamDelta] {
+    [
+        .toolCallStart(index: 0, id: id, name: "finish", kind: .function),
+        .toolCallDelta(index: 0, arguments: #"{"content": "\#(content)"}"#),
+        .finished(usage: TokenUsage(input: 3, output: 3)),
+    ]
+}
+
+private func resumeEchoDeltas(id: String) -> [StreamDelta] {
+    [
+        .toolCallStart(index: 0, id: id, name: "echo", kind: .function),
+        .toolCallDelta(index: 0, arguments: #"{"message": "hi"}"#),
+        .finished(usage: TokenUsage(input: 3, output: 3)),
+    ]
+}
+
+private func makeEchoAgent(client: some LLMClient) throws -> Agent<EmptyContext> {
+    let echo = try Tool<EchoParams, EchoOutput, EmptyContext>(
+        name: "echo",
+        description: "Echo the message.",
+        executor: { params, _ in EchoOutput(echoed: params.message) }
+    )
+    return Agent<EmptyContext>(client: client, tools: [echo])
+}
+
+private func finishedHistory(of events: [StreamEvent]) throws -> [ChatMessage] {
+    guard case let .finished(_, _, _, history) = events.last?.kind else {
+        throw AgentError.llmError(.other("Expected a finished event"))
+    }
+    return history
+}
+
+private func answerCount(_ needle: String, in messages: [ChatMessage]) -> Int {
+    messages.reduce(0) { count, message in
+        let text: String = switch message {
+        case let .system(text), let .user(text): text
+        case let .assistant(assistant): assistant.content + assistant.toolCalls.map(\.arguments).joined()
+        case let .tool(_, _, content): content
+        case .userMultimodal: ""
+        }
+        return count + text.components(separatedBy: needle).count - 1
+    }
+}
+
+struct AgentResumeTerminalAnswerTests {
+    @Test
+    func finishOnlyRunWritesNoCheckpoint() async throws {
+        let client = CapturingStreamingMockLLMClient(streamSequences: [
+            resumeFinishDeltas(id: "call_finish", content: resumeAnswer),
+        ])
+        let agent = try makeEchoAgent(client: client)
+        let checkpointer = InMemoryCheckpointer()
+        let sessionID = SessionID()
+
+        let events = try await collect(agent.stream(
+            userMessage: "Q", context: EmptyContext(),
+            sessionID: sessionID, checkpointer: checkpointer
+        ))
+
+        #expect(try answerCount(resumeAnswer, in: finishedHistory(of: events)) == 1)
+        #expect(try await checkpointer.list(session: sessionID).isEmpty)
+    }
+
+    @Test
+    func resumeFromLastCheckpointHoldsAnswerOnce() async throws {
+        let client = CapturingStreamingMockLLMClient(streamSequences: [
+            resumeEchoDeltas(id: "call_echo"),
+            resumeFinishDeltas(id: "call_finish", content: resumeAnswer),
+            resumeFinishDeltas(id: "call_finish_resumed", content: resumeAnswer),
+            [.content("Follow-up reply"), .finished(usage: TokenUsage(input: 3, output: 3))],
+        ])
+        let agent = try makeEchoAgent(client: client)
+        let checkpointer = InMemoryCheckpointer()
+        let sessionID = SessionID()
+
+        let original = try await collect(agent.stream(
+            userMessage: "Q", context: EmptyContext(),
+            sessionID: sessionID, checkpointer: checkpointer
+        ))
+        #expect(try answerCount(resumeAnswer, in: finishedHistory(of: original)) == 1)
+
+        let checkpointID = try #require(try await checkpointer.list(session: sessionID).last)
+        let snapshot = try await checkpointer.load(checkpointID)
+        #expect(answerCount(resumeAnswer, in: snapshot.messages) == 0)
+
+        // (a) The resumed run's finished history holds the answer once.
+        let resumed = try await collect(agent.resume(
+            from: checkpointID, checkpointer: checkpointer, context: EmptyContext()
+        ))
+        let resumedHistory = try finishedHistory(of: resumed)
+        #expect(answerCount(resumeAnswer, in: resumedHistory) == 1)
+        guard case let .assistant(last) = resumedHistory.last else {
+            Issue.record("Expected the restored answer to end resumed history")
+            return
+        }
+        #expect(last.content == resumeAnswer)
+        #expect(last.toolCalls.isEmpty)
+        try resumedHistory.validateForAgentHistory()
+
+        // (b) A follow-up turn's request holds it once.
+        _ = try await collect(agent.stream(
+            userMessage: "Thanks", history: resumedHistory, context: EmptyContext()
+        ))
+        let followUpRequest = try #require(await client.allCapturedMessages.last)
+        #expect(answerCount(resumeAnswer, in: followUpRequest) == 1)
+        try followUpRequest.validateForLLMRequest()
+    }
+
+    @Test
+    func resumeOverRestoredEarlierAnswerDoesNotDuplicateIt() async throws {
+        let earlierHistory: [ChatMessage] = [
+            .user("Earlier question"),
+            .assistant(AssistantMessage(content: resumeAnswer)),
+        ]
+        let client = CapturingStreamingMockLLMClient(streamSequences: [
+            resumeEchoDeltas(id: "call_echo"),
+            resumeFinishDeltas(id: "call_finish", content: "Second answer"),
+            resumeFinishDeltas(id: "call_finish_resumed", content: "Second answer"),
+        ])
+        let agent = try makeEchoAgent(client: client)
+        let checkpointer = InMemoryCheckpointer()
+        let sessionID = SessionID()
+
+        _ = try await collect(agent.stream(
+            userMessage: "Next", history: earlierHistory, context: EmptyContext(),
+            sessionID: sessionID, checkpointer: checkpointer
+        ))
+        let checkpointID = try #require(try await checkpointer.list(session: sessionID).last)
+
+        let resumed = try await collect(agent.resume(
+            from: checkpointID, checkpointer: checkpointer, context: EmptyContext()
+        ))
+        let resumedHistory = try finishedHistory(of: resumed)
+
+        #expect(answerCount(resumeAnswer, in: resumedHistory) == 1)
+        #expect(answerCount("Second answer", in: resumedHistory) == 1)
+        let resumeRequest = try #require(await client.allCapturedMessages.last)
+        #expect(answerCount(resumeAnswer, in: resumeRequest) == 1)
+    }
+}

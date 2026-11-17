@@ -319,6 +319,9 @@ extension Agent {
     ) async throws {
         var totalUsage = totalUsage
         let sessionID = options.sessionID ?? SessionID()
+        // Shared by stream and checkpoint resume: `state.messages` is the initial history for a new turn,
+        // or the checkpointed history for a resumed one, and both are the base of the turn.
+        options.partialTurnRecorder?.begin(baseHistory: state.messages)
         let processor = StreamProcessor(
             client: client, toolDefinitions: toolDefinitions, policy: .agent(completionPolicy),
             eventFactory: options.eventFactory
@@ -383,7 +386,12 @@ extension Agent {
             continuation: continuation,
             options: iterationContext.options
         )
-        state.messages.append(.assistant(iteration.toAssistantMessage()))
+        let assistant = iteration.toAssistantMessage()
+        state.messages.append(.assistant(assistant))
+        // Recorder updates happen before the event is yielded, so a consumer that sees the event and cancels
+        // finds the recorder already up to date.
+        iterationContext.options.partialTurnRecorder?.commitAssistant(assistant)
+        iterationContext.options.partialTurnRecorder?.markIterationComplete(messages: state.messages)
         yieldIterationCompleted(
             iteration: iteration, iterationNumber: iterationNumber,
             messages: state.messages, context: iterationContext.context,
