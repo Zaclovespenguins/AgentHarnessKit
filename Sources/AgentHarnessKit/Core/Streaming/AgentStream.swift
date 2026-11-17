@@ -124,6 +124,8 @@ public struct ToolCallInfo: Sendable, Identifiable {
             isStreaming = false
         }
 
+        /// Cancels the running turn. Sets `partialHistory` to the turn's history so far, or `nil` if the turn
+        /// had already finished or recorded nothing.
         public func cancel() {
             // Snapshot before bumping the generation. A finished turn has no recorder, so partialHistory stays nil.
             // A turn cancelled before the loop recorded anything also leaves it nil: an empty history would drop
