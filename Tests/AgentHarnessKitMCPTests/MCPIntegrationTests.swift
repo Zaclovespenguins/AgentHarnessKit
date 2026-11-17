@@ -72,7 +72,7 @@ struct MCPIntegrationTests {
     @Test
     func agentWithMCPTool() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport(tools: [.init(name: "remote_tool", description: "Remote", schema: schema)]) { _ in
                 "remote result"
@@ -99,7 +99,7 @@ struct MCPIntegrationTests {
     @Test
     func agentWithMCPToolError() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             DynamicMCPTransport { data in
                 guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
@@ -162,7 +162,7 @@ struct MCPIntegrationTests {
         )
 
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport(
                 tools: [.init(name: "remote_fetch", description: "Fetches data", schema: schema)]
@@ -193,7 +193,7 @@ struct MCPIntegrationTests {
     @Test
     func parallelMCPCalls() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport(tools: [
                 .init(name: "tool_a", description: "A", schema: schema),
@@ -226,7 +226,7 @@ struct MCPIntegrationTests {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
         let config = MCPServerConfiguration(
             name: "server1",
-            command: "/bin/test",
+            endpoint: testEndpoint,
             toolCallTimeout: .milliseconds(200)
         )
         let session = MCPSession(configurations: [config]) { _ in

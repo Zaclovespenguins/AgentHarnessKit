@@ -36,7 +36,7 @@ struct MCPSessionTests {
     @Test
     func singleServerLifecycle() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport(tools: [.init(name: "tool_a", description: "Tool A", schema: schema)])
         }
@@ -53,8 +53,8 @@ struct MCPSessionTests {
     func multipleServersParallel() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
         let configs = [
-            MCPServerConfiguration(name: "server1", command: "/bin/test"),
-            MCPServerConfiguration(name: "server2", command: "/bin/test2"),
+            MCPServerConfiguration(name: "server1", endpoint: testEndpoint),
+            MCPServerConfiguration(name: "server2", endpoint: testEndpoint),
         ]
         let session = MCPSession(configurations: configs) { config in
             if config.name == "server1" {
@@ -75,8 +75,8 @@ struct MCPSessionTests {
     func duplicateToolNameThrows() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
         let configs = [
-            MCPServerConfiguration(name: "server1", command: "/bin/test"),
-            MCPServerConfiguration(name: "server2", command: "/bin/test2"),
+            MCPServerConfiguration(name: "server1", endpoint: testEndpoint),
+            MCPServerConfiguration(name: "server2", endpoint: testEndpoint),
         ]
         let session = MCPSession(configurations: configs) { _ in
             makeStandardTransport(tools: [.init(name: "same_tool", description: "Tool", schema: schema)])
@@ -98,8 +98,8 @@ struct MCPSessionTests {
     @Test
     func serverFailureShutdownsOthers() async throws {
         let configs = [
-            MCPServerConfiguration(name: "good", command: "/bin/test"),
-            MCPServerConfiguration(name: "bad", command: "/bin/test2"),
+            MCPServerConfiguration(name: "good", endpoint: testEndpoint),
+            MCPServerConfiguration(name: "bad", endpoint: testEndpoint),
         ]
         let session = MCPSession(configurations: configs) { config in
             if config.name == "bad" {
@@ -121,7 +121,7 @@ struct MCPSessionTests {
 
     @Test
     func bodyErrorTriggersShutdown() async throws {
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport()
         }
@@ -138,7 +138,7 @@ struct MCPSessionTests {
 
     @Test
     func cancellationTriggersShutdown() async throws {
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport()
         }
@@ -162,7 +162,7 @@ struct MCPSessionTests {
     @Test
     func toolsCorrectGenericType() async throws {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
-        let config = MCPServerConfiguration(name: "server1", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport(tools: [.init(name: "tool_a", description: "A", schema: schema)])
         }
@@ -185,7 +185,7 @@ struct MCPSessionTests {
 
     @Test
     func transportFactoryInjection() async throws {
-        let config = MCPServerConfiguration(name: "injected", command: "/bin/test")
+        let config = MCPServerConfiguration(name: "injected", endpoint: testEndpoint)
         let session = MCPSession(configurations: [config]) { _ in
             makeStandardTransport()
         }
