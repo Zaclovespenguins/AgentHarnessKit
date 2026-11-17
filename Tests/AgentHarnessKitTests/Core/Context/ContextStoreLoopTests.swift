@@ -17,7 +17,7 @@ private actor RecordingContextStore: ContextStore {
         self.rewrite = rewrite
     }
 
-    func render(sessionID: SessionID, messages: [ChatMessage]) async throws -> [ChatMessage] {
+    func render(sessionID: SessionID, messages: [ChatMessage], windowSize _: Int?) async throws -> [ChatMessage] {
         renderCalls.append((sessionID, messages))
         return rewrite?(messages) ?? messages
     }
@@ -89,7 +89,7 @@ struct ContextStoreLoopTests {
     func inMemoryStoreIsAPassThrough() async throws {
         let store = InMemoryContextStore()
         let messages: [ChatMessage] = [.system("S"), .user("Hi")]
-        #expect(try await store.render(sessionID: SessionID(), messages: messages) == messages)
+        #expect(try await store.render(sessionID: SessionID(), messages: messages, windowSize: nil) == messages)
         try await store.record(sessionID: SessionID(), messages: messages, usage: nil)
     }
 

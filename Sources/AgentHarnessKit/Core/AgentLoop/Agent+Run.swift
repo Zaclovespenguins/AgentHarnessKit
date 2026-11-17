@@ -2,7 +2,7 @@ import Foundation
 
 extension Agent {
     func renderedMessages(_ messages: [ChatMessage], sessionID: SessionID) async throws -> [ChatMessage] {
-        try await configuration.contextStore?.render(sessionID: sessionID, messages: messages) ?? messages
+        try await configuration.contextStore?.render(sessionID: sessionID, messages: messages, windowSize: client.contextWindowSize) ?? messages
     }
 
     func recordNewMessages(state: inout AgentLoopState, usage: TokenUsage?, sessionID: SessionID) async throws {
