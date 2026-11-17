@@ -93,6 +93,7 @@ private struct StreamAccumulation {
     var audio = AudioAccumulator()
     var usage: TokenUsage?
     var continuity: AssistantContinuity?
+    var partialTurnRecorder: PartialTurnRecorder? = nil
     var yieldedEvent = false
     var eventsObserved = 0
     var sawFinished = false
@@ -128,6 +129,7 @@ private struct StreamAccumulation {
         switch delta {
         case let .content(text):
             content += text
+            partialTurnRecorder?.appendText(text)
             yield(.delta(text), continuation: continuation, eventObserver: eventObserver)
         case let .reasoning(text):
             reasoning += text
@@ -266,9 +268,13 @@ struct StreamProcessor {
         totalUsage: inout TokenUsageTotals,
         emittedOutput: inout Bool,
         continuation: AsyncThrowingStream<StreamEvent, Error>.Continuation,
-        requestContext: RequestContext? = nil
+        requestContext: RequestContext? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) async throws -> StreamIteration {
-        var state = StreamAccumulation(eventFactory: eventFactory, provider: client.providerIdentifier)
+        var state = StreamAccumulation(
+            eventFactory: eventFactory, provider: client.providerIdentifier,
+            partialTurnRecorder: partialTurnRecorder
+        )
         let eventObserver = requestContext?.onStreamEvent
         let completionObserver = requestContext?.onStreamComplete
 

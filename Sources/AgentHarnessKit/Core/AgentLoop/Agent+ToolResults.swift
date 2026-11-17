@@ -135,9 +135,14 @@ extension Agent {
         return allResults.sorted { $0.index < $1.index }
     }
 
-    func appendToolResults(_ results: [IndexedToolResult], messages: inout [ChatMessage]) {
+    func appendToolResults(
+        _ results: [IndexedToolResult],
+        messages: inout [ChatMessage],
+        partialTurnRecorder: PartialTurnRecorder? = nil
+    ) {
         for entry in results {
             messages.append(.tool(id: entry.call.id, name: entry.call.name, content: entry.result.content))
+            partialTurnRecorder?.appendToolResult(id: entry.call.id, name: entry.call.name, result: entry.result)
         }
     }
 
