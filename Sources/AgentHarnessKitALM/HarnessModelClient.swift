@@ -198,3 +198,5 @@ private func zeroUsage() -> LanguageModelSession.Usage {
         output: .init(totalTokenCount: 0, reasoningTokenCount: 0)
     )
 }
+
+extension HarnessModelClient: RunStreamingClient {}

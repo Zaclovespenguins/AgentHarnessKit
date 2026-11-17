@@ -1,0 +1,462 @@
+@testable import AgentHarnessKit
+import Foundation
+
+actor MockLLMClient: LLMClient, ToolCallSurfacingClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("MockLLMClient")
+    private let responses: [AssistantMessage]
+    private var callIndex: Int = 0
+    private(set) var allCapturedTools: [[ToolDefinition]] = []
+
+    init(responses: [AssistantMessage]) {
+        self.responses = responses
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        allCapturedTools.append(tools)
+        defer { callIndex += 1 }
+        guard callIndex < responses.count else {
+            throw AgentError.llmError(.other("No more mock responses"))
+        }
+        return responses[callIndex]
+    }
+
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { $0.finish() }
+    }
+}
+
+struct ControlledByteStream: AsyncSequence {
+    typealias Element = UInt8
+    let stream: AsyncStream<UInt8>
+
+    func makeAsyncIterator() -> AsyncStream<UInt8>.AsyncIterator {
+        stream.makeAsyncIterator()
+    }
+}
+
+actor StreamingMockLLMClient: LLMClient, ToolCallSurfacingClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("StreamingMockLLMClient")
+    let contextWindowSize: Int?
+    private let generateResponses: [AssistantMessage]
+    private let streamSequences: [[StreamDelta]]
+    private var generateIndex = 0
+    private var streamIndex = 0
+    private(set) var allCapturedTools: [[ToolDefinition]] = []
+
+    init(
+        generateResponses: [AssistantMessage] = [],
+        streamSequences: [[StreamDelta]] = [],
+        contextWindowSize: Int? = nil
+    ) {
+        self.generateResponses = generateResponses
+        self.streamSequences = streamSequences
+        self.contextWindowSize = contextWindowSize
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        allCapturedTools.append(tools)
+        defer { generateIndex += 1 }
+        guard generateIndex < generateResponses.count else {
+            throw AgentError.llmError(.other("No more mock responses"))
+        }
+        return generateResponses[generateIndex]
+    }
+
+    func nextStreamSequence(tools: [ToolDefinition]) -> [StreamDelta] {
+        allCapturedTools.append(tools)
+        let sequence = streamIndex < streamSequences.count ? streamSequences[streamIndex] : []
+        streamIndex += 1
+        return sequence
+    }
+
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let sequence = await self.nextStreamSequence(tools: tools)
+                    for delta in sequence {
+                        try Task.checkCancellation()
+                        continuation.yield(delta)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+actor ContentOnlyTerminatingMockLLMClient: LLMClient, ToolCallSurfacingClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("ContentOnlyTerminatingMockLLMClient")
+    private let inner: StreamingMockLLMClient
+    private(set) var invocationCount = 0
+    private(set) var capturedGenerateMessages: [[ChatMessage]] = []
+
+    init(
+        generateResponses: [AssistantMessage] = [],
+        streamSequences: [[StreamDelta]] = []
+    ) {
+        inner = StreamingMockLLMClient(
+            generateResponses: generateResponses,
+            streamSequences: streamSequences
+        )
+    }
+
+    func generate(
+        messages: [ChatMessage],
+        tools: [ToolDefinition],
+        responseFormat: ResponseFormat?,
+        requestContext: RequestContext?
+    ) async throws -> AssistantMessage {
+        invocationCount += 1
+        capturedGenerateMessages.append(messages)
+        return try await inner.generate(
+            messages: messages, tools: tools,
+            responseFormat: responseFormat, requestContext: requestContext
+        )
+    }
+
+    func recordStreamInvocation() {
+        invocationCount += 1
+    }
+
+    nonisolated func stream(
+        messages: [ChatMessage],
+        tools: [ToolDefinition],
+        requestContext: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                await self.recordStreamInvocation()
+                do {
+                    for try await delta in self.inner.stream(
+                        messages: messages, tools: tools, requestContext: requestContext
+                    ) {
+                        continuation.yield(delta)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+actor CapturingStreamingMockLLMClient: LLMClient, ToolCallSurfacingClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("CapturingStreamingMockLLMClient")
+    private let streamSequences: [[StreamDelta]]
+    private var streamIndex = 0
+    private(set) var allCapturedMessages: [[ChatMessage]] = []
+
+    var capturedMessages: [ChatMessage] {
+        allCapturedMessages.last ?? []
+    }
+
+    init(streamSequences: [[StreamDelta]] = []) {
+        self.streamSequences = streamSequences
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        throw AgentError.llmError(.other("No more mock responses"))
+    }
+
+    func nextStreamSequence(messages: [ChatMessage]) -> [StreamDelta] {
+        allCapturedMessages.append(messages)
+        let sequence = streamIndex < streamSequences.count ? streamSequences[streamIndex] : []
+        streamIndex += 1
+        return sequence
+    }
+
+    nonisolated func stream(
+        messages: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let sequence = await self.nextStreamSequence(messages: messages)
+                    for delta in sequence {
+                        try Task.checkCancellation()
+                        continuation.yield(delta)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+actor ContinuityStreamingMockLLMClient: LLMClient, RunStreamingClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("ContinuityStreamingMockLLMClient")
+    private let streamSequences: [[RunStreamElement]]
+    private let streamErrors: [(any Error)?]
+    private var streamIndex = 0
+
+    init(
+        streamSequences: [[RunStreamElement]],
+        streamErrors: [(any Error)?] = []
+    ) {
+        self.streamSequences = streamSequences
+        self.streamErrors = streamErrors
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        throw AgentError.llmError(.other("No more mock responses"))
+    }
+
+    func nextStreamSequence() -> (elements: [RunStreamElement], error: (any Error)?) {
+        let elements = streamIndex < streamSequences.count ? streamSequences[streamIndex] : []
+        let error = streamIndex < streamErrors.count ? streamErrors[streamIndex] : nil
+        streamIndex += 1
+        return (elements, error)
+    }
+
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let sequence = await self.nextStreamSequence()
+                    for element in sequence.elements {
+                        try Task.checkCancellation()
+                        guard case let .delta(delta) = element else { continue }
+                        continuation.yield(delta)
+                    }
+                    continuation.finish(throwing: sequence.error)
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+    nonisolated func streamForRun(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<RunStreamElement, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let sequence = await self.nextStreamSequence()
+                    for element in sequence.elements {
+                        try Task.checkCancellation()
+                        continuation.yield(element)
+                    }
+                    continuation.finish(throwing: sequence.error)
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+actor StreamingEventCollector {
+    private(set) var events: [StreamEvent] = []
+    private var firstEventWaiters: [CheckedContinuation<Void, Never>] = []
+
+    func append(_ event: StreamEvent) {
+        events.append(event)
+        guard events.count == 1 else { return }
+        let waiters = firstEventWaiters
+        firstEventWaiters.removeAll(keepingCapacity: false)
+        for waiter in waiters {
+            waiter.resume()
+        }
+    }
+
+    func waitForFirstEvent() async {
+        if !events.isEmpty {
+            return
+        }
+        await withCheckedContinuation { continuation in
+            firstEventWaiters.append(continuation)
+        }
+    }
+}
+
+actor ControllableStreamingMockLLMClient: LLMClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("ControllableStreamingMockLLMClient")
+    private var deltasContinuation: AsyncStream<StreamDelta>.Continuation?
+    private var onStreamStarted: (() -> Void)?
+
+    init() {}
+
+    func setStreamStartedHandler(_ handler: @escaping () -> Void) {
+        onStreamStarted = handler
+    }
+
+    func yieldDelta(_ delta: StreamDelta) {
+        deltasContinuation?.yield(delta)
+    }
+
+    func finishStream() {
+        deltasContinuation?.finish()
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        throw AgentError.llmError(.other("No more mock responses"))
+    }
+
+    func prepareStream() -> AsyncStream<StreamDelta> {
+        AsyncStream { continuation in
+            self.deltasContinuation = continuation
+            self.onStreamStarted?()
+        }
+    }
+
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    let stream = await self.prepareStream()
+                    for await delta in stream {
+                        try Task.checkCancellation()
+                        continuation.yield(delta)
+                    }
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
+func containsNestedApprovalRequested(_ events: [StreamEvent], toolName: String) -> Bool {
+    events.contains { event in
+        if case let .subAgentEvent(_, innerToolName, innerEvent) = event.kind,
+           innerToolName == toolName,
+           case .toolApprovalRequested = innerEvent.kind {
+            return true
+        }
+        return false
+    }
+}
+
+func containsNestedApprovalResolved(_ events: [StreamEvent], toolName: String) -> Bool {
+    events.contains { event in
+        if case let .subAgentEvent(_, innerToolName, innerEvent) = event.kind,
+           innerToolName == toolName,
+           case .toolApprovalResolved = innerEvent.kind {
+            return true
+        }
+        return false
+    }
+}
+
+struct MultipartTestPart {
+    let headers: [String: String]
+    let body: String
+
+    var name: String? {
+        contentDispositionParameters["name"]
+    }
+
+    var filename: String? {
+        contentDispositionParameters["filename"]
+    }
+
+    private var contentDispositionParameters: [String: String] {
+        guard let value = headers["Content-Disposition"] else { return [:] }
+        return parseContentDisposition(value)
+    }
+}
+
+func parseMultipartBody(_ data: Data, boundary: String) -> [MultipartTestPart] {
+    guard let raw = String(bytes: data, encoding: .utf8) else { return [] }
+    let delimiter = "--\(boundary)"
+    let sections = raw.components(separatedBy: delimiter)
+    var parts: [MultipartTestPart] = []
+
+    for section in sections {
+        let trimmed = section.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != "--" else { continue }
+        let cleaned = trimmed.hasSuffix("--") ? String(trimmed.dropLast(2)) : trimmed
+        let headerBody = cleaned.components(separatedBy: "\r\n\r\n")
+        guard headerBody.count >= 2 else { continue }
+
+        let headerLines = headerBody[0].components(separatedBy: "\r\n")
+        var headers: [String: String] = [:]
+        for line in headerLines {
+            let parts = line.split(separator: ":", maxSplits: 1)
+            guard parts.count == 2 else { continue }
+            let name = String(parts[0])
+            let value = parts[1].trimmingCharacters(in: .whitespaces)
+            headers[name] = value
+        }
+
+        let body = headerBody[1].trimmingCharacters(in: CharacterSet(charactersIn: "\r\n"))
+        parts.append(MultipartTestPart(headers: headers, body: body))
+    }
+
+    return parts
+}
+
+func multipartPart(named name: String, parts: [MultipartTestPart]) -> MultipartTestPart? {
+    parts.first { $0.name == name }
+}
+
+private func parseContentDisposition(_ value: String) -> [String: String] {
+    let components = value.split(separator: ";")
+    guard components.count > 1 else { return [:] }
+
+    var params: [String: String] = [:]
+    for component in components.dropFirst() {
+        let pair = component.split(separator: "=", maxSplits: 1)
+        guard pair.count == 2 else { continue }
+        let key = pair[0].trimmingCharacters(in: .whitespaces)
+        var paramValue = pair[1].trimmingCharacters(in: .whitespaces)
+        if paramValue.hasPrefix("\""), paramValue.hasSuffix("\"") {
+            paramValue = String(paramValue.dropFirst().dropLast())
+        }
+        params[key] = paramValue
+    }
+
+    return params
+}
