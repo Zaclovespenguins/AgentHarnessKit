@@ -146,7 +146,7 @@ struct ChatMessageTerminalHistoryTests {
     }
 
     @Test
-    func terminalFinishStrippingKeepsAssistantContinuity() throws {
+    func terminalFinishRestoreDropsResponsesContinuity() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -187,27 +187,11 @@ struct ChatMessageTerminalHistoryTests {
         }
         #expect(message.content == "Final answer\n\ndone")
         #expect(message.toolCalls.isEmpty)
-        #expect(message.continuity == AssistantContinuity(
-            substrate: .responses,
-            payload: .object([
-                "output": .array([
-                    .object([
-                        "type": .string("message"),
-                        "role": .string("assistant"),
-                        "content": .array([
-                            .object([
-                                "type": .string("output_text"),
-                                "text": .string("Final answer"),
-                            ])
-                        ]),
-                    ])
-                ])
-            ])
-        ))
+        #expect(message.continuity == nil)
     }
 
     @Test
-    func terminalFinishStrippingKeepsReasoningOnlyAssistant() throws {
+    func terminalFinishRestoreKeepsReasoningDropsContinuity() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -234,17 +218,11 @@ struct ChatMessageTerminalHistoryTests {
         #expect(message.content == "done")
         #expect(message.toolCalls.isEmpty)
         #expect(message.reasoning == ReasoningContent(content: "Reasoning only"))
-        #expect(message.continuity == AssistantContinuity(
-            substrate: .anthropicMessages,
-            payload: .object([
-                "thinking": .string("Reasoning only"),
-                "signature": .string("sig_123"),
-            ])
-        ))
+        #expect(message.continuity == nil)
     }
 
     @Test
-    func terminalFinishStrippingKeepsReasoningDetailsOnlyAssistant() throws {
+    func terminalFinishRestoreKeepsReasoningDetailsDropsContinuity() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -283,16 +261,11 @@ struct ChatMessageTerminalHistoryTests {
                 "index": .int(0),
             ])
         ])
-        #expect(message.continuity == AssistantContinuity(
-            substrate: .responses,
-            payload: .object([
-                "response_id": .string("resp_123"),
-            ])
-        ))
+        #expect(message.continuity == nil)
     }
 
     @Test
-    func terminalFinishOnlyAssistantRestoresAnswerWithContinuity() throws {
+    func terminalFinishOnlyAssistantRestoreDropsContinuity() throws {
         let history: [ChatMessage] = [
             .user("Hi"),
             .assistant(AssistantMessage(
@@ -309,18 +282,7 @@ struct ChatMessageTerminalHistoryTests {
 
         let sanitized = try history.sanitizedTerminalHistory()
 
-        #expect(sanitized == [
-            .user("Hi"),
-            .assistant(AssistantMessage(
-                content: "done",
-                continuity: AssistantContinuity(
-                    substrate: .responses,
-                    payload: .object([
-                        "response_id": .string("resp_123"),
-                    ])
-                )
-            )),
-        ])
+        #expect(sanitized == [.user("Hi"), .assistant(AssistantMessage(content: "done"))])
     }
 }
 

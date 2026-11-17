@@ -239,3 +239,37 @@ struct StreamDeltaMapperTests {
         #expect(StreamDeltaMapper.toolCallDeltas(entries: []).isEmpty)
     }
 }
+
+/// v0.2 item 2: a reasoning turn that ends with `finish` carries an ALM replay copy that still
+/// holds the `finish` call. The restored history drops that copy, so the follow-up transcript is
+/// rebuilt from the message fields: reasoning plus the answer, and no dangling `finish` call.
+struct TerminalAnswerReplayTests {
+    @Test func restoredFinishTurnReplaysAnswerWithoutFinishCall() throws {
+        let entries: [Transcript.Entry] = try [
+            .reasoning(.init(segments: [.text(.init(content: "thinking"))], signature: Data("sig".utf8))),
+            .toolCalls(Transcript.ToolCalls([Transcript.ToolCall(
+                id: "call_finish", toolName: "finish", arguments: GeneratedContent(json: #"{"content":"ANSWER"}"#)
+            )])),
+        ]
+        let finishTurn = try ResponseMapping.assistantMessage(
+            content: "", entries: entries, usage: usage(), replaySubstrate: .anthropicMessages
+        )
+        #expect(finishTurn.continuity != nil)
+        #expect(finishTurn.toolCalls.map(\.name) == ["finish"])
+
+        let history = try ([.user("Q"), .assistant(finishTurn)] as [ChatMessage]).sanitizedTerminalHistory()
+        let transcript = try TranscriptMapping.transcript(
+            from: history + [.user("Follow-up")], replaySubstrate: .anthropicMessages
+        )
+
+        #expect(kinds(transcript) == ["prompt", "reasoning", "response", "prompt"])
+        let responses = transcript.compactMap { entry -> String? in
+            guard case let .response(response) = entry else { return nil }
+            return response.segments.compactMap { segment -> String? in
+                guard case let .text(text) = segment else { return nil }
+                return text.content
+            }.joined()
+        }
+        #expect(responses == ["ANSWER"])
+    }
+}

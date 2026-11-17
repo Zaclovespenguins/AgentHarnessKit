@@ -10,6 +10,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 ### Changed
 
 - Terminal `finish` answers are kept in history as an assistant message; consumers can drop their own restore step. The merge of assistant text and finish content follows the "Terminal answer in history" rule in `AGENTHARNESSKIT_PARITY_SPEC.md`.
+- The restored terminal answer message drops its provider continuity, so adapters that replay continuity verbatim (for example `HarnessModelClient` with `replaySubstrate`) rebuild that turn from its fields instead of resending a dangling `finish` call. That one turn is no longer replayed verbatim.
 
 ### Notes
 

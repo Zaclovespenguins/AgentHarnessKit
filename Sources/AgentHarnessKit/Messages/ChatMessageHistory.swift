@@ -202,7 +202,10 @@ private func terminalAnswerText(assistantText: String, finishContent: String?) -
 
 private extension AssistantMessage {
     /// Replaces the `finish` call with its answer as plain assistant text.
-    /// Reasoning, usage and continuity from the original message are kept.
+    /// Reasoning and usage are kept. Continuity is dropped: the provider-native
+    /// replay copy still holds the `finish` call and lacks the restored text, and
+    /// core cannot edit every substrate's format, so replaying it would send a
+    /// dangling tool call. Adapters rebuild the turn from the semantic fields.
     func restoringTerminalAnswer(finishContent: String?) -> AssistantMessage {
         AssistantMessage(
             content: terminalAnswerText(assistantText: content, finishContent: finishContent),
@@ -210,7 +213,7 @@ private extension AssistantMessage {
             tokenUsage: tokenUsage,
             reasoning: reasoning,
             reasoningDetails: reasoningDetails,
-            continuity: continuity?.removingTerminalFinishTool()
+            continuity: nil
         )
     }
 
