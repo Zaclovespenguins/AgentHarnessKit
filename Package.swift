@@ -61,9 +61,16 @@ let package = Package(
             dependencies: ["AgentHarnessKit"],
             swiftSettings: swiftSettings
         ),
+        // Child process for the cross-process resume test; not a product.
+        .executableTarget(
+            name: "CheckpointResumeProbe",
+            dependencies: ["AgentHarnessKit"],
+            path: "Tests/CheckpointResumeProbe",
+            swiftSettings: swiftSettings
+        ),
         .testTarget(
             name: "AgentHarnessKitTests",
-            dependencies: ["AgentHarnessKit"],
+            dependencies: ["AgentHarnessKit", "AgentHarnessKitTesting", "CheckpointResumeProbe"],
             swiftSettings: swiftSettings
         ),
         .testTarget(

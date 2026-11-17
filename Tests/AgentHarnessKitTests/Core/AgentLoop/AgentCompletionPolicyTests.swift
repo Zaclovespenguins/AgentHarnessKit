@@ -1,0 +1,118 @@
+@testable import AgentHarnessKit
+import Testing
+
+private let finishCall = ToolCall(id: "call_finish", name: "finish", arguments: #"{"content": "done"}"#)
+private let searchCall = ToolCall(id: "call_search", name: "search", arguments: "{}")
+private let pruneCall = ToolCall(id: "call_prune", name: "other_tool", arguments: "{}")
+private let finalizeCall = ToolCall(id: "call_finalize", name: "finalize", arguments: "{}")
+
+struct BuiltInFinishClassificationTests {
+    private let policy = AgentCompletionPolicy.builtInFinish
+
+    @Test
+    func exclusiveFinishIsTheTerminalCall() throws {
+        #expect(try policy.classify([finishCall]) == .builtInFinish(finishCall))
+    }
+
+    @Test
+    func batchWithoutFinishHasNoTerminalCall() throws {
+        #expect(try policy.classify([searchCall, pruneCall]) == TerminalCallDisposition.none)
+        #expect(try policy.classify([]) == TerminalCallDisposition.none)
+    }
+
+    @Test
+    func finishBesideAnotherCallThrows() {
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try policy.classify([searchCall, finishCall])
+        }
+    }
+
+    @Test
+    func finishLeadingTheBatchAlsoThrows() {
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try policy.classify([finishCall, searchCall])
+        }
+    }
+
+    @Test
+    func repeatedFinishThrows() {
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try policy.classify([finishCall, finishCall])
+        }
+    }
+
+    @Test
+    func aToolNamedLikeACustomCompletionStaysOrdinary() throws {
+        #expect(try policy.classify([finalizeCall]) == TerminalCallDisposition.none)
+    }
+}
+
+struct ExecutableCompletionClassificationTests {
+    private let policy = AgentCompletionPolicy.executableTool(name: "finalize")
+
+    @Test
+    func exclusiveCompletionCallIsTerminal() throws {
+        #expect(try policy.classify([finalizeCall]) == .executableCompletion(finalizeCall))
+    }
+
+    @Test
+    func completionBesideAnotherCallIsFeedbackCarryingTheWholeBatch() throws {
+        #expect(
+            try policy.classify([searchCall, finalizeCall])
+                == .exclusivityViolation(toolName: "finalize", calls: [searchCall, finalizeCall])
+        )
+    }
+
+    @Test
+    func completionBesidePruneContextIsAViolation() throws {
+        #expect(
+            try policy.classify([pruneCall, finalizeCall])
+                == .exclusivityViolation(toolName: "finalize", calls: [pruneCall, finalizeCall])
+        )
+    }
+
+    @Test
+    func aCompletionCallLeadingTheBatchIsAlsoAViolation() throws {
+        #expect(
+            try policy.classify([finalizeCall, searchCall])
+                == .exclusivityViolation(toolName: "finalize", calls: [finalizeCall, searchCall])
+        )
+        #expect(
+            try policy.classify([finalizeCall, pruneCall])
+                == .exclusivityViolation(toolName: "finalize", calls: [finalizeCall, pruneCall])
+        )
+    }
+
+    @Test
+    func repeatedCompletionIsAViolation() throws {
+        #expect(
+            try policy.classify([finalizeCall, finalizeCall])
+                == .exclusivityViolation(toolName: "finalize", calls: [finalizeCall, finalizeCall])
+        )
+    }
+
+    @Test
+    func loneHallucinatedFinishFallsThroughToOrdinaryDispatch() throws {
+        #expect(try policy.classify([finishCall]) == TerminalCallDisposition.none)
+    }
+
+    @Test
+    func hallucinatedFinishBesideAnotherCallStillThrows() {
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try policy.classify([finalizeCall, finishCall])
+        }
+        #expect(throws: AgentError.malformedHistory(.finishMustBeExclusive)) {
+            try policy.classify([finishCall, finalizeCall])
+        }
+    }
+
+    @Test
+    func ordinaryBatchHasNoTerminalCall() throws {
+        #expect(try policy.classify([searchCall, pruneCall]) == TerminalCallDisposition.none)
+    }
+}
+
+struct TerminalOutcomeIdentityTests {
+    private let outcome = AgentTerminalOutcome(content: #"{"summary":"shipped"}"#, toolName: "finalize")
+
+}
