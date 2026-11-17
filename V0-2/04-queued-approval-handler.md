@@ -4,9 +4,10 @@
 
 **What exists:**
 
-- `ToolApprovalHandler` is a closure typealias: `@Sendable (ToolApprovalRequest) async -> ToolApprovalDecision` (`Sources/AgentHarnessKit/Core/AgentLoop/ToolApproval.swift:80`).
-- `awaitApprovalDecision` cancels the handler's task when the loop is cancelled (`ToolApproval.swift:105`). The queue must react to that cancellation or it leaks a parked continuation.
-- Allowlisted tools never reach the handler: `ToolApprovalPolicy.requiresApproval(toolName:allowlist:)` short-circuits first (`ToolApproval.swift:11`, called from `Agent+ToolResults.swift:63`). `approveAlways` inserts into the allowlist after the decision (`ToolApproval.swift:150`).
+- `ToolApprovalHandler` is a closure typealias: `@Sendable (ToolApprovalRequest) async -> ToolApprovalDecision` (`Sources/AgentHarnessKit/Core/AgentLoop/ToolApproval.swift:78`).
+- `awaitApprovalDecision` cancels the handler's task when the loop is cancelled (`ToolApproval.swift:117`–`118`). The queue must react to that cancellation or it leaks a parked continuation.
+- Allowlisted tools never reach the handler: `ToolApprovalPolicy.requiresApproval(toolName:allowlist:)` short-circuits first (`ToolApproval.swift:11`, called from `Agent+ToolResults.swift:63`). `approveAlways` inserts into the allowlist after the decision (`ToolApproval.swift:152`).
+- **Approvals are sequential within one run.** `resolveApprovals` (`Agent+ToolExecution.swift:123`) awaits each request in turn and re-checks the allowlist before each one (line 138). So one run parks at most one request at a time. Several requests are parked together only when several runs share a queue: parallel sub-agents that receive the parent's handler, or several `Agent`/`AgentStream` runs given the same `queue.handler`. This is deliberate and stays as is for v0.2: do not change the loop to request approvals concurrently.
 
 **Fixed design:**
 
@@ -21,14 +22,14 @@ public final class ToolApprovalQueue: Sendable {
 }
 ```
 
-Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDecision, Never>)]`. No `Observation` import. File: `Sources/AgentHarnessKit/Core/AgentLoop/ToolApprovalQueue.swift`.
+Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDecision, Never>)]`. `resolve(id:)` matches `ToolApprovalRequest.toolCallId`; if more than one parked entry has that id (two runs sharing a queue can reuse an id), it resolves the oldest one. One decision resolves exactly one request: the queue never resolves other entries on behalf of a decision. No `Observation` import. File: `Sources/AgentHarnessKit/Core/AgentLoop/ToolApprovalQueue.swift`.
 
 ---
 
 ## 4.0 Spec text for the queue
 
 - **Depends on:** nothing. **Parallel-safe** with 1.0 and 2.0.
-- **Do:** in `AGENTHARNESSKIT_PARITY_SPEC.md` under the **Approval** bullet, add: the kit provides `ToolApprovalQueue`; FIFO order; independent resolution in any order; `denyAll` on stop/cancel; a cancelled parked request is removed and resolves as deny with reason `"Cancelled"`; `approveAlways` on one request also approves any other parked request for the same tool name in that queue (decision — flag in your report if you think it is wrong).
+- **Do:** in `AGENTHARNESSKIT_PARITY_SPEC.md` under the **Approval** bullet, add: the kit provides `ToolApprovalQueue`; FIFO order; independent resolution in any order; `denyAll` on stop/cancel; a cancelled parked request is removed and resolves as deny with reason `"Cancelled"`; one decision resolves exactly one request, and `approveAlways` is passed through to the loop, which adds the tool to that run's allowlist (the queue does not approve other parked requests for the same tool); the loop asks for approvals one at a time, so a single run has at most one parked request, and several are parked only when runs share a queue; `resolve` matches `toolCallId` and takes the oldest entry on a duplicate id.
 - **Done when:** spec diff only.
 
 ## 4.1 Queue actor and public type skeleton
@@ -43,7 +44,8 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 - **Depends on:** 4.1.
 - **Do:**
   - `handler` enqueues and awaits; wrap the wait in `withTaskCancellationHandler` so cancellation removes the entry and resumes it with `.deny(reason: "Cancelled")`.
-  - `resolve(id:decision:)` resumes and removes that entry, publishes, returns `true`; unknown id returns `false`. If `decision == .approveAlways`, also resolve every other parked entry with the same `toolName` as `.approve` (per 4.0).
+  - Cancellation can arrive before the entry is enqueued (the loop cancels the handler's task, and `onCancel` runs synchronously, possibly before the actor has stored the continuation). Handle it: give each call a unique token, and have the actor remember tokens cancelled before enqueue so the later enqueue resumes immediately with `.deny(reason: "Cancelled")` instead of parking. Also check `Task.isCancelled` at the start of `handler`.
+  - `resolve(id:decision:)` resumes and removes the oldest entry whose `toolCallId == id`, publishes, returns `true`; unknown id returns `false`. Pass the decision through unchanged, including `.approveAlways`; do not touch other entries.
   - `denyAll(reason:)` resumes every entry with `.deny(reason:)` in FIFO order, empties the queue, publishes once.
   - Every continuation is resumed exactly once on every path.
 - **Done when:** `swift build` passes.
@@ -73,15 +75,18 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 - **Do:** loop-level tests with `TestLLMClient`:
   - after `approveAlways` for tool `A`, a later call to `A` in the same run never enters the queue (`updates` never shows it);
   - resuming from a checkpoint whose allowlist contains `A` → `A` never enters the queue;
-  - two parallel `A` calls parked → `approveAlways` on one approves both.
+  - two runs sharing one queue, each parked on tool `A` → `approveAlways` on one resolves only that one; the other stays in `pending()` until resolved itself.
 - **Done when:** tests green.
 
-## 4.6 Concurrent tool calls resolve independently
+## 4.6 Concurrent requests resolve independently
 
 - **Depends on:** 4.3. **Parallel-safe** with 4.4 and 4.5.
-- **Read first:** `Tests/AgentHarnessKitTests/Core/AgentLoop/ConcurrencySafeSchedulingTests.swift`.
-- **Do:** one model response with three parallel calls to three tools needing approval; resolve them in order 3, 1, 2 with different decisions (approve, deny, approveWithModifiedArguments). Assert each tool result matches its decision and the history order matches the call order.
-- **Done when:** test green.
+- **Read first:** `Tests/AgentHarnessKitTests/Core/AgentLoop/ConcurrencySafeSchedulingTests.swift`, the sub-agent overlap tests (grep `explicitSafeSiblingSubAgentsCanOverlap`), `Sources/AgentHarnessKit/Tools/SubAgentTool.swift` (how the approval handler reaches the child).
+- **Do:**
+  - Queue level: three handler calls started concurrently in separate tasks, for three different tools; wait until `pending()` holds all three; resolve them in order 3, 1, 2 with different decisions (approve, deny, approveWithModifiedArguments). Assert each awaiting call returns its own decision and `pending()` keeps FIFO order after each resolve.
+  - Loop level: two sub-agents that run in parallel, each calling a tool that needs approval, with the parent's `queue.handler`. Wait until both are parked; resolve the second first. Assert each child's tool result matches its decision. If sub-agents do not receive the parent's handler, or cannot run in parallel, skip this part and report it.
+  - Do not assert concurrent parking within a single run: the loop asks for approvals one at a time by design.
+- **Done when:** tests green.
 
 ## 4.7 `AgentStream` and `Chat` convenience
 
