@@ -93,7 +93,7 @@ private struct StreamAccumulation {
     var audio = AudioAccumulator()
     var usage: TokenUsage?
     var continuity: AssistantContinuity?
-    var partialTurnRecorder: PartialTurnRecorder? = nil
+    var partialTurnRecorder: PartialTurnRecorder?
     var yieldedEvent = false
     var eventsObserved = 0
     var sawFinished = false

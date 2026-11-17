@@ -22,7 +22,8 @@ package final class PartialTurnRecorder: @unchecked Sendable {
 
     package init() {}
 
-    /// Starts a turn. `baseHistory` is the history as of the start of the turn: system, prior history, and the user message.
+    /// Starts a turn. `baseHistory` is the history as of the start of the turn:
+    /// system, prior history, and the user message.
     package func begin(baseHistory: [ChatMessage]) {
         lock.lock()
         defer { lock.unlock() }

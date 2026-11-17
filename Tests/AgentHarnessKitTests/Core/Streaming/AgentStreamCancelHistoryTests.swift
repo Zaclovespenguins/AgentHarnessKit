@@ -52,7 +52,7 @@
 
     /// One scripted LLM response. When `holdOpen` is set, the stream parks at that latch after yielding
     /// `deltas` and never finishes until the test opens it, which is how a test cancels mid-response.
-    private struct CancelHistoryTurn: Sendable {
+    private struct CancelHistoryTurn {
         let deltas: [StreamDelta]
         let holdOpen: CancelHistoryLatch?
     }
@@ -185,7 +185,6 @@
         return result
     }
 
-    @Suite
     struct AgentStreamCancelHistoryTests {
         private let priorHistory: [ChatMessage] = [
             .user("Earlier question"),
@@ -239,7 +238,8 @@
             let partial = try #require(stream.partialHistory)
             try partial.validateForLLMRequest()
             #expect(partial.starts(with: priorHistory + [.user("Go")]))
-            #expect(assistantMessages(partial).allSatisfy { $0.toolCalls.isEmpty })
+            let noToolCalls = assistantMessages(partial).allSatisfy(\.toolCalls.isEmpty)
+            #expect(noToolCalls)
             #expect(toolMessages(partial).isEmpty)
             #expect(assistantMessages(partial).last?.content == "Checking")
 
@@ -339,7 +339,7 @@
         }
 
         @MainActor @Test
-        func cancelRightAfterSendNeverExposesEmptyHistory() async {
+        func cancelRightAfterSendNeverExposesEmptyHistory() {
             let stream = makeStream(turns: [CancelHistoryTurn(deltas: finishDeltas("done"), holdOpen: nil)])
 
             stream.send("Go", context: EmptyContext())

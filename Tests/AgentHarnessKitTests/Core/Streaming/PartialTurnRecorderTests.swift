@@ -2,7 +2,6 @@
 import Foundation
 import Testing
 
-@Suite
 struct PartialTurnRecorderTests {
     private static let cancelled = PartialTurnRecorder.cancelledToolResultContent
 

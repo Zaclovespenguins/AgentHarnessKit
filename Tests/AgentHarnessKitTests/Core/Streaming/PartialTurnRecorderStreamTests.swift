@@ -63,7 +63,6 @@ private struct ParkingTextClient: LLMClient, ToolCallSurfacingClient {
     }
 }
 
-@Suite
 struct PartialTurnRecorderStreamTests {
     @Test
     func snapshotAfterCompletedToolCallTurnMatchesFinishedHistory() async throws {

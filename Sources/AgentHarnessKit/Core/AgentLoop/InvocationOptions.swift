@@ -10,7 +10,7 @@ struct InvocationOptions {
     let checkpointer: (any AgentCheckpointer)?
     let eventFactory: StreamEventFactory
     /// When set, the streaming loop records the in-flight turn so `AgentStream` can expose it after cancel.
-    package var partialTurnRecorder: PartialTurnRecorder? = nil
+    package var partialTurnRecorder: PartialTurnRecorder?
 
     init(
         tokenBudget: Int?,
