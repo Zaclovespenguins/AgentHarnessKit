@@ -29,6 +29,8 @@ jobs:
       - name: SwiftLint
         run: |
           docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/realm/swiftlint:0.63.0 lint --strict
+      - name: Release acceptance checks
+        run: python3 scripts/phase8_acceptance.py
 
   macos:
     name: macOS

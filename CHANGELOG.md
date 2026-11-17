@@ -47,7 +47,9 @@ as the provider and transport layer. The tag itself is pending maintainer approv
   core and Linux builds do not pull them in.
 - **Phase 8, CI and docs.** GitHub Actions jobs for macOS, Linux (`swift:6.3`) and iOS
   Simulator (`xcodebuild` with `-skipMacroValidation`), plus a lint job (SwiftFormat and
-  SwiftLint). `-warnings-as-errors` is set. `docs/README.md` index and this changelog.
+  SwiftLint). `-warnings-as-errors` is set. A `live` job runs `LiveEndpointTests` on
+  macOS, Linux and iOS Simulator when the `AHK_LIVE_*` repository secrets are set, and
+  skips otherwise. README, `docs/README.md` index and this changelog.
 
 ### Known gaps
 
@@ -56,7 +58,7 @@ Nothing in this list has been run.
 
 - Real Anthropic S1 to S6 on iOS Simulator and Linux (macOS only).
 - Option A one-request adapter proof on iOS Simulator.
-- Phase 2 adapter mock tests on iOS Simulator and Linux. Core tests on iOS Simulator are also NOT RUN.
+- Core and adapter mock tests on Linux: NOT RUN locally; the Linux CI job runs them. (iOS Simulator passed 715 core + 45 ALM tests locally.)
 - Phase 2 live tool loop on iOS Simulator and Linux (macOS only).
 - Phase 2 live Anthropic signed-thinking replay through the adapter, on all platforms.
 - OpenAI proper and Responses opaque-item replay, on all platforms.
