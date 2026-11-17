@@ -23,7 +23,7 @@ import Testing
         )
     )
 
-    @Suite struct FoundationModelsClientConstructionTests {
+    struct FoundationModelsClientConstructionTests {
         @Test func defaultInitUsesFoundationModelsIdentity() {
             guard #available(macOS 26.0, iOS 26.0, visionOS 26.0, *) else { return }
             let client = FoundationModelsClient()
