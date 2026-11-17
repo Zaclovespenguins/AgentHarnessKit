@@ -1,6 +1,6 @@
 # v0.2 task breakdown
 
-Sub-tasks for the four items in `ROADMAP_V0.2.md` (on branch `docs/roadmap-v0.2`, commit `d119967`), plus the release checklist. Each task is sized for one Haiku agent: one or two files, a fixed design, and a command that proves it is done.
+Sub-tasks for the four items in [`ROADMAP_V0.2.md`](../ROADMAP_V0.2.md), plus the release checklist. Each task is sized for one Haiku agent: one or two files, a fixed design, and a command that proves it is done.
 
 | File | Roadmap section | Tasks |
 |------|-----------------|-------|
