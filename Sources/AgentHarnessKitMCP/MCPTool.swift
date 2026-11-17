@@ -1,9 +1,6 @@
 import AgentHarnessKit
 import Foundation
 
-// TASK M3: implement every `fatalError` in this file. See the reference
-// AgentRunKit Sources/AgentRunKit/MCP/MCPTool.swift.
-
 /// Adapts an MCP-discovered tool to the ``AnyTool`` protocol.
 public struct MCPTool<C: ToolContext>: AnyTool, MCPBindingProviding, Sendable {
     public typealias Context = C
@@ -11,17 +8,27 @@ public struct MCPTool<C: ToolContext>: AnyTool, MCPBindingProviding, Sendable {
     public let name: String
     public let description: String
     public let parametersSchema: JSONSchema
+    private let client: MCPClient
 
     public init(info: MCPToolInfo, client: MCPClient) {
-        fatalError("M3: MCPTool.init")
+        name = info.name
+        description = info.description
+        parametersSchema = info.inputSchema
+        self.client = client
     }
 
     public func execute(arguments: Data, context _: C) async throws -> ToolResult {
-        fatalError("M3: MCPTool.execute")
+        do {
+            return try await client.callTool(name: name, arguments: arguments).toToolResult()
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch {
+            throw AgentError.toolExecutionFailed(tool: name, message: String(describing: error))
+        }
     }
 
     /// `MCPToolBinding(serverName: client.serverName, toolName: name)`.
     public var mcpToolBinding: MCPToolBinding {
-        fatalError("M3: mcpToolBinding")
+        MCPToolBinding(serverName: client.serverName, toolName: name)
     }
 }
