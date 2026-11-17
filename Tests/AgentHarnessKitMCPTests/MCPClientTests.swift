@@ -435,7 +435,7 @@ struct MCPClientTests {
             return
         }
 
-        #expect(clientInfo["name"] == .string("AgentRunKit"))
+        #expect(clientInfo["name"] == .string("AgentHarnessKit"))
 
         guard case let .string(version) = clientInfo["version"] else {
             Issue.record("Expected non-empty clientInfo.version in initialize params")
