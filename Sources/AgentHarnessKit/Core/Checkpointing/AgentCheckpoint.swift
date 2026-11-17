@@ -47,6 +47,8 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
     public let timestamp: Date
     public let mcpToolBindings: Set<MCPToolBinding>
     public let terminalOutcome: AgentTerminalOutcome?
+    /// The context store's `stateVersion` when the checkpoint was taken; nil without a store or when it keeps no state.
+    public let contextStateVersion: String?
 
     public var id: CheckpointID {
         checkpointID
@@ -62,7 +64,8 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
         runID: RunID,
         checkpointID: CheckpointID = CheckpointID(),
         timestamp: Date = Date(),
-        mcpToolBindings: Set<MCPToolBinding> = []
+        mcpToolBindings: Set<MCPToolBinding> = [],
+        contextStateVersion: String? = nil
     ) {
         self.init(
             messages: messages,
@@ -75,7 +78,8 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
             checkpointID: checkpointID,
             timestamp: timestamp,
             mcpToolBindings: mcpToolBindings,
-            terminalOutcome: nil
+            terminalOutcome: nil,
+            contextStateVersion: contextStateVersion
         )
     }
 
@@ -90,7 +94,8 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
         checkpointID: CheckpointID,
         timestamp: Date,
         mcpToolBindings: Set<MCPToolBinding>,
-        terminalOutcome: AgentTerminalOutcome?
+        terminalOutcome: AgentTerminalOutcome?,
+        contextStateVersion: String? = nil
     ) {
         precondition(iteration >= 0, "iteration must be non-negative")
         self.messages = messages
@@ -104,11 +109,13 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
         self.timestamp = timestamp
         self.mcpToolBindings = mcpToolBindings
         self.terminalOutcome = terminalOutcome
+        self.contextStateVersion = contextStateVersion
     }
 
     private enum CodingKeys: String, CodingKey {
         case messages, iteration, tokenUsage, iterationUsage, sessionAllowlist
         case sessionID, runID, checkpointID, timestamp, mcpToolBindings, terminalOutcome
+        case contextStateVersion
     }
 
     public init(from decoder: any Decoder) throws {
@@ -135,7 +142,8 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
             ) ?? []),
             terminalOutcome: container.decodeIfPresent(
                 AgentTerminalOutcome.self, forKey: .terminalOutcome
-            )
+            ),
+            contextStateVersion: container.decodeIfPresent(String.self, forKey: .contextStateVersion)
         )
     }
 
@@ -159,6 +167,7 @@ public struct AgentCheckpoint: Sendable, Codable, Identifiable {
             )
         }
         try container.encodeIfPresent(terminalOutcome, forKey: .terminalOutcome)
+        try container.encodeIfPresent(contextStateVersion, forKey: .contextStateVersion)
     }
 }
 
@@ -168,6 +177,7 @@ public enum AgentCheckpointError: Error, Sendable, Equatable, LocalizedError {
     case fileSystem(String)
     case mcpBindingMismatch([MCPToolBinding])
     case completionToolMismatch(checkpointed: String, live: String?)
+    case contextStateMismatch(expected: String, actual: String?)
 
     public var errorDescription: String? {
         switch self {
@@ -182,6 +192,11 @@ public enum AgentCheckpointError: Error, Sendable, Equatable, LocalizedError {
             return """
             Terminal checkpoint completed through \(checkpointed), \
             but the resuming agent completes through \(live ?? "the built-in finish tool")
+            """
+        case let .contextStateMismatch(expected, actual):
+            return """
+            Checkpoint context state \(expected) does not match \
+            the resuming context store state \(actual ?? "(none)")
             """
         }
     }

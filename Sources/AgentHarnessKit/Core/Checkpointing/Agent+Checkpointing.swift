@@ -15,6 +15,7 @@ extension Agent {
               let sessionID = eventFactory.sessionID,
               let runID = eventFactory.runID
         else { return nil }
+        let contextStateVersion = try await configuration.contextStore?.stateVersion(sessionID: sessionID)
         let checkpoint = AgentCheckpoint(
             messages: state.messages,
             iteration: iterationNumber,
@@ -26,7 +27,8 @@ extension Agent {
             checkpointID: CheckpointID(),
             timestamp: Date(),
             mcpToolBindings: mcpToolBindings(in: state.messages),
-            terminalOutcome: terminalOutcome
+            terminalOutcome: terminalOutcome,
+            contextStateVersion: contextStateVersion
         )
         try await checkpointer.save(checkpoint)
         return checkpoint.checkpointID

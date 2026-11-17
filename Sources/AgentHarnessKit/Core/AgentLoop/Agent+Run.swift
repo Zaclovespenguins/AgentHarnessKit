@@ -39,7 +39,8 @@ extension Agent {
         iteration: Int,
         totalUsage: TokenUsageTotals,
         options: InvocationOptions,
-        state: inout AgentLoopState
+        state: inout AgentLoopState,
+        sessionID: SessionID
     ) async throws -> AgentResult? {
         switch try completionPolicy.classify(response.toolCalls) {
         case let .builtInFinish(finishCall):
@@ -78,7 +79,7 @@ extension Agent {
             return try await finalizeRunIteration(
                 toolCalls: response.toolCalls, context: context, iteration: iteration,
                 totalUsage: totalUsage,
-                options: options, state: &state
+                options: options, state: &state, sessionID: sessionID
             )
         }
     }
@@ -121,12 +122,14 @@ extension Agent {
         iteration: Int,
         totalUsage: TokenUsageTotals,
         options: InvocationOptions,
-        state: inout AgentLoopState
+        state: inout AgentLoopState,
+        sessionID: SessionID
     ) async throws -> AgentResult? {
         let results = try await executeResults(
             indexedToolCalls(from: toolCalls),
             context: context,
             messages: state.messages,
+            sessionID: sessionID,
             approvalHandler: options.approvalHandler,
             allowlist: &state.sessionAllowlist
         )

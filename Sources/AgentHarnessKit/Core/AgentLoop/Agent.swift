@@ -49,6 +49,12 @@ public final class Agent<C: ToolContext>: Sendable {
         precondition(duplicates.isEmpty, "Duplicate tool names: \(duplicates.sorted().joined(separator: ", "))")
         let conflicts = names.filter { reservedNames.contains($0) }
         precondition(conflicts.isEmpty, "Reserved tool names: \(conflicts.sorted().joined(separator: ", "))")
+        let contextDefinitions = configuration.contextStore?.toolDefinitions ?? []
+        let contextToolNames: Set = ["compress", "decompress", "search_context", "context_status"]
+        precondition(
+            contextDefinitions.allSatisfy { contextToolNames.contains($0.name) },
+            "Context store tool names must be among compress, decompress, search_context, context_status"
+        )
 
         self.client = client
         self.tools = executableTools
@@ -56,6 +62,7 @@ public final class Agent<C: ToolContext>: Sendable {
         if completionTool == nil {
             defs.append(reservedFinishToolDefinition)
         }
+        defs.append(contentsOf: contextDefinitions)
         toolDefinitions = defs
         self.configuration = configuration
         self.completionTool = completionTool
@@ -216,7 +223,8 @@ extension Agent {
                 iteration: iteration,
                 totalUsage: totalUsage,
                 options: options,
-                state: &state
+                state: &state,
+                sessionID: sessionID
             )
             try await recordNewMessages(state: &state, usage: response.tokenUsage, sessionID: sessionID)
             if let terminalResult {
