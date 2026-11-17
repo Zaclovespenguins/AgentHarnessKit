@@ -770,6 +770,7 @@ struct TestLLMClientCompletionToolTests {
         #expect(response.content == "Summary")
     }
 
+    #if os(macOS) || os(Linux) // exit tests are unavailable on iOS
     @Test
     func aToolCarryingRequestMissingTheCompletionDefinitionFailsFast() async {
         await #expect(processExitsWith: .failure) {
@@ -779,6 +780,7 @@ struct TestLLMClientCompletionToolTests {
             )
         }
     }
+    #endif
 
     @Test
     func structuredOutputRequestsIgnoreTheCompletionConfiguration() async throws {

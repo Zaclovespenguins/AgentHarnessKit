@@ -59,6 +59,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD":/src:ro swift:6.3 bash -c '
             cp -r /src /work && cd /work && rm -rf .build &&
+            apt-get update -qq && apt-get install -y -qq libsqlite3-dev &&
             swift build -Xswiftc -warnings-as-errors &&
             swift test --parallel -Xswiftc -warnings-as-errors'
 

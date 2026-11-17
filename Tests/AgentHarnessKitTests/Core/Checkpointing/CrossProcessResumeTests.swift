@@ -1,3 +1,4 @@
+#if os(macOS) || os(Linux) // spawns a child process; no Process on iOS
 @testable import AgentHarnessKit
 import Foundation
 import Testing
@@ -122,3 +123,4 @@ struct CrossProcessResumeTests {
         #expect(saved.first == checkpointID)
     }
 }
+#endif

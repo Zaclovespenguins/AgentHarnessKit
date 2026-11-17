@@ -579,6 +579,7 @@ private struct AgentUsageAccountingTests {
     }
 }
 
+#if os(macOS) || os(Linux) // exit tests are unavailable on iOS
 struct AgentInitializerPreconditionTests {
     @Test
     func duplicateToolNamesTrap() async {
@@ -624,6 +625,7 @@ struct AgentInitializerPreconditionTests {
         }
     }
 }
+#endif
 
 private struct EchoParams: Codable, SchemaProviding {
     let message: String
