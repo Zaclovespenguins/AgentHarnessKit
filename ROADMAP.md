@@ -132,6 +132,8 @@ Skeleton starts in P0; this phase completes it.
 
 **Definition of done for parity:** ported suite passes on macOS and Linux; core + ALM targets build and pass the mock-server tests on the iOS Simulator; a streaming tool-call run works against at least one real provider on each platform.
 
+Status: CI covers macOS, Linux and iOS Simulator; live provider job gated on AHK_LIVE_* secrets; README, docs index and CHANGELOG added; v0.1.0 tag pending maintainer approval.
+
 ## Deferred
 
 `Examples/AgentCode`, DocC articles, Wasm, Android (spike showed ALM works on an emulator; GRDB, MCP and CI untested there).
