@@ -1,10 +1,11 @@
+import Testing
+
 #if MLX
     import AgentHarnessKit
     import AgentHarnessKitALM
     import AgentHarnessKitMLX
     import AnyLanguageModel
     import Foundation
-    import Testing
 
     /// Set AHK_MLX_MODEL to a Hugging Face MLX model id (e.g. mlx-community/Qwen3-0.6B-4bit) to run the smoke test.
     private let smokeModelID = ProcessInfo.processInfo.environment["AHK_MLX_MODEL"]
@@ -36,7 +37,10 @@
     }
 
     /// Downloads and runs a real model. NOT RUN unless AHK_MLX_MODEL is set.
-    @Suite(.serialized, .enabled(if: mlxRuntimeAvailable && smokeModelID != nil, "AHK_MLX_RUNTIME/AHK_MLX_MODEL not set"))
+    @Suite(
+        .serialized,
+        .enabled(if: mlxRuntimeAvailable && smokeModelID != nil, "AHK_MLX_RUNTIME/AHK_MLX_MODEL not set")
+    )
     struct MLXSmokeTests {
         @Test func generatesAndStreams() async throws {
             let client = HarnessModelClient(mlxModel: MLXLanguageModel(modelId: smokeModelID ?? ""))
@@ -55,8 +59,6 @@
         }
     }
 #endif
-
-import Testing
 
 /// Keeps this test bundle non-empty when the MLX trait is off.
 @Test func mlxTestTargetBuilds() {}

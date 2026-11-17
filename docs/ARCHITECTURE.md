@@ -131,22 +131,29 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | Phase 2 live Anthropic signed-thinking replay through the adapter | NOT RUN | NOT RUN | NOT RUN |
 | GRDB pool, migration, FTS5, second process (`Gates/GRDBGate`, GRDB 7.12.0) | PASS, SQLite 3.54.0 | PASS, second process N/A on iOS | PASS, SQLite 3.45.1, needs `libsqlite3-dev` |
 | OpenAI proper and Responses opaque replay | NOT RUN | NOT RUN | NOT RUN |
-| Apple Foundation Models / MLX adapters | NOT RUN | NOT RUN | N/A |
+| Apple Foundation Models / MLX adapters | see Phase 7 below | see Phase 7 below | see Phase 7 below |
 | App sandbox and ATS | N/A | NOT RUN | N/A |
 | `xcodebuild` package build | N/A | PASS (skeleton, no `-skipMacroValidation`) | N/A |
 
 The iOS simulator pass used `simctl spawn`, not a host app. Android spike evidence is intentionally deferred with Android.
 
+**Macro trust:** the maintainer enabled `AnyLanguageModelMacros` in Xcode locally. CI runners cannot click the trust prompt, and the iOS CI build failed with "Macro AnyLanguageModelMacros must be enabled". Decision (2026-11-17, maintainer): the iOS CI job passes `-skipMacroValidation`.
+
 ### Phase 7: Apple Foundation Models and MLX
+
+Run 2026-11-17 on macOS 27.2.1 (Apple Silicon, Apple Intelligence enabled), Swift 6.4.2; Linux in the `swift:6.3` container.
 
 | Check | Platform | Result |
 | --- | --- | --- |
-| Foundation Models build | macOS | PENDING |
-| Foundation Models build | iOS Simulator | PENDING |
-| Foundation Models build (empty target) | Linux | PENDING |
-| Foundation Models on-device smoke test (generate, stream, tool call) | Apple device or simulator | PENDING |
-| MLX build, trait off | macOS (Apple Silicon) | PENDING |
-| MLX build, trait on (`--traits MLX`) | macOS (Apple Silicon) | PENDING |
-| MLX smoke test (generate, stream, tool call) | macOS (Apple Silicon) | PENDING |
+| Foundation Models build + construction tests | macOS | PASS |
+| Foundation Models build (`xcodebuild`, `-skipMacroValidation`) | iOS Simulator | build PASS; tests NOT RUN |
+| Foundation Models target (compiles empty) | Linux | PASS (build + 1 placeholder test per target; MLX trait off) |
+| Foundation Models on-device smoke test: generate, stream, tool call returned unexecuted | macOS | PASS |
+| Foundation Models on-device smoke test | iOS device/simulator | NOT RUN |
+| MLX build + tests, trait off | macOS | PASS |
+| MLX build + test compile, trait on (`--traits MLX`) | macOS (Apple Silicon) | PASS |
+| MLX construction + smoke tests (`AHK_MLX_RUNTIME=1`, `AHK_MLX_MODEL=<hf id>`) | macOS (Apple Silicon) | NOT RUN: `MLXLanguageModel.init` needs MLX's metallib, which `swift build` does not compile ("Failed to load the default metallib"); needs an `xcodebuild` host |
+| MLX tool call | any | NOT RUN |
+| MLX trait on | Linux | N/A (MLX is Apple Silicon only) |
 
-**Macro trust:** the maintainer enabled `AnyLanguageModelMacros` in Xcode locally. CI runners cannot click the trust prompt, and the iOS CI build failed with "Macro AnyLanguageModelMacros must be enabled". Decision (2026-11-17, maintainer): the iOS CI job passes `-skipMacroValidation`.
+The MLX trait adds MLX pins to `Package.resolved`; the committed file keeps the default (trait-off) resolution.

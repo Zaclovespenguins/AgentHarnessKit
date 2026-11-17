@@ -1,10 +1,11 @@
+import Testing
+
 #if canImport(FoundationModels)
     import AgentHarnessKit
     import AgentHarnessKitALM
     import AgentHarnessKitFoundationModels
     import AnyLanguageModel
     import Foundation
-    import Testing
 
     /// True only on an OS 26+ device with Apple Intelligence enabled and the model downloaded.
     private let onDeviceModelAvailable: Bool = {
@@ -101,8 +102,6 @@
         }
     }
 #endif
-
-import Testing
 
 /// Keeps this test bundle non-empty where FoundationModels is unavailable (Linux).
 @Test func foundationModelsTestTargetBuilds() {}
