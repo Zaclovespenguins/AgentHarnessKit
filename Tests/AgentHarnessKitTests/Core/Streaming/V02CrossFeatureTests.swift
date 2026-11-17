@@ -230,7 +230,10 @@
             #expect(secondStream.partialHistory == nil)
             // The resend's first request carried the synthetic cancelled result exactly once.
             let sent = try #require(await second.requests.first)
-            #expect(toolResults(sent).filter { $0.content == PartialTurnRecorder.cancelledToolResultContent }.count == 1)
+            let cancelled = toolResults(sent).count(where: {
+                $0.content == PartialTurnRecorder.cancelledToolResultContent
+            })
+            #expect(cancelled == 1)
         }
 
         /// The documented Stop flow: `denyAll` first, then `cancel()`. The loop has already recorded the deny
@@ -327,7 +330,7 @@
             let requests = await client.requests
             #expect(requests.count == 2)
             let secondRequest = try #require(requests.last)
-            let occurrences = assistants(secondRequest).filter { $0.content.contains(answer) }.count
+            let occurrences = assistants(secondRequest).count(where: { $0.content.contains(answer) })
             #expect(occurrences == 1)
             #expect(assistants(secondRequest).allSatisfy { !$0.toolCalls.contains { $0.name == "finish" } })
         }

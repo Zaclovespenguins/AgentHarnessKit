@@ -42,7 +42,9 @@ private actor SnapshotLog {
         snapshots.append(snapshot)
     }
 
-    var count: Int { snapshots.count }
+    var count: Int {
+        snapshots.count
+    }
 
     /// Every tool call id that appeared in any snapshot, in publication order (duplicates kept).
     var requestedIDs: [String] {
@@ -68,7 +70,7 @@ private func watchUpdates(_ queue: ToolApprovalQueue) async -> (log: SnapshotLog
 
 /// Polls a condition for up to about two seconds.
 private func poll(_ condition: () async -> Bool) async -> Bool {
-    for _ in 0..<1000 {
+    for _ in 0 ..< 1000 {
         if await condition() { return true }
         try? await Task.sleep(for: .milliseconds(2))
     }
@@ -106,8 +108,8 @@ struct ToolApprovalQueueAllowlistTests {
             AssistantMessage(content: "", toolCalls: [makeCall("call_2", note: "second")]),
             finishResponse,
         ])
-        let agent = Agent<EmptyContext>(
-            client: client, tools: [try makeToolA(counter: counter)],
+        let agent = try Agent<EmptyContext>(
+            client: client, tools: [makeToolA(counter: counter)],
             configuration: AgentConfiguration(approvalPolicy: .allTools)
         )
         let run = startRun(agent, queue: queue)
@@ -146,9 +148,9 @@ struct ToolApprovalQueueAllowlistTests {
         )
         try await checkpointer.save(checkpoint)
 
-        let agent = Agent<EmptyContext>(
+        let agent = try Agent<EmptyContext>(
             client: TestLLMClient(callTools: .specific(["tool_a"])),
-            tools: [try makeToolA(counter: counter)],
+            tools: [makeToolA(counter: counter)],
             configuration: AgentConfiguration(approvalPolicy: .allTools)
         )
         let stream = try await agent.resume(
@@ -187,8 +189,8 @@ struct ToolApprovalQueueAllowlistTests {
             ]),
             finishResponse,
         ])
-        let agent = Agent<EmptyContext>(
-            client: client, tools: [try makeToolA(counter: counter)],
+        let agent = try Agent<EmptyContext>(
+            client: client, tools: [makeToolA(counter: counter)],
             configuration: AgentConfiguration(approvalPolicy: .allTools)
         )
         let run = startRun(agent, queue: queue)
@@ -216,20 +218,20 @@ struct ToolApprovalQueueAllowlistTests {
         let (log, watcher) = await watchUpdates(queue)
         defer { watcher.cancel() }
         let counter = ToolInvocationCounter()
-        let runOneAgent = Agent<EmptyContext>(
+        let runOneAgent = try Agent<EmptyContext>(
             client: MockLLMClient(responses: [
                 AssistantMessage(content: "", toolCalls: [makeCall("run_one_call")]),
                 finishResponse,
             ]),
-            tools: [try makeToolA(counter: counter)],
+            tools: [makeToolA(counter: counter)],
             configuration: AgentConfiguration(approvalPolicy: .allTools)
         )
-        let runTwoAgent = Agent<EmptyContext>(
+        let runTwoAgent = try Agent<EmptyContext>(
             client: MockLLMClient(responses: [
                 AssistantMessage(content: "", toolCalls: [makeCall("run_two_call")]),
                 finishResponse,
             ]),
-            tools: [try makeToolA(counter: counter)],
+            tools: [makeToolA(counter: counter)],
             configuration: AgentConfiguration(approvalPolicy: .allTools)
         )
         let runOne = startRun(runOneAgent, queue: queue)
