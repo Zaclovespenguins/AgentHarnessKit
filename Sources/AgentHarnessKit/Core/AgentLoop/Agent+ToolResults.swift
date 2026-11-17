@@ -2,6 +2,58 @@ import Foundation
 
 extension Agent {
     func executeResults(
+        _ calls: [IndexedToolCall], context: C, messages: [ChatMessage], sessionID: SessionID,
+        approvalHandler: ToolApprovalHandler? = nil, allowlist: inout Set<String>
+    ) async throws -> [IndexedToolResult] {
+        let contextResults = try await executeContextCalls(
+            calls.filter { isContextCall($0.call) }, sessionID: sessionID, emit: nil
+        )
+        let userResults = try await executeUserResults(
+            calls.filter { !isContextCall($0.call) }, context: context, messages: messages,
+            approvalHandler: approvalHandler, allowlist: &allowlist
+        )
+        return (contextResults + userResults).sorted { $0.index < $1.index }
+    }
+
+    func executeStreamingResults(
+        _ calls: [IndexedToolCall], context: C, messages: [ChatMessage], sessionID: SessionID,
+        options: InvocationOptions,
+        continuation: AsyncThrowingStream<StreamEvent, Error>.Continuation,
+        allowlist: inout Set<String>
+    ) async throws -> [IndexedToolResult] {
+        let emit = StreamEmitter(factory: options.eventFactory, continuation: continuation)
+        let contextResults = try await executeContextCalls(
+            calls.filter { isContextCall($0.call) }, sessionID: sessionID, emit: emit
+        )
+        let userResults = try await executeUserStreamingResults(
+            calls.filter { !isContextCall($0.call) }, context: context, messages: messages,
+            options: options, continuation: continuation, allowlist: &allowlist
+        )
+        return (contextResults + userResults).sorted { $0.index < $1.index }
+    }
+
+    /// Reserved context tools are executed by the context store, never looked up among user tools or approved.
+    func isContextCall(_ call: ToolCall) -> Bool {
+        configuration.contextStore?.toolDefinitions.contains { $0.name == call.name } ?? false
+    }
+
+    private func executeContextCalls(
+        _ calls: [IndexedToolCall], sessionID: SessionID, emit: StreamEmitter?
+    ) async throws -> [IndexedToolResult] {
+        guard let store = configuration.contextStore else { return [] }
+        var results: [IndexedToolResult] = []
+        for indexed in calls {
+            let outcome = try await store.executeTool(indexed.call, sessionID: sessionID)
+            emit?.yield(.toolCallCompleted(id: indexed.call.id, name: indexed.call.name, result: outcome.result))
+            for kind in outcome.events {
+                emit?.yield(kind)
+            }
+            results.append(IndexedToolResult(index: indexed.index, call: indexed.call, result: outcome.result))
+        }
+        return results
+    }
+
+    private func executeUserResults(
         _ calls: [IndexedToolCall], context: C, messages: [ChatMessage],
         approvalHandler: ToolApprovalHandler? = nil, allowlist: inout Set<String>
     ) async throws -> [IndexedToolResult] {
@@ -33,7 +85,7 @@ extension Agent {
         return allResults.sorted { $0.index < $1.index }
     }
 
-    func executeStreamingResults(
+    private func executeUserStreamingResults(
         _ calls: [IndexedToolCall], context: C, messages: [ChatMessage],
         options: InvocationOptions,
         continuation: AsyncThrowingStream<StreamEvent, Error>.Continuation,

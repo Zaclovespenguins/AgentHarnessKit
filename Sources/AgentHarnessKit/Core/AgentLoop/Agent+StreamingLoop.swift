@@ -59,7 +59,7 @@ extension Agent {
             }
             try await finalizeStreamingIteration(
                 toolCalls: iteration.toolCalls, context: iterationContext.context,
-                options: iterationContext.options,
+                options: iterationContext.options, sessionID: sessionID,
                 continuation: continuation, state: &state
             )
             return false
@@ -114,6 +114,7 @@ extension Agent {
         toolCalls: [ToolCall],
         context: C,
         options: InvocationOptions,
+        sessionID: SessionID,
         continuation: AsyncThrowingStream<StreamEvent, Error>.Continuation,
         state: inout AgentLoopState
     ) async throws {
@@ -121,6 +122,7 @@ extension Agent {
             indexedToolCalls(from: toolCalls),
             context: context,
             messages: state.messages,
+            sessionID: sessionID,
             options: options,
             continuation: continuation,
             allowlist: &state.sessionAllowlist

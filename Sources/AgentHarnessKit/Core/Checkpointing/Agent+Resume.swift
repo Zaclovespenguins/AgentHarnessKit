@@ -32,6 +32,12 @@ extension Agent {
             sessionID: target.sessionID, runID: RunID(),
             checkpointer: checkpointer
         )
+        if let expected = target.contextStateVersion {
+            let actual = try await configuration.contextStore?.stateVersion(sessionID: target.sessionID)
+            guard actual == expected else {
+                throw AgentCheckpointError.contextStateMismatch(expected: expected, actual: actual)
+            }
+        }
         try target.messages.validateForAgentHistory()
         if let terminalOutcome = target.terminalOutcome {
             try completionPolicy.validateIdentity(of: terminalOutcome)
