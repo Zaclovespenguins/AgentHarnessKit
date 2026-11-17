@@ -28,7 +28,7 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 ## 4.0 Spec text for the queue
 
 - **Depends on:** nothing. **Parallel-safe** with 1.0 and 2.0.
-- **Do:** in `AGENTHARNESSKIT_PARITY_SPEC.md` under the **Approval** bullet, add: the kit provides `ToolApprovalQueue`; FIFO order; independent resolution in any order; `denyAll` on stop/cancel; a cancelled parked request is removed and resolves as deny with reason `"Cancelled"`; `approveAlways` on one request also approves any other parked request for the same tool name in that queue (decision — flag in your report if you think it is wrong).
+- **Do:** in `AGENTHARNESSKIT_PARITY_SPEC.md` under the **Approval** bullet, add: the kit provides `ToolApprovalQueue`; FIFO order; independent resolution in any order; `denyAll` on stop/cancel; a cancelled parked request is removed and resolves as deny with reason `"Cancelled"`; `approveAlways` resolves only the request it is given; other parked requests for the same tool name stay parked (decided: no cascade).
 - **Done when:** spec diff only.
 
 ## 4.1 Queue actor and public type skeleton
@@ -43,7 +43,7 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 - **Depends on:** 4.1.
 - **Do:**
   - `handler` enqueues and awaits; wrap the wait in `withTaskCancellationHandler` so cancellation removes the entry and resumes it with `.deny(reason: "Cancelled")`.
-  - `resolve(id:decision:)` resumes and removes that entry, publishes, returns `true`; unknown id returns `false`. If `decision == .approveAlways`, also resolve every other parked entry with the same `toolName` as `.approve` (per 4.0).
+  - `resolve(id:decision:)` resumes and removes that entry, publishes, returns `true`; unknown id returns `false`. `.approveAlways` resolves only that entry (per 4.0).
   - `denyAll(reason:)` resumes every entry with `.deny(reason:)` in FIFO order, empties the queue, publishes once.
   - Every continuation is resumed exactly once on every path.
 - **Done when:** `swift build` passes.
@@ -73,14 +73,15 @@ Backed by a private actor holding `[(request, CheckedContinuation<ToolApprovalDe
 - **Do:** loop-level tests with `TestLLMClient`:
   - after `approveAlways` for tool `A`, a later call to `A` in the same run never enters the queue (`updates` never shows it);
   - resuming from a checkpoint whose allowlist contains `A` → `A` never enters the queue;
-  - two parallel `A` calls parked → `approveAlways` on one approves both.
+  - one response with two `A` calls → the loop asks approvals one at a time (`resolveApprovals`), so only the first parks; `approveAlways` on it puts `A` on the allowlist and the second `A` never enters the queue;
+  - two runs sharing one queue each park an `A` call → `approveAlways` on one resolves only that one; the other stays in `pending()` until resolved.
 - **Done when:** tests green.
 
 ## 4.6 Concurrent tool calls resolve independently
 
 - **Depends on:** 4.3. **Parallel-safe** with 4.4 and 4.5.
 - **Read first:** `Tests/AgentHarnessKitTests/Core/AgentLoop/ConcurrencySafeSchedulingTests.swift`.
-- **Do:** one model response with three parallel calls to three tools needing approval; resolve them in order 3, 1, 2 with different decisions (approve, deny, approveWithModifiedArguments). Assert each tool result matches its decision and the history order matches the call order.
+- **Do:** the loop asks approvals one at a time within a run (`resolveApprovals` in `Agent+ToolExecution.swift`), so several parked requests come from several runs sharing one queue (as parallel sub-agents would). Start three runs (`TestLLMClient`, one tool call each, three different tools needing approval) on one `queue.handler`; wait until all three are in `pending()`; resolve them in order 3, 1, 2 with different decisions (approve, deny, approveWithModifiedArguments). Assert each run's tool result matches its decision. Separately, one run with three calls in one response: assert `pending()` never holds more than one entry and history order matches call order.
 - **Done when:** test green.
 
 ## 4.7 `AgentStream` and `Chat` convenience

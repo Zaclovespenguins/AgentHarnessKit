@@ -5,6 +5,20 @@ All notable changes to AgentHarnessKit are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `ToolApprovalQueue`, a `ToolApprovalHandler` provider that parks approval
+  requests in FIFO order for a UI to resolve. Requests resolve by id in any
+  order (`resolve(id:decision:)`), `denyAll(reason:)` clears every waiting
+  request on stop or cancel, and a request whose task is cancelled resolves as
+  deny with reason `"Cancelled"`. `pending()` and `updates` expose the queue
+  without `Observation`, so it builds on Linux. `.approveAlways` resolves only
+  the request it is given; the allowlist then skips later calls to that tool.
+  Within one run the loop asks approvals one at a time, so several requests
+  wait together only when runs or sub-agents share a queue.
+
 ## [0.1.0] - 2026-11-17
 
 First release. It covers the work in ROADMAP.md Phases 0 to 8, built on

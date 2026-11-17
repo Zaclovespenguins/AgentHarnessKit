@@ -74,6 +74,21 @@ print(result.content ?? "")
 
 `Agent` executes the tool, sends the result back, and finishes through the built-in `finish` tool. `run` returns an `AgentResult` with `content`, `finishReason`, `iterations` and `totalTokenUsage`. Use `agent.stream(...)` for incremental events.
 
+## Tool approval
+
+Set `approvalPolicy` in `AgentConfiguration` to choose which tools need a decision. `ToolApprovalQueue` is a ready-made approval handler: pass `queue.handler` to the stream, watch `queue.updates` for parked requests, and resolve each one from your UI. Requests resolve in any order, and `denyAll(reason:)` clears whatever is still waiting, so a Stop button should call it before cancelling the stream. A single run asks one approval at a time; several requests only pile up when runs share a queue.
+
+```swift
+let queue = ToolApprovalQueue()
+let agent = Agent<EmptyContext>(client: client, tools: [add],
+                                configuration: AgentConfiguration(approvalPolicy: .allTools))
+let stream = AgentStream(agent: agent)
+stream.send("What is 2 + 3?", context: EmptyContext(), approvalHandler: queue.handler)
+
+// From the UI, for a request you were shown:
+_ = await queue.resolve(id: request.toolCallId, decision: .approve)
+```
+
 ## Development
 
 Requirements: Xcode with Swift 6.3, and Homebrew for the lint tools.
