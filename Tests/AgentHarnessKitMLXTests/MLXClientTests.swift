@@ -9,7 +9,12 @@
     /// Set AHK_MLX_MODEL to a Hugging Face MLX model id (e.g. mlx-community/Qwen3-0.6B-4bit) to run the smoke test.
     private let smokeModelID = ProcessInfo.processInfo.environment["AHK_MLX_MODEL"]
 
-    @Suite struct MLXClientConstructionTests {
+    /// `MLXLanguageModel.init` touches Metal; `swift build` does not compile MLX's metallib, so these
+    /// only run with AHK_MLX_RUNTIME=1 in a build that has it (xcodebuild). They always type-check the API.
+    private let mlxRuntimeAvailable = ProcessInfo.processInfo.environment["AHK_MLX_RUNTIME"] == "1"
+
+    @Suite(.enabled(if: mlxRuntimeAvailable, "AHK_MLX_RUNTIME not set; MLX metallib unavailable under swift build"))
+    struct MLXClientConstructionTests {
         @Test func initUsesMLXIdentityAndPassesThrough() {
             let model = MLXLanguageModel(modelId: "mlx-community/fake-model")
             let client = HarnessModelClient(
@@ -31,7 +36,7 @@
     }
 
     /// Downloads and runs a real model. NOT RUN unless AHK_MLX_MODEL is set.
-    @Suite(.serialized, .enabled(if: smokeModelID != nil, "AHK_MLX_MODEL not set"))
+    @Suite(.serialized, .enabled(if: mlxRuntimeAvailable && smokeModelID != nil, "AHK_MLX_RUNTIME/AHK_MLX_MODEL not set"))
     struct MLXSmokeTests {
         @Test func generatesAndStreams() async throws {
             let client = HarnessModelClient(mlxModel: MLXLanguageModel(modelId: smokeModelID ?? ""))
