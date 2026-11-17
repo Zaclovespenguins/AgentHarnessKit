@@ -9,6 +9,7 @@ Sub-tasks for the four items in [`ROADMAP_V0.2.md`](../ROADMAP_V0.2.md), plus th
 | [03-history-summarizer.md](03-history-summarizer.md) | 3. Generic "summarize this history" helper | 3.0 (gate), 3.1 – 3.7 |
 | [04-queued-approval-handler.md](04-queued-approval-handler.md) | 4. Queued approval handler | 4.0 – 4.8 |
 | [05-release.md](05-release.md) | Order and dependencies, Definition of done | 5.1 – 5.7 |
+| [06-polish-and-edge-cases.md](06-polish-and-edge-cases.md) | Findings from the Phase 5 run | 6.1 – 6.20 |
 
 ## Run order
 
