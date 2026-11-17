@@ -45,8 +45,8 @@ private func makeResearchTool(child: Agent<SubAgentContext<EmptyContext>>) throw
 }
 
 struct SubAgentRunIdentityTests {
+    /// Deviation from AgentRunKit: docs/ARCHITECTURE.md §5 gives each sub-agent invocation its own SessionID.
     @Test
-    // Deviation from AgentRunKit: docs/ARCHITECTURE.md §5 gives each sub-agent invocation its own SessionID.
     func subAgentEventsUseChildSessionAndChildRun() async throws {
         let tool = try makeResearchTool(child: makeChildAgent())
         let parentClient = StreamingMockLLMClient(streamSequences: [

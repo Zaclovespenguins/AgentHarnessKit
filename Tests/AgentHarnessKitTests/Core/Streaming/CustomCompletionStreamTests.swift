@@ -305,7 +305,6 @@ struct CustomCompletionStreamTests {
         #expect(content == expected)
         #expect(reason == .completed)
     }
-
 }
 
 struct CustomCompletionStreamBudgetTests {
@@ -335,7 +334,6 @@ struct CustomCompletionStreamBudgetTests {
         #expect(content == expected)
         #expect(reason == .completed)
     }
-
 }
 
 struct CustomCompletionStreamBoundaryTests {
@@ -377,7 +375,6 @@ struct CustomCompletionStreamBoundaryTests {
 
 @MainActor
 struct CustomCompletionStreamObserverTests {
-
     @Test
     func aFailedTerminalSaveSuppressesTheCommittedFinish() async throws {
         let invocations = ToolInvocationCounter()

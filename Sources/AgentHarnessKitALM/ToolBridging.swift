@@ -33,10 +33,10 @@ enum ToolBridging {
     static func almTools(from definitions: [ToolDefinition]) throws -> [any AnyLanguageModel.Tool] {
         var tools: [any AnyLanguageModel.Tool] = []
         for definition in definitions {
-            tools.append(DeclaredTool(
+            try tools.append(DeclaredTool(
                 name: definition.name,
                 description: definition.description,
-                parameters: try generationSchema(from: definition.parametersSchema)
+                parameters: generationSchema(from: definition.parametersSchema)
             ))
         }
         return tools

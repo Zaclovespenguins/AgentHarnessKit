@@ -114,5 +114,4 @@ struct ExecutableCompletionClassificationTests {
 
 struct TerminalOutcomeIdentityTests {
     private let outcome = AgentTerminalOutcome(content: #"{"summary":"shipped"}"#, toolName: "finalize")
-
 }

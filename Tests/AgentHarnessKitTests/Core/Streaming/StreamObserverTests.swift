@@ -40,7 +40,8 @@ private final class StreamObserverRecorder: @unchecked Sendable {
     }
 
     func waitForCompletions(_ count: Int) async {
-        for _ in 0 ..< 100 {
+        // Up to 10s: cancellation completions arrive late on loaded CI runners (failed at the old 1s bound on Linux).
+        for _ in 0 ..< 1000 {
             if completions.count >= count { return }
             try? await Task.sleep(for: .milliseconds(10))
         }
@@ -417,5 +418,4 @@ struct StreamObserverTests {
         await recorder.waitForCompletions(1)
         #expect(recorder.completions == [.cancelled])
     }
-
 }

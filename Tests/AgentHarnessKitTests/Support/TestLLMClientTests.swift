@@ -770,15 +770,17 @@ struct TestLLMClientCompletionToolTests {
         #expect(response.content == "Summary")
     }
 
-    @Test
-    func aToolCarryingRequestMissingTheCompletionDefinitionFailsFast() async {
-        await #expect(processExitsWith: .failure) {
-            let client = TestLLMClient(completionToolName: "finalize")
-            _ = try await client.generate(
-                messages: [.user("Hi")], tools: [echoDefinition], responseFormat: nil, requestContext: nil
-            )
+    #if os(macOS) || os(Linux) // exit tests are unavailable on iOS
+        @Test
+        func aToolCarryingRequestMissingTheCompletionDefinitionFailsFast() async {
+            await #expect(processExitsWith: .failure) {
+                let client = TestLLMClient(completionToolName: "finalize")
+                _ = try await client.generate(
+                    messages: [.user("Hi")], tools: [echoDefinition], responseFormat: nil, requestContext: nil
+                )
+            }
         }
-    }
+    #endif
 
     @Test
     func structuredOutputRequestsIgnoreTheCompletionConfiguration() async throws {
@@ -868,7 +870,6 @@ struct TestLLMClientCompletionToolTests {
         #expect(result.finishReason == .completed)
         #expect(toolCallIDs(result.history) == ["test_call_0_0", "test_completion_1", "test_completion_2"])
     }
-
 }
 
 private func generatedToolArgumentsJSON(

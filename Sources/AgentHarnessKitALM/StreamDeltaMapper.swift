@@ -15,9 +15,9 @@ struct StreamDeltaMapper {
         var result: [StreamDelta] = []
 
         let reasoning = entries.reduce(into: "") { text, entry in
-            guard case .reasoning(let reasoning) = entry else { return }
+            guard case let .reasoning(reasoning) = entry else { return }
             for segment in reasoning.segments {
-                if case .text(let textSegment) = segment {
+                if case let .text(textSegment) = segment {
                     text += textSegment.content
                 }
             }
@@ -48,7 +48,7 @@ struct StreamDeltaMapper {
     /// arguments JSON per call, indexed in order across all `.toolCalls` entries.
     static func toolCallDeltas(entries: [Transcript.Entry]) -> [StreamDelta] {
         let calls = entries.flatMap { entry -> [Transcript.ToolCall] in
-            guard case .toolCalls(let group) = entry else { return [] }
+            guard case let .toolCalls(group) = entry else { return [] }
             return Array(group)
         }
         return calls.enumerated().flatMap { index, call in

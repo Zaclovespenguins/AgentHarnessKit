@@ -85,13 +85,13 @@ enum ResponseMapping {
             ? ReasoningContent(content: reasoningText, signature: reasoningSignature)
             : nil
 
-        return AssistantMessage(
+        return try AssistantMessage(
             content: content.isEmpty ? responseText : content,
             toolCalls: toolCalls,
             tokenUsage: tokenUsage(from: usage),
             reasoning: reasoning,
             reasoningDetails: nil,
-            continuity: try continuity(entries: entries, substrate: replaySubstrate)
+            continuity: continuity(entries: entries, substrate: replaySubstrate)
         )
     }
 

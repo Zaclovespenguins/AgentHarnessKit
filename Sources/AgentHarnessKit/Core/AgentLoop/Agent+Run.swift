@@ -2,7 +2,11 @@ import Foundation
 
 extension Agent {
     func renderedMessages(_ messages: [ChatMessage], sessionID: SessionID) async throws -> [ChatMessage] {
-        try await configuration.contextStore?.render(sessionID: sessionID, messages: messages) ?? messages
+        try await configuration.contextStore?.render(
+            sessionID: sessionID,
+            messages: messages,
+            windowSize: client.contextWindowSize
+        ) ?? messages
     }
 
     func recordNewMessages(state: inout AgentLoopState, usage: TokenUsage?, sessionID: SessionID) async throws {
@@ -39,7 +43,8 @@ extension Agent {
         iteration: Int,
         totalUsage: TokenUsageTotals,
         options: InvocationOptions,
-        state: inout AgentLoopState
+        state: inout AgentLoopState,
+        sessionID: SessionID
     ) async throws -> AgentResult? {
         switch try completionPolicy.classify(response.toolCalls) {
         case let .builtInFinish(finishCall):
@@ -78,7 +83,7 @@ extension Agent {
             return try await finalizeRunIteration(
                 toolCalls: response.toolCalls, context: context, iteration: iteration,
                 totalUsage: totalUsage,
-                options: options, state: &state
+                options: options, state: &state, sessionID: sessionID
             )
         }
     }
@@ -121,12 +126,14 @@ extension Agent {
         iteration: Int,
         totalUsage: TokenUsageTotals,
         options: InvocationOptions,
-        state: inout AgentLoopState
+        state: inout AgentLoopState,
+        sessionID: SessionID
     ) async throws -> AgentResult? {
         let results = try await executeResults(
             indexedToolCalls(from: toolCalls),
             context: context,
             messages: state.messages,
+            sessionID: sessionID,
             approvalHandler: options.approvalHandler,
             allowlist: &state.sessionAllowlist
         )

@@ -15,6 +15,7 @@ extension Agent {
               let sessionID = eventFactory.sessionID,
               let runID = eventFactory.runID
         else { return nil }
+        let contextStateVersion = try await configuration.contextStore?.stateVersion(sessionID: sessionID)
         let checkpoint = AgentCheckpoint(
             messages: state.messages,
             iteration: iterationNumber,
@@ -26,14 +27,24 @@ extension Agent {
             checkpointID: CheckpointID(),
             timestamp: Date(),
             mcpToolBindings: mcpToolBindings(in: state.messages),
-            terminalOutcome: terminalOutcome
+            terminalOutcome: terminalOutcome,
+            contextStateVersion: contextStateVersion
         )
         try await checkpointer.save(checkpoint)
         return checkpoint.checkpointID
     }
 
     func mcpToolBindings(in messages: [ChatMessage]) -> Set<MCPToolBinding> {
-        // shortcut: no MCPTool type until Phase 6, so no bindings are recorded; derive them from MCPTool there.
-        return []
+        let participatingNames = Set(messages.flatMap { message -> [String] in
+            switch message {
+            case let .assistant(assistant): return assistant.toolCalls.map(\.name)
+            case let .tool(_, name, _): return [name]
+            default: return []
+            }
+        })
+        return Set(tools.compactMap { tool in
+            guard participatingNames.contains(tool.name) else { return nil }
+            return (tool as? any MCPBindingProviding)?.mcpToolBinding
+        })
     }
 }

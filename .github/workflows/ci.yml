@@ -59,6 +59,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD":/src:ro swift:6.3 bash -c '
             cp -r /src /work && cd /work && rm -rf .build &&
+            apt-get update -qq && apt-get install -y -qq libsqlite3-dev &&
             swift build -Xswiftc -warnings-as-errors &&
             swift test --parallel -Xswiftc -warnings-as-errors'
 
@@ -73,10 +74,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
-      # Verified locally on Xcode 27.2 without -skipMacroValidation: BUILD
-      # SUCCEEDED with no macro-trust error. This skeleton expands no AnyLanguageModel
-      # macro yet, so the spike's "Macro AnyLanguageModelMacros must be enabled"
-      # error is not exercised here. Do not add the trust flag without a recorded
-      # decision (ROADMAP Phase 0): it is a pending human decision.
+      # CI cannot click Xcode's macro trust prompt, and the build fails with "Macro
+      # AnyLanguageModelMacros must be enabled". Decision (2026-11-17, maintainer):
+      # pass -skipMacroValidation. See docs/ARCHITECTURE.md "Macro trust".
       - name: Build for iOS Simulator
-        run: xcodebuild -scheme AgentHarnessKit-Package -destination 'generic/platform=iOS Simulator' build
+        run: >-
+          xcodebuild -scheme AgentHarnessKit-Package -destination 'generic/platform=iOS Simulator'
+          -skipMacroValidation build

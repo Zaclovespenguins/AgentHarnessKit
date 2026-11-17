@@ -26,6 +26,8 @@ let package = Package(
         // Provider and transport layer for AgentHarnessKitALM only. ALM's traits (MLX,
         // CoreML, Llama, AsyncHTTPClient) stay off: we rely on its default (empty) set.
         .package(url: "https://github.com/huggingface/AnyLanguageModel", .upToNextMinor(from: "1.3.0")),
+        // AgentHarnessKitContext only. GRDB gate passed on macOS and Linux (docs/ARCHITECTURE.md section 4).
+        .package(url: "https://github.com/groue/grdb.swift", .upToNextMajor(from: "7.12.0")),
     ],
     targets: [
         // Core: messages, tools, loop, streaming, checkpointing, sub-agents, approval.
@@ -42,13 +44,9 @@ let package = Package(
             ],
             swiftSettings: swiftSettings
         ),
-        // GRDB.swift is deliberately not a dependency yet. Phase 4b (billion-context-style
-        // context management) starts only after the GRDB gate has been run on macOS, Linux
-        // and the iOS Simulator and the result is recorded in docs/ARCHITECTURE.md. Add
-        // `.package(url: "https://github.com/groue/grdb.swift", ...)` here after that.
         .target(
             name: "AgentHarnessKitContext",
-            dependencies: ["AgentHarnessKit"],
+            dependencies: ["AgentHarnessKit", .product(name: "GRDB", package: "grdb.swift")],
             swiftSettings: swiftSettings
         ),
         .target(
@@ -71,6 +69,16 @@ let package = Package(
         .testTarget(
             name: "AgentHarnessKitTests",
             dependencies: ["AgentHarnessKit", "AgentHarnessKitTesting", "CheckpointResumeProbe"],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "AgentHarnessKitContextTests",
+            dependencies: ["AgentHarnessKit", "AgentHarnessKitContext", "AgentHarnessKitTesting"],
+            swiftSettings: swiftSettings
+        ),
+        .testTarget(
+            name: "AgentHarnessKitMCPTests",
+            dependencies: ["AgentHarnessKit", "AgentHarnessKitMCP", "AgentHarnessKitTesting"],
             swiftSettings: swiftSettings
         ),
         .testTarget(

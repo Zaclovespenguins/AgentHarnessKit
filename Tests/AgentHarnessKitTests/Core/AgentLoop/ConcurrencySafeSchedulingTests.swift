@@ -364,9 +364,7 @@ struct ConcurrencySafeStreamingTests {
     }
 }
 
-struct SubAgentConcurrencySafeTests {
-
-}
+struct SubAgentConcurrencySafeTests {}
 
 struct ApprovalAboveWaveSchedulingTests {
     @Test
