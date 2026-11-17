@@ -85,7 +85,11 @@ public extension ContextPipeline {
                     reasoningDetails: assistant.reasoningDetails,
                     continuity: assistant.continuity
                 )
-                result.append(.message(StoredMessage(ref: stored.ref, message: .assistant(rebuilt), tokens: stored.tokens)))
+                result.append(.message(StoredMessage(
+                    ref: stored.ref,
+                    message: .assistant(rebuilt),
+                    tokens: stored.tokens
+                )))
             case let .tool(id, _, _):
                 if !consumed.contains(id) { result.append(item) }
             default:

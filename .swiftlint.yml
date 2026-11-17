@@ -22,6 +22,18 @@ opt_in_rules:
 
 disabled_rules:
   - trailing_comma
+  # String(decoding:as:) is the non-failable stdlib API; the failable form would only add nil handling.
+  - optional_data_string_conversion
+
+identifier_name:
+  excluded:
+    # SwiftLint's defaults (setting this list replaces them).
+    - id
+    - URL
+    - GlobalAPIKey
+    # GRDB's database and table-definition closure parameters.
+    - db
+    - t
 
 file_length:
   warning: 500

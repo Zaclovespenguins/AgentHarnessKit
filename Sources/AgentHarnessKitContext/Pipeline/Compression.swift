@@ -51,7 +51,7 @@ public extension ContextPipeline {
     /// `directBlockIDs` = active blocks fully inside the range, ascending ordinal; `effectiveMessageRefs` =
     /// sorted union of those; topic = `topic ?? ""`; `createdByCallID = callID`; active, young, survived 0.
     /// Absorbed blocks become inactive.
-    static func applyCompress(
+    static func applyCompress( // swiftlint:disable:this cyclomatic_complexity function_body_length
         _ ranges: [CompressRange],
         messages: [StoredMessage],
         blocks: [ContextBlock],

@@ -39,7 +39,8 @@ private let finishDeltas: [StreamDelta] = [
 ]
 
 struct MCPBindingHookTests {
-    private func firstCheckpoint(tools: [any AnyTool<EmptyContext>]) async throws -> (InMemoryCheckpointer, AgentCheckpoint) {
+    private func firstCheckpoint(tools: [any AnyTool<EmptyContext>]) async throws
+        -> (InMemoryCheckpointer, AgentCheckpoint) {
         let backend = InMemoryCheckpointer()
         let session = SessionID()
         let agent = Agent<EmptyContext>(

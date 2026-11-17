@@ -32,7 +32,11 @@ struct HierarchicalContextStoreTests {
         _ configuration: ContextConfiguration = quiet,
         exportDirectory: URL? = nil
     ) -> HierarchicalContextStore {
-        HierarchicalContextStore(persistence: persistence, configuration: configuration, exportDirectory: exportDirectory)
+        HierarchicalContextStore(
+            persistence: persistence,
+            configuration: configuration,
+            exportDirectory: exportDirectory
+        )
     }
 
     @Test func offersTheFourReservedTools() {
@@ -72,7 +76,11 @@ struct HierarchicalContextStoreTests {
             try await contextStore.render(sessionID: session, messages: changed, windowSize: 100_000)
         }
         await #expect(throws: ContextStoreError.historyDiverged(at: MessageRef(4))) {
-            try await contextStore.render(sessionID: session, messages: Array(history(pairs: 2).prefix(3)), windowSize: 100_000)
+            try await contextStore.render(
+                sessionID: session,
+                messages: Array(history(pairs: 2).prefix(3)),
+                windowSize: 100_000
+            )
         }
     }
 
@@ -80,7 +88,11 @@ struct HierarchicalContextStoreTests {
         let contextStore = store()
         let messages = history(pairs: 1)
         _ = try await contextStore.render(sessionID: session, messages: Array(messages.prefix(3)), windowSize: 100_000)
-        try await contextStore.record(sessionID: session, messages: Array(messages.suffix(3)), usage: TokenUsage(input: 42, output: 1))
+        try await contextStore.record(
+            sessionID: session,
+            messages: Array(messages.suffix(3)),
+            usage: TokenUsage(input: 42, output: 1)
+        )
         try await contextStore.record(sessionID: session, messages: [], usage: nil)
         let state = try await persistence.load(sessionID: session)
         #expect(state.messages.map(\.message) == messages)
@@ -107,7 +119,8 @@ struct HierarchicalContextStoreTests {
 
         let rendered = try await contextStore.render(sessionID: session, messages: messages, windowSize: 100_000)
         #expect(rendered.count == messages.count - 4 + 1)
-        #expect(rendered[2] == .user("[Compressed conversation section b0: m00003\u{2013}m00006]\nTopic: q1-2\n\(longSummary)"))
+        #expect(rendered[2] ==
+            .user("[Compressed conversation section b0: m00003\u{2013}m00006]\nTopic: q1-2\n\(longSummary)"))
         #expect(try await contextStore.stateVersion(sessionID: session) == "1")
     }
 
@@ -126,7 +139,10 @@ struct HierarchicalContextStoreTests {
         #expect(rejected.result.isError)
         #expect(rejected.result.content.contains("protected"))
         #expect(rejected.events.isEmpty)
-        let unknown = try await contextStore.executeTool(ToolCall(id: "x", name: "bogus", arguments: "{}"), sessionID: session)
+        let unknown = try await contextStore.executeTool(
+            ToolCall(id: "x", name: "bogus", arguments: "{}"),
+            sessionID: session
+        )
         #expect(unknown.result.isError)
         #expect(try await contextStore.stateVersion(sessionID: session) == "0")
     }
@@ -159,7 +175,8 @@ struct HierarchicalContextStoreTests {
         let folded = try await contextStore.render(sessionID: session, messages: messages, windowSize: 100_000)
 
         let written = try await contextStore.executeTool(
-            ToolCall(id: "d1", name: "decompress", arguments: #"{"blockId":"b0","toFile":"b0.txt"}"#), sessionID: session
+            ToolCall(id: "d1", name: "decompress", arguments: #"{"blockId":"b0","toFile":"b0.txt"}"#),
+            sessionID: session
         )
         #expect(written.result.content == "Wrote b0 (4 messages) to b0.txt")
         #expect(written.events.isEmpty)
@@ -169,7 +186,10 @@ struct HierarchicalContextStoreTests {
         #expect(try await contextStore.stateVersion(sessionID: session) == "1")
 
         for bad in ["../b0.txt", "a/b.txt", "..", ""] {
-            let arguments = try String(decoding: JSONSerialization.data(withJSONObject: ["blockId": "b0", "toFile": bad]), as: UTF8.self)
+            let arguments = try String(
+                decoding: JSONSerialization.data(withJSONObject: ["blockId": "b0", "toFile": bad]),
+                as: UTF8.self
+            )
             let refused = try await contextStore.executeTool(
                 ToolCall(id: "d2", name: "decompress", arguments: arguments), sessionID: session
             )
@@ -198,10 +218,12 @@ struct HierarchicalContextStoreTests {
         let contextStore = store()
         _ = try await contextStore.render(sessionID: session, messages: history(pairs: 4), windowSize: 100_000)
         _ = try await contextStore.executeTool(
-            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]), sessionID: session
+            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]),
+            sessionID: session
         )
         let refused = try await contextStore.executeTool(
-            ToolCall(id: "d1", name: "decompress", arguments: #"{"blockId":"b0","toFile":"b0.txt"}"#), sessionID: session
+            ToolCall(id: "d1", name: "decompress", arguments: #"{"blockId":"b0","toFile":"b0.txt"}"#),
+            sessionID: session
         )
         #expect(refused.result.isError)
     }
@@ -215,7 +237,8 @@ struct HierarchicalContextStoreTests {
         #expect(found.result.content.hasPrefix("m00003: "))
         #expect(found.result.content.split(separator: "\n").count == 4)
         let limited = try await contextStore.executeTool(
-            ToolCall(id: "s2", name: "search_context", arguments: #"{"query":"question","limit":2}"#), sessionID: session
+            ToolCall(id: "s2", name: "search_context", arguments: #"{"query":"question","limit":2}"#),
+            sessionID: session
         )
         #expect(limited.result.content.split(separator: "\n").count == 2)
         let huge = SessionID()
@@ -232,7 +255,8 @@ struct HierarchicalContextStoreTests {
         #expect(none.result.content == "No matches.")
 
         _ = try await contextStore.executeTool(
-            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]), sessionID: session
+            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]),
+            sessionID: session
         )
         let status = try await contextStore.executeTool(
             ToolCall(id: "c1", name: "context_status", arguments: "{}"), sessionID: session
@@ -254,7 +278,8 @@ struct HierarchicalContextStoreTests {
         _ = try await contextStore.render(sessionID: session, messages: history(pairs: 4), windowSize: 100_000)
         _ = try await contextStore.render(sessionID: other, messages: [.user("other")], windowSize: 100_000)
         _ = try await contextStore.executeTool(
-            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]), sessionID: session
+            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]),
+            sessionID: session
         )
         #expect(try await contextStore.stateVersion(sessionID: other) == "0")
         #expect(try await persistence.load(sessionID: other).blocks.isEmpty)
@@ -278,7 +303,8 @@ struct HierarchicalContextStoreTests {
         #expect(second.count == first.count - 1)
 
         _ = try await contextStore.executeTool(
-            compressCall([CompressRange(startRef: "m00003", endRef: "m00010", summary: longSummary)]), sessionID: session
+            compressCall([CompressRange(startRef: "m00003", endRef: "m00010", summary: longSummary)]),
+            sessionID: session
         )
         let third = try await contextStore.render(sessionID: session, messages: messages, windowSize: 10000)
         #expect(third.last == .assistant(AssistantMessage(content: "answer 10")))
@@ -291,7 +317,11 @@ struct LongSessionTests {
     func renderedSizeStaysUnderTheWindow(kind: PersistenceKind) async throws {
         let window = 20000
         let turns = kind == .inMemory ? 1500 : 400
-        let config = ContextConfiguration(protectedRecentMessages: 4, protectedRecentTokens: 1000, nudgeGrowthTokens: 2000)
+        let config = ContextConfiguration(
+            protectedRecentMessages: 4,
+            protectedRecentTokens: 1000,
+            nudgeGrowthTokens: 2000
+        )
         let persistence = try kind.make()
         let contextStore = HierarchicalContextStore(persistence: persistence, configuration: config)
         let session = SessionID()

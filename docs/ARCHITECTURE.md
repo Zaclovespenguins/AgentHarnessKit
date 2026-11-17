@@ -132,4 +132,4 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 
 The iOS simulator pass used `simctl spawn`, not a host app. Android spike evidence is intentionally deferred with Android.
 
-**Macro trust:** the maintainer enabled `AnyLanguageModelMacros` in Xcode locally. The skeleton expands no ALM macro, so the trust prompt is not exercised yet. CI runners cannot click the trust prompt: when code first expands an ALM macro (e.g. `@Generable`), the iOS CI job needs `-skipMacroValidation`; record that change when it happens.
+**Macro trust:** the maintainer enabled `AnyLanguageModelMacros` in Xcode locally. CI runners cannot click the trust prompt, and the iOS CI build failed with "Macro AnyLanguageModelMacros must be enabled". Decision (2026-11-17, maintainer): the iOS CI job passes `-skipMacroValidation`.

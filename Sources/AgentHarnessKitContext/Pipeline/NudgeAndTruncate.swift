@@ -39,7 +39,8 @@ public extension ContextPipeline {
     /// Last resort when the sum of `RenderItem.tokens` exceeds `Int(Double(windowSize) * emergencyThreshold)`;
     /// otherwise returns `items` unchanged. Never touches `.summary` items or refs in `protected`.
     /// Phase 1, oldest first: replace the content of each `.tool` message with more than 64 tokens by
-    /// `"[Output truncated to fit the context window: <tokens> tokens. Original kept as <ref>; use search_context to find it.]"`,
+    /// `"[Output truncated to fit the context window: <tokens> tokens. Original kept as <ref>; use search_context to
+    /// find it.]"`,
     /// setting tokens to the estimate of the new content; stop as soon as the total fits.
     /// Phase 2, oldest first: drop whole groups until the total fits. A group is an assistant message with tool
     /// calls plus the `.tool` messages that follow it, or any other single message. A group is skipped if any

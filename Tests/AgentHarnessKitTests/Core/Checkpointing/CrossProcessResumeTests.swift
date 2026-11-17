@@ -110,7 +110,9 @@
             }
             #expect(iteration == 1)
             #expect(history.contains { message in
-                if case let .tool(id, _, content) = message { return id == "call_child" && content.contains("from child") }
+                if case let .tool(id, _, content) = message {
+                    return id == "call_child" && content.contains("from child")
+                }
                 return false
             })
             #expect(await prompts.prompted == 0)

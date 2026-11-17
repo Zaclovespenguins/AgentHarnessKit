@@ -81,7 +81,8 @@ struct H3SelfTests {
                 CompressRange(startRef: "m00001", endRef: "m00002", summary: summary),
                 CompressRange(startRef: "m00002", endRef: "m00003", summary: summary),
             ],
-            messages: plain(6), blocks: first.blocks, protected: [], nextBlockOrdinal: 1, callID: nil, configuration: config
+            messages: plain(6), blocks: first.blocks, protected: [], nextBlockOrdinal: 1, callID: nil,
+            configuration: config
         )
         #expect(out.errors == [
             "Range m00001–m00002: splits block b0",
@@ -130,7 +131,11 @@ struct H3SelfTests {
     }
 
     @Test func originalTextFormatsRolesAndRefs() {
-        let messages = stored([.system("sys"), .assistant(AssistantMessage(content: "hi")), .tool(id: "1", name: "bash", content: "out")])
+        let messages = stored([
+            .system("sys"),
+            .assistant(AssistantMessage(content: "hi")),
+            .tool(id: "1", name: "bash", content: "out")
+        ])
         let text = ContextPipeline.originalText(
             of: block(0, covering: refs(1 ... 3)), messages: messages
         )

@@ -5,7 +5,7 @@ import Foundation
 
 public enum ContextStoreError: Error, Equatable {
     /// The loop's history no longer extends what the store recorded for this session.
-    case historyDiverged(at: MessageRef)
+    case historyDiverged(at: MessageRef) // swiftlint:disable:this identifier_name
 }
 
 /// The billion-context `ContextStore`: persists every message, renders through `ContextPipeline`, and executes
@@ -14,13 +14,14 @@ public enum ContextStoreError: Error, Equatable {
 /// Message alignment (render and record): the loop's messages are append-only. `render` receives the full
 /// history: message `i` (0-based) is `MessageRef(i + 1)`; every stored message must equal the loop message at
 /// the same position, else `ContextStoreError.historyDiverged(at:)` naming the first mismatching ref (when more
-/// messages are stored than passed, the first stored ref with no loop message: `MessageRef(messages.count + 1)`). Messages beyond the stored count are appended with `ContextPipeline.assignRefs`. `record` receives
+/// messages are stored than passed, the first stored ref with no loop message: `MessageRef(messages.count + 1)`).
+/// Messages beyond the stored count are appended with `ContextPipeline.assignRefs`. `record` receives
 /// only the newest messages: find the largest `k` such that the last `k` stored messages equal the first `k`
 /// given, append the rest, and store `usage?.input` as `lastInputTokens` when usage is non-nil.
 ///
 /// `version` changes only when the block state changes (a successful compress or non-file decompress), so
 /// appending messages or syncing blocks never invalidates a checkpoint. `stateVersion` returns `String(version)`.
-public actor HierarchicalContextStore: ContextStore {
+public actor HierarchicalContextStore: ContextStore { // swiftlint:disable:this type_body_length
     private let persistence: any ContextPersistence
     private let configuration: ContextConfiguration
     private let exportDirectory: URL?
@@ -45,7 +46,10 @@ public actor HierarchicalContextStore: ContextStore {
         [
             ToolDefinition(
                 name: ContextToolName.compress,
-                description: #"Fold finished message ranges into summary blocks. Argument format: {"ranges":[{"startRef":"m00001","endRef":"m00005","topic":"optional","summary":"keep objectives, decisions, paths, identifiers"}]}. Compress between task steps, never mid-step."#,
+                description: #"Fold finished message ranges into summary blocks. Argument format: "#
+                    + #"{"ranges":[{"startRef":"m00001","endRef":"m00005","topic":"optional","#
+                    + #""summary":"keep objectives, decisions, paths, identifiers"}]}. "#
+                    + #"Compress between task steps, never mid-step."#,
                 parametersSchema: .object(properties: [
                     "ranges": .array(items: .object(properties: [
                         "startRef": .string(description: "First message ref, e.g. m00001"),
@@ -57,7 +61,9 @@ public actor HierarchicalContextStore: ContextStore {
             ),
             ToolDefinition(
                 name: ContextToolName.decompress,
-                description: #"Restore a compressed block. Argument format: {"blockId":"b0","full":false,"toFile":"name.txt"}. full:true keeps nested blocks folded; toFile writes the original messages to a file instead of restoring them."#,
+                description: #"Restore a compressed block. Argument format: "#
+                    + #"{"blockId":"b0","full":false,"toFile":"name.txt"}. full:true keeps nested blocks folded; "#
+                    + #"toFile writes the original messages to a file instead of restoring them."#,
                 parametersSchema: .object(properties: [
                     "blockId": .string(description: "Block id, e.g. b0"),
                     "full": .boolean(description: "Restore original messages instead of one tier down"),
@@ -66,7 +72,8 @@ public actor HierarchicalContextStore: ContextStore {
             ),
             ToolDefinition(
                 name: ContextToolName.searchContext,
-                description: #"Search compressed blocks and original messages. Argument format: {"query":"words","limit":5}."#,
+                description: #"Search compressed blocks and original messages. "#
+                    + #"Argument format: {"query":"words","limit":5}."#,
                 parametersSchema: .object(properties: [
                     "query": .string(description: "Words to find; all must appear"),
                     "limit": .integer(description: "Maximum hits, default 5"),
@@ -115,7 +122,11 @@ public actor HierarchicalContextStore: ContextStore {
             usedTokens: used, windowSize: windowSize, baseline: state.nudgeBaseline, configuration: configuration
         ) {
             let ranges = ContextPipeline.compressibleRanges(state.messages, blocks: state.blocks, protected: protected)
-            rendered.append(ContextPipeline.nudgeMessage(ranges: ranges, messages: state.messages, configuration: configuration))
+            rendered.append(ContextPipeline.nudgeMessage(
+                ranges: ranges,
+                messages: state.messages,
+                configuration: configuration
+            ))
             state.nudgeBaseline = used
         }
         try await persistence.save(sessionID: sessionID, state: state)
@@ -165,7 +176,10 @@ public actor HierarchicalContextStore: ContextStore {
             case ContextToolName.contextStatus:
                 return try await runStatus(sessionID: sessionID)
             default:
-                return ContextToolOutcome(result: ToolResult(content: "Unknown context tool: \(call.name)", isError: true))
+                return ContextToolOutcome(result: ToolResult(
+                    content: "Unknown context tool: \(call.name)",
+                    isError: true
+                ))
             }
         } catch let error as ContextToolError {
             return ContextToolOutcome(result: ToolResult(content: error.description, isError: true))
@@ -243,7 +257,11 @@ public actor HierarchicalContextStore: ContextStore {
         }
 
         var next = state
-        next.blocks = try ContextPipeline.applyDecompress(blockID: args.blockId, full: args.full ?? false, blocks: state.blocks)
+        next.blocks = try ContextPipeline.applyDecompress(
+            blockID: args.blockId,
+            full: args.full ?? false,
+            blocks: state.blocks
+        )
         next.version += 1
         let before = tokenSum(folded(state))
         let after = tokenSum(folded(next))
@@ -277,7 +295,9 @@ public actor HierarchicalContextStore: ContextStore {
             )
         }
         let count = block.effectiveMessageRefs.count
-        return ContextToolOutcome(result: ToolResult(content: "Wrote \(block.id.rawValue) (\(count) messages) to \(toFile)"))
+        return ContextToolOutcome(
+            result: ToolResult(content: "Wrote \(block.id.rawValue) (\(count) messages) to \(toFile)")
+        )
     }
 
     private func runSearch(_ call: ToolCall, sessionID: SessionID) async throws -> ContextToolOutcome {
@@ -320,8 +340,10 @@ public actor HierarchicalContextStore: ContextStore {
         }
 
         let window = windowSize > 0 ? " of \(windowSize) (\(used * 100 / windowSize)%)" : ""
-        let activeText = active.isEmpty ? "none" : active.map { "\($0.id.rawValue) (tier \($0.tier))" }.joined(separator: ", ")
-        let rangeText = ranges.isEmpty ? "none" : ranges.map { "\($0.lowerBound)\u{2013}\($0.upperBound)" }.joined(separator: ", ")
+        let activeText = active.isEmpty ? "none" : active.map { "\($0.id.rawValue) (tier \($0.tier))" }
+            .joined(separator: ", ")
+        let rangeText = ranges.isEmpty ? "none" : ranges.map { "\($0.lowerBound)\u{2013}\($0.upperBound)" }
+            .joined(separator: ", ")
         let report = [
             "Context: \(used) tokens used\(window)",
             "Breakdown: system \(system), tools \(tools), summaries \(summaries), text \(text)",
@@ -358,7 +380,12 @@ public actor HierarchicalContextStore: ContextStore {
         let items = folded(state)
         guard windowSize > 0 else { return items }
         let protected = ContextPipeline.protectedRefs(state.messages, configuration: configuration)
-        return ContextPipeline.emergencyTruncate(items, windowSize: windowSize, protected: protected, configuration: configuration)
+        return ContextPipeline.emergencyTruncate(
+            items,
+            windowSize: windowSize,
+            protected: protected,
+            configuration: configuration
+        )
     }
 
     private func tokenSum(_ items: [RenderItem]) -> Int {

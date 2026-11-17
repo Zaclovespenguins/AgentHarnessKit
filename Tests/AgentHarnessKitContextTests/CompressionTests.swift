@@ -27,7 +27,8 @@ struct CompressionTests {
         )
     }
 
-    private func range(_ start: String, _ end: String, topic: String? = nil, summary: String = summary) -> CompressRange {
+    private func range(_ start: String, _ end: String, topic: String? = nil,
+                       summary: String = summary) -> CompressRange {
         CompressRange(startRef: start, endRef: end, topic: topic, summary: summary)
     }
 

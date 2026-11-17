@@ -65,7 +65,11 @@ struct ProtectedZonesTests {
             .user("last"), .assistant(AssistantMessage(content: "a15")),
         ])
         let blocks = [block(0, covering: refs(7 ... 8)), block(1, covering: refs(3 ... 4), active: false)]
-        let ranges = ContextPipeline.compressibleRanges(messages, blocks: blocks, protected: Set([1, 2, 14, 15].map(ref)))
+        let ranges = ContextPipeline.compressibleRanges(
+            messages,
+            blocks: blocks,
+            protected: Set([1, 2, 14, 15].map(ref))
+        )
         #expect(ranges == [ref(3) ... ref(6), ref(9) ... ref(13)])
     }
 

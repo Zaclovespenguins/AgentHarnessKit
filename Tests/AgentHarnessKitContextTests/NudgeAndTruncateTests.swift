@@ -5,7 +5,7 @@ import Testing
 struct NudgeAndTruncateTests {
     @Test(arguments: [
         (44999, nil, false), (45000, nil, true), (60000, 45000, false), (65000, 45000, true), (90000, 80000, false),
-    ] as [(Int, Int?, Bool)])
+    ] as [(Int, Int?, Bool)]) // swiftlint:disable:this large_tuple
     func nudgeNeedsFloorAndGrowth(used: Int, baseline: Int?, expected: Bool) {
         let result = ContextPipeline.shouldNudge(
             usedTokens: used, windowSize: 100_000, baseline: baseline, configuration: ContextConfiguration()

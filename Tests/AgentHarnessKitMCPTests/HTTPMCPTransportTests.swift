@@ -154,7 +154,11 @@ struct HTTPMCPTransportTests {
     }
 
     @Test func sessionIdCapturedCaseInsensitivelyAndReused() async throws {
-        let server = MockHTTPServer { _ in (200, ["mcp-session-id": "sess-42", "Content-Type": "application/json"], Data("{}".utf8)) }
+        let server = MockHTTPServer { _ in (
+            200,
+            ["mcp-session-id": "sess-42", "Content-Type": "application/json"],
+            Data("{}".utf8)
+        ) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
         try await transport.connect()
         try await transport.send(Data("first".utf8))
@@ -256,7 +260,8 @@ struct HTTPMCPTransportTests {
 
 /// End to end: MCPClient and MCPSession speaking Streamable HTTP to a scripted server.
 struct HTTPMCPEndToEndTests {
-    /// A minimal MCP server: JSON for initialize (with session id), SSE for tools/list and tools/call, 202 for notifications.
+    /// A minimal MCP server: JSON for initialize (with session id), SSE for tools/list and tools/call, 202 for
+    /// notifications.
     private static func makeServer() -> MockHTTPServer {
         MockHTTPServer { request in
             guard let object = try? JSONSerialization.jsonObject(with: request.body) as? [String: Any],
@@ -310,7 +315,10 @@ struct HTTPMCPEndToEndTests {
         }
         let output = try await session.withTools { (tools: [any AnyTool<EmptyContext>]) in
             let tool = try #require(tools.first)
-            #expect((tool as? any MCPBindingProviding)?.mcpToolBinding == MCPToolBinding(serverName: "web", toolName: "echo"))
+            #expect((tool as? any MCPBindingProviding)?.mcpToolBinding == MCPToolBinding(
+                serverName: "web",
+                toolName: "echo"
+            ))
             return try await tool.execute(arguments: Data("{}".utf8), context: EmptyContext()).content
         }
         #expect(output == "echoed")
@@ -329,7 +337,12 @@ struct MCPServerConfigurationTests {
     #if os(macOS) || os(Linux)
         @Test func stdioConfigurationBuildsStdioTransport() {
             let config = MCPServerConfiguration(name: "local", command: "/bin/cat", arguments: ["-u"])
-            #expect(config.transport == .stdio(command: "/bin/cat", arguments: ["-u"], environment: nil, workingDirectory: nil))
+            #expect(config.transport == .stdio(
+                command: "/bin/cat",
+                arguments: ["-u"],
+                environment: nil,
+                workingDirectory: nil
+            ))
             #expect(config.makeTransport() is StdioMCPTransport)
         }
     #endif

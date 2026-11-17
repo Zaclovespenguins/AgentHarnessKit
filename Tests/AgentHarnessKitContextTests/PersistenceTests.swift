@@ -125,6 +125,7 @@ struct PersistenceTests {
         try await GRDBContextPersistence(directory: directory).save(sessionID: session, state: sampleState)
         let reopened = try GRDBContextPersistence(directory: directory)
         #expect(try await reopened.load(sessionID: session) == sampleState)
-        #expect(try await reopened.search(sessionID: session, query: "crossed", limit: 5).map(\.source) == [.message(ref(2))])
+        #expect(try await reopened.search(sessionID: session, query: "crossed", limit: 5)
+            .map(\.source) == [.message(ref(2))])
     }
 }

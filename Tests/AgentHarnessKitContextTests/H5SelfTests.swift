@@ -8,8 +8,18 @@ struct H5SelfTests {
     @Test func nudgeNeedsFloorAndGrowth() {
         #expect(!ContextPipeline.shouldNudge(usedTokens: 44, windowSize: 100, baseline: nil, configuration: config))
         #expect(ContextPipeline.shouldNudge(usedTokens: 45, windowSize: 100, baseline: nil, configuration: config))
-        #expect(!ContextPipeline.shouldNudge(usedTokens: 50000, windowSize: 100_000, baseline: 40000, configuration: config))
-        #expect(ContextPipeline.shouldNudge(usedTokens: 60000, windowSize: 100_000, baseline: 40000, configuration: config))
+        #expect(!ContextPipeline.shouldNudge(
+            usedTokens: 50000,
+            windowSize: 100_000,
+            baseline: 40000,
+            configuration: config
+        ))
+        #expect(ContextPipeline.shouldNudge(
+            usedTokens: 60000,
+            windowSize: 100_000,
+            baseline: 40000,
+            configuration: config
+        ))
     }
 
     @Test func nudgeMessageListsRanges() {
@@ -17,7 +27,8 @@ struct H5SelfTests {
         let message = ContextPipeline.nudgeMessage(
             ranges: [ref(1) ... ref(2)], messages: messages, configuration: config
         )
-        let expected = config.nudgeText + "\n\nCompressible ranges (1, oldest first):\nm00001\u{2013}m00002  2 msgs  8 tokens"
+        let expected = config.nudgeText
+            + "\n\nCompressible ranges (1, oldest first):\nm00001\u{2013}m00002  2 msgs  8 tokens"
         #expect(message == .user(expected))
     }
 

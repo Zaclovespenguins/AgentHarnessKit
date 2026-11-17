@@ -85,7 +85,7 @@ public actor InMemoryContextPersistence: ContextPersistence {
 /// GRDB persistence: one shared database keyed by session (docs/ARCHITECTURE.md section 4).
 /// Tables `message`, `block`, `block_source`, `session_meta`, plus FTS5 indexes over message text and
 /// block summaries; created by a `DatabaseMigrator` migration named "v1".
-public final class GRDBContextPersistence: ContextPersistence {
+public final class GRDBContextPersistence: ContextPersistence { // swiftlint:disable:this type_body_length
     private let writer: any DatabaseWriter
 
     /// File database (`DatabasePool`, WAL) at `directory/fileName`. The directory must exist; nothing is
@@ -139,7 +139,13 @@ public final class GRDBContextPersistence: ContextPersistence {
                 let json = try Self.encode(stored.message)
                 try db.execute(
                     sql: "INSERT INTO message (sessionID, ordinal, json, body, tokens) VALUES (?, ?, ?, ?, ?)",
-                    arguments: [session, stored.ref.ordinal, json, ContextTokens.text(of: stored.message), stored.tokens]
+                    arguments: [
+                        session,
+                        stored.ref.ordinal,
+                        json,
+                        ContextTokens.text(of: stored.message),
+                        stored.tokens
+                    ]
                 )
             }
             for block in state.blocks {

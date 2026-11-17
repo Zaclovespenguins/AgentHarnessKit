@@ -157,7 +157,10 @@ struct ContextToolLoopTests {
         let completed = kinds.firstIndex(of: .toolCallCompleted(
             id: "k1", name: "compress", result: ToolResult(content: "folded b0")
         ))
-        let folded = kinds.firstIndex(of: .contextFolded(ContextFold(blockIDs: [ContextBlockID("b0")], tokensSaved: 40)))
+        let folded = kinds.firstIndex(of: .contextFolded(ContextFold(
+            blockIDs: [ContextBlockID("b0")],
+            tokensSaved: 40
+        )))
         #expect(started != nil && completed != nil && folded != nil)
         if let started, let completed, let folded {
             #expect(started < completed && completed < folded)

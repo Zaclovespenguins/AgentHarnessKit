@@ -50,7 +50,8 @@ public extension ContextStore {
 public struct InMemoryContextStore: ContextStore {
     public init() {}
 
-    public func render(sessionID _: SessionID, messages: [ChatMessage], windowSize _: Int?) async throws -> [ChatMessage] {
+    public func render(sessionID _: SessionID, messages: [ChatMessage],
+                       windowSize _: Int?) async throws -> [ChatMessage] {
         messages
     }
 

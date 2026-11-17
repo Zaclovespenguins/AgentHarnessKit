@@ -36,9 +36,12 @@ struct H1SelfTests {
         #expect(rendered == [.user("<acp tokens=\"1.2K\" type=\"text\">m00001</acp>\nhi")])
 
         let summary = block(1, covering: refs(2 ... 4), topic: "", summary: "sum")
-        #expect(ContextPipeline.render([.summary(summary)]) == [.user("[Compressed conversation section b1: m00002\u{2013}m00004]\nsum")])
+        #expect(ContextPipeline
+            .render([.summary(summary)]) == [.user("[Compressed conversation section b1: m00002\u{2013}m00004]\nsum")])
 
         let topical = block(2, covering: refs(5 ... 6), topic: "Build", summary: "sum")
-        #expect(ContextPipeline.render([.summary(topical)]) == [.user("[Compressed conversation section b2: m00005\u{2013}m00006]\nTopic: Build\nsum")])
+        #expect(ContextPipeline
+            .render([.summary(topical)]) ==
+            [.user("[Compressed conversation section b2: m00005\u{2013}m00006]\nTopic: Build\nsum")])
     }
 }

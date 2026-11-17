@@ -6,6 +6,7 @@ import Foundation
 /// Serves canned HTTP responses to a `URLSession`. Each test registers a handler under a unique host,
 /// so parallel tests never share state. Use `MockHTTPServer.make()` to get an endpoint and session.
 final class MockURLProtocol: URLProtocol {
+    // swiftlint:disable:next large_tuple
     typealias Handler = @Sendable (URLRequest, Data) throws -> (status: Int, headers: [String: String], body: Data)
 
     private static let lock = NSLock()
@@ -21,11 +22,11 @@ final class MockURLProtocol: URLProtocol {
         return handlers[host]
     }
 
-    override class func canInit(with _: URLRequest) -> Bool {
+    override static func canInit(with _: URLRequest) -> Bool {
         true
     }
 
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest {
         request
     }
 
@@ -36,7 +37,12 @@ final class MockURLProtocol: URLProtocol {
         }
         do {
             let (status, headers, body) = try handler(request, Self.body(of: request))
-            let response = HTTPURLResponse(url: url, statusCode: status, httpVersion: "HTTP/1.1", headerFields: headers)!
+            let response = HTTPURLResponse(
+                url: url,
+                statusCode: status,
+                httpVersion: "HTTP/1.1",
+                headerFields: headers
+            )!
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
             if !body.isEmpty { client?.urlProtocol(self, didLoad: body) }
             client?.urlProtocolDidFinishLoading(self)
@@ -87,7 +93,7 @@ final class MockHTTPServer: @unchecked Sendable {
     }
 
     /// `respond` gets each request (method, headers, body) and returns status, headers, body.
-    init(respond: @escaping @Sendable (RecordedHTTPRequest) throws -> (Int, [String: String], Data)) {
+    init(respond: @escaping @Sendable (RecordedHTTPRequest) throws -> (Int, [String: String], Data)) { // swiftlint:disable:this large_tuple line_length
         let host = "mcp-\(UUID().uuidString.lowercased()).test"
         endpoint = URL(string: "https://\(host)/mcp")!
         let configuration = URLSessionConfiguration.ephemeral

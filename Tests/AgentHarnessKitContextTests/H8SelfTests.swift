@@ -72,7 +72,11 @@ private func conversation(_ count: Int) -> [ChatMessage] {
     let store = HierarchicalContextStore(persistence: InMemoryContextPersistence(), exportDirectory: directory)
     let session = SessionID()
     for name in ["", ".", "..", "a/b", "a\\b"] {
-        let call = ToolCall(id: "d", name: ContextToolName.decompress, arguments: #"{"blockId":"b0","toFile":"\#(name)"}"#)
+        let call = ToolCall(
+            id: "d",
+            name: ContextToolName.decompress,
+            arguments: #"{"blockId":"b0","toFile":"\#(name)"}"#
+        )
         let outcome = try await store.executeTool(call, sessionID: session)
         #expect(outcome.result.isError)
     }

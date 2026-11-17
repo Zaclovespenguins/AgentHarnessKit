@@ -48,7 +48,8 @@ public actor HTTPMCPTransport: MCPTransport {
 
         let result: (Data, URLResponse)
         do {
-            // shortcut: buffers each response body; no server-initiated GET stream or resumability. Upgrade when server notifications or long-running streamed calls matter.
+            // shortcut: buffers each response body; no server-initiated GET stream or resumability.
+            // Upgrade when server notifications or long-running streamed calls matter.
             result = try await urlSession.data(for: request)
         } catch {
             throw MCPError.connectionFailed(String(describing: error))
@@ -136,6 +137,7 @@ public actor HTTPMCPTransport: MCPTransport {
     }
 
     private static func header(_ name: String, in response: HTTPURLResponse) -> String? {
-        response.allHeaderFields.first { ($0.key as? String)?.caseInsensitiveCompare(name) == .orderedSame }?.value as? String
+        response.allHeaderFields.first { ($0.key as? String)?.caseInsensitiveCompare(name) == .orderedSame }?
+            .value as? String
     }
 }

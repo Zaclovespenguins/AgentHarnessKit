@@ -80,9 +80,15 @@ struct M1SelfTests {
     }
 
     @Test func structuredContentIsPreferredOverContent() throws {
-        let result = try decodeResult(#"{"content":[{"type":"text","text":"ignored"}],"structuredContent":{"a":1},"isError":false}"#)
+        let result =
+            try decodeResult(
+                #"{"content":[{"type":"text","text":"ignored"}],"structuredContent":{"a":1},"isError":false}"#
+            )
         #expect(result.structuredContent != nil)
-        #expect(try result.toToolResult().content == String(decoding: #require(result.structuredContent), as: UTF8.self))
+        #expect(try result.toToolResult().content == String(
+            decoding: #require(result.structuredContent),
+            as: UTF8.self
+        ))
         #expect(result.toToolResult().content.contains("\"a\""))
         #expect(!result.toToolResult().content.contains("ignored"))
     }
