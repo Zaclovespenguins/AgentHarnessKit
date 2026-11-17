@@ -36,13 +36,16 @@ package extension [ChatMessage] {
             throw AgentError.malformedHistory(.finishMustBeExclusive)
         }
 
-        let sanitizedMessage = message.removingTerminalFinishTool()
-        guard !sanitizedMessage.isEmptyAfterRemovingTerminalTools else {
+        // Undecodable arguments fall back to the assistant text alone; the run
+        // already decoded them successfully before reaching here.
+        let finishContent = (try? decodeFinishArguments(from: message.toolCalls[0].argumentsData))?.content
+        let restoredMessage = message.restoringTerminalAnswer(finishContent: finishContent)
+        guard !restoredMessage.isEmptyAfterRemovingTerminalTools else {
             return Array(dropLast())
         }
 
         var sanitized = self
-        sanitized[lastIndex] = .assistant(sanitizedMessage)
+        sanitized[lastIndex] = .assistant(restoredMessage)
         return sanitized
     }
 
@@ -177,15 +180,40 @@ private enum ToolCallHistoryProblem {
     case finishMustBeExclusive(boundary: Int)
 }
 
+/// Text of the restored terminal answer. Returns "" when both sides are blank,
+/// so the caller drops the message.
+private func terminalAnswerText(assistantText: String, finishContent: String?) -> String {
+    let finish = finishContent ?? ""
+    let assistantIsBlank = assistantText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    let finishIsBlank = finish.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+    if finishIsBlank {
+        return assistantIsBlank ? "" : assistantText
+    }
+    if assistantIsBlank {
+        return finish
+    }
+    if assistantText.trimmingCharacters(in: .whitespacesAndNewlines)
+        == finish.trimmingCharacters(in: .whitespacesAndNewlines) {
+        return assistantText
+    }
+    return assistantText + "\n\n" + finish
+}
+
 private extension AssistantMessage {
-    func removingTerminalFinishTool() -> AssistantMessage {
+    /// Replaces the `finish` call with its answer as plain assistant text.
+    /// Reasoning and usage are kept. Continuity is dropped: the provider-native
+    /// replay copy still holds the `finish` call and lacks the restored text, and
+    /// core cannot edit every substrate's format, so replaying it would send a
+    /// dangling tool call. Adapters rebuild the turn from the semantic fields.
+    func restoringTerminalAnswer(finishContent: String?) -> AssistantMessage {
         AssistantMessage(
-            content: content,
-            toolCalls: toolCalls.filter { $0.name != "finish" },
+            content: terminalAnswerText(assistantText: content, finishContent: finishContent),
+            toolCalls: [],
             tokenUsage: tokenUsage,
             reasoning: reasoning,
             reasoningDetails: reasoningDetails,
-            continuity: continuity?.removingTerminalFinishTool()
+            continuity: nil
         )
     }
 

@@ -61,7 +61,7 @@ If built: summary request is a normal `LLMClient` call (no new provider coupling
 - Kit ships the queue as a `ToolApprovalHandler` implementation: parked requests in FIFO order, `resolve(id, decision)`, and deny-all on stop/cancel so the loop never hangs on an abandoned continuation.
 - Exposes a pending-requests stream (or snapshot plus change notification) rather than `@Observable`, so it builds on Linux. The app wraps it in its own `@Observable` for the UI.
 - Honors `approveAlways` and the session allowlist from Phase 4; the queue never re-prompts for an allowlisted tool.
-- Concurrent tool calls: multiple parked requests resolve independently, in any order.
+- Multiple parked requests resolve independently, in any order. The loop asks for approvals one at a time, so a single run parks at most one; several are parked when runs share a queue (parallel sub-agents, several streams). One decision resolves one request.
 
 **Tests:** FIFO order, resolve out of order, deny-all on stop leaves no parked continuation, cancel while parked (ties to item 1), allowlist skip.
 

@@ -38,7 +38,10 @@ extension Agent {
                     id: entry.call.id, name: entry.call.name, result: entry.result
                 ))
             }
-            try continueStreamingIteration(results: results, state: &state)
+            try continueStreamingIteration(
+                results: results, state: &state,
+                partialTurnRecorder: iterationContext.options.partialTurnRecorder
+            )
             return false
 
         case .none:
@@ -84,6 +87,9 @@ extension Agent {
         ) {
         case let .completed(outcome):
             state.messages.append(.tool(id: call.id, name: call.name, content: outcome.content))
+            options.partialTurnRecorder?.appendToolResult(
+                id: call.id, name: call.name, result: ToolResult(content: outcome.content)
+            )
             try state.messages.validateForAgentHistory()
             try await recordNewMessages(state: &state, usage: iteration.usage, sessionID: sessionID)
             try await checkpointIfConfigured(
@@ -104,7 +110,8 @@ extension Agent {
         case let .feedback(result):
             try continueStreamingIteration(
                 results: [IndexedToolResult(index: 0, call: call, result: result)],
-                state: &state
+                state: &state,
+                partialTurnRecorder: options.partialTurnRecorder
             )
             return false
         }
@@ -127,14 +134,18 @@ extension Agent {
             continuation: continuation,
             allowlist: &state.sessionAllowlist
         )
-        try continueStreamingIteration(results: results, state: &state)
+        try continueStreamingIteration(
+            results: results, state: &state,
+            partialTurnRecorder: options.partialTurnRecorder
+        )
     }
 
     private func continueStreamingIteration(
         results: [IndexedToolResult],
-        state: inout AgentLoopState
+        state: inout AgentLoopState,
+        partialTurnRecorder: PartialTurnRecorder?
     ) throws {
-        appendToolResults(results, messages: &state.messages)
+        appendToolResults(results, messages: &state.messages, partialTurnRecorder: partialTurnRecorder)
         try state.messages.validateForAgentHistory()
     }
 
@@ -151,7 +162,8 @@ extension Agent {
             totalUsage: &totalUsage,
             emittedOutput: &emittedOutput,
             continuation: continuation,
-            requestContext: options.requestContext
+            requestContext: options.requestContext,
+            partialTurnRecorder: options.partialTurnRecorder
         )
     }
 }
