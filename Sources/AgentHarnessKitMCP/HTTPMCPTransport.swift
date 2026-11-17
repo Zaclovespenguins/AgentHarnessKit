@@ -61,7 +61,7 @@ public actor HTTPMCPTransport: MCPTransport {
         let priorSession = sessionID
         if let id = Self.header("Mcp-Session-Id", in: http) { sessionID = id }
         let status = http.statusCode
-        guard (200..<300).contains(status) else {
+        guard (200 ..< 300).contains(status) else {
             // The server expired the session we were using; the next request must start a new one.
             if status == 404, let priorSession, sessionID == priorSession { sessionID = nil }
             throw MCPError.connectionFailed("HTTP \(status)")
@@ -70,13 +70,17 @@ public actor HTTPMCPTransport: MCPTransport {
 
         let contentType = Self.header("Content-Type", in: http)?.lowercased() ?? ""
         if contentType.hasPrefix("text/event-stream") {
-            for payload in Self.parseServerSentEvents(body) { continuation.yield(payload) }
+            for payload in Self.parseServerSentEvents(body) {
+                continuation.yield(payload)
+            }
         } else {
             continuation.yield(body)
         }
     }
 
-    public nonisolated func messages() -> AsyncThrowingStream<Data, Error> { stream }
+    public nonisolated func messages() -> AsyncThrowingStream<Data, Error> {
+        stream
+    }
 
     /// Splits a `text/event-stream` body into the `data` payloads of its `message` events.
     static func parseServerSentEvents(_ body: Data) -> [Data] {
@@ -125,7 +129,9 @@ public actor HTTPMCPTransport: MCPTransport {
     private func makeRequest(method: String) -> URLRequest {
         var request = URLRequest(url: endpoint)
         request.httpMethod = method
-        for (name, value) in headers { request.setValue(value, forHTTPHeaderField: name) }
+        for (name, value) in headers {
+            request.setValue(value, forHTTPHeaderField: name)
+        }
         return request
     }
 

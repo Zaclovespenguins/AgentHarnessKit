@@ -320,7 +320,6 @@ struct CustomCompletionRunTests {
         #expect(result.finishReason == .completed)
         #expect(try requireContent(result) == encodedReport(documentID: "doc-1", summary: "all done"))
     }
-
 }
 
 struct CustomCompletionRequestBoundaryTests {

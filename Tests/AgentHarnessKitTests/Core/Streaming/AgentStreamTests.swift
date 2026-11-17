@@ -395,7 +395,7 @@ struct AgentStreamTests {
         #expect(stream.iterationUsages[0] == TokenUsage(input: 20, output: 10))
     }
 
-    // Replaces the reference's contextBudget tests: this repo reports context usage as `contextStatus` events.
+    /// Replaces the reference's contextBudget tests: this repo reports context usage as `contextStatus` events.
     @MainActor @Test
     func contextStatusUpdatedFromContextStatusEvents() {
         let stream = makeAgentStream(streamSequences: [])

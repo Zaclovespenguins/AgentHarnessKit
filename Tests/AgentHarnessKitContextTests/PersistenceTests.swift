@@ -18,7 +18,6 @@ enum PersistenceKind: String, CaseIterable, CustomTestStringConvertible {
     }
 }
 
-@Suite("Context persistence (H6)")
 struct PersistenceTests {
     private let session = SessionID()
 

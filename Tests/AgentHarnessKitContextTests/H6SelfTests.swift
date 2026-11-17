@@ -33,7 +33,7 @@ private func sampleState() -> ContextSessionState {
 }
 
 private func stores() throws -> [any ContextPersistence] {
-    [InMemoryContextPersistence(), try GRDBContextPersistence()]
+    try [InMemoryContextPersistence(), GRDBContextPersistence()]
 }
 
 @Test func roundTripAndUnknownSessionAreIdenticalAcrossStores() async throws {

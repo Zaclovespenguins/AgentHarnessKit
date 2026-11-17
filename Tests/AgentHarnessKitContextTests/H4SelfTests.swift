@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("H4 folding self-checks")
 struct H4SelfTests {
     @Test func syncPromotesAfterThresholdAndSkipsInactive() {
         let active = block(1, covering: refs(1 ... 2))

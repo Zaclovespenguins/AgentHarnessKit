@@ -76,7 +76,7 @@ public extension ContextPipeline {
                     result.append(item)
                     continue
                 }
-                if kept.isEmpty && assistant.content.isEmpty { continue }
+                if kept.isEmpty, assistant.content.isEmpty { continue }
                 let rebuilt = AssistantMessage(
                     content: assistant.content,
                     toolCalls: kept,

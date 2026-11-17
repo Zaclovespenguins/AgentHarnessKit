@@ -7,9 +7,18 @@ private struct FakeMCPTool: AnyTool, MCPBindingProviding {
     typealias Context = EmptyContext
     let name: String
     let server: String
-    var description: String { "fake" }
-    var parametersSchema: JSONSchema { .object(properties: [:], required: []) }
-    var mcpToolBinding: MCPToolBinding { MCPToolBinding(serverName: server, toolName: name) }
+    var description: String {
+        "fake"
+    }
+
+    var parametersSchema: JSONSchema {
+        .object(properties: [:], required: [])
+    }
+
+    var mcpToolBinding: MCPToolBinding {
+        MCPToolBinding(serverName: server, toolName: name)
+    }
+
     func execute(arguments _: Data, context _: EmptyContext) async throws -> ToolResult {
         ToolResult(content: "ok")
     }

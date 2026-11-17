@@ -3,8 +3,13 @@ import AgentHarnessKit
 import Foundation
 import Testing
 
-private func sse(_ events: String) -> Data { Data(events.utf8) }
-private func strings(_ items: [Data]) -> [String] { items.map { String(decoding: $0, as: UTF8.self) } }
+private func sse(_ events: String) -> Data {
+    Data(events.utf8)
+}
+
+private func strings(_ items: [Data]) -> [String] {
+    items.map { String(decoding: $0, as: UTF8.self) }
+}
 
 /// Collects the first `count` messages from a transport stream, failing after a timeout.
 private func collect(_ transport: HTTPMCPTransport, count: Int) async throws -> [String] {
@@ -218,7 +223,9 @@ struct HTTPMCPTransportTests {
         #expect(deletes.first?.header("Mcp-Session-Id") == "s1")
         #expect(deletes.first?.header("Authorization") == "x")
         var drained = 0
-        for try await _ in transport.messages() { drained += 1 }
+        for try await _ in transport.messages() {
+            drained += 1
+        }
         #expect(drained == 1)
         await #expect(throws: MCPError.transportClosed) { try await transport.send(Data("{}".utf8)) }
     }
@@ -240,7 +247,9 @@ struct HTTPMCPTransportTests {
         try await transport.send(Data("{}".utf8))
         await transport.disconnect()
         var seen: [String] = []
-        for try await message in transport.messages() { seen.append(String(decoding: message, as: UTF8.self)) }
+        for try await message in transport.messages() {
+            seen.append(String(decoding: message, as: UTF8.self))
+        }
         #expect(seen == ["m"])
     }
 }
@@ -309,8 +318,8 @@ struct HTTPMCPEndToEndTests {
 }
 
 struct MCPServerConfigurationTests {
-    @Test func httpConfigurationBuildsHTTPTransport() {
-        let url = URL(string: "https://example.test/mcp")!
+    @Test func httpConfigurationBuildsHTTPTransport() throws {
+        let url = try #require(URL(string: "https://example.test/mcp"))
         let config = MCPServerConfiguration(name: "web", endpoint: url, headers: ["A": "b"])
         #expect(config.transport == .http(endpoint: url, headers: ["A": "b"]))
         #expect(config.makeTransport() is HTTPMCPTransport)

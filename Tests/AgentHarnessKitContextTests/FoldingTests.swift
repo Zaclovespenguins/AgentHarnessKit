@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("Sync, fold and hide compress calls (H4)")
 struct FoldingTests {
     @Test func syncAgesActiveBlocksAndPromotes() {
         var almostOld = block(0, covering: refs(1 ... 2))

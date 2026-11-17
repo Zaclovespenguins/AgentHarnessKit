@@ -98,9 +98,9 @@ import Foundation
 
         public func disconnect() async {
             // Take ownership of the child first so a second call is a no-op.
-            let process = self.process
+            let process = process
             self.process = nil
-            let stdinPipe = self.stdinPipe
+            let stdinPipe = stdinPipe
             self.stdinPipe = nil
 
             stdoutHandle?.readabilityHandler = nil

@@ -2,14 +2,14 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite struct H5SelfTests {
+struct H5SelfTests {
     let config = ContextConfiguration()
 
     @Test func nudgeNeedsFloorAndGrowth() {
         #expect(!ContextPipeline.shouldNudge(usedTokens: 44, windowSize: 100, baseline: nil, configuration: config))
         #expect(ContextPipeline.shouldNudge(usedTokens: 45, windowSize: 100, baseline: nil, configuration: config))
-        #expect(!ContextPipeline.shouldNudge(usedTokens: 50_000, windowSize: 100_000, baseline: 40_000, configuration: config))
-        #expect(ContextPipeline.shouldNudge(usedTokens: 60_000, windowSize: 100_000, baseline: 40_000, configuration: config))
+        #expect(!ContextPipeline.shouldNudge(usedTokens: 50000, windowSize: 100_000, baseline: 40000, configuration: config))
+        #expect(ContextPipeline.shouldNudge(usedTokens: 60000, windowSize: 100_000, baseline: 40000, configuration: config))
     }
 
     @Test func nudgeMessageListsRanges() {

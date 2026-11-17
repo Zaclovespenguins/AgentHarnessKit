@@ -3,7 +3,7 @@ import AgentHarnessKit
 import Foundation
 import Testing
 
-private struct ParsedMessage: Sendable {
+private struct ParsedMessage {
     let id: Int?
     let method: String?
     let cursor: String?

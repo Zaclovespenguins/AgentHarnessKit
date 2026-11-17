@@ -417,5 +417,4 @@ struct StreamObserverTests {
         await recorder.waitForCompletions(1)
         #expect(recorder.completions == [.cancelled])
     }
-
 }

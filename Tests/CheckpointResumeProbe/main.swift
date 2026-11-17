@@ -56,6 +56,7 @@ guard arguments.count == 3, let sessionUUID = UUID(uuidString: arguments[2]) els
     FileHandle.standardError.write(Data("usage: CheckpointResumeProbe <directory> <sessionUUID>\n".utf8))
     exit(2)
 }
+
 let directory = URL(fileURLWithPath: arguments[1], isDirectory: true)
 let sessionID = SessionID(rawValue: sessionUUID)
 let checkpointer = FileCheckpointer(directory: directory)
@@ -64,11 +65,12 @@ let echo = try Tool<EchoParams, EchoOutput, EmptyContext>(
     executor: { params, _ in EchoOutput(echoed: params.message) }
 )
 let client = OneShotClient {
-    let saved = (try? await checkpointer.list(session: sessionID)) ?? []
+    let saved = await (try? checkpointer.list(session: sessionID)) ?? []
     guard saved.count == 1, let only = saved.first else { exit(3) }
     print(only.rawValue.uuidString)
     exit(0) // simulate the process dying mid-run
 }
+
 let agent = Agent<EmptyContext>(
     client: client, tools: [echo],
     configuration: AgentConfiguration(approvalPolicy: .allTools)

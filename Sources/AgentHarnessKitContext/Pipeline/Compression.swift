@@ -70,7 +70,9 @@ public extension ContextPipeline {
         for stored in messages {
             switch stored.message {
             case let .assistant(assistant):
-                for call in assistant.toolCalls { callOwner[call.id] = stored.ref }
+                for call in assistant.toolCalls {
+                    callOwner[call.id] = stored.ref
+                }
             case let .tool(id, _, _):
                 resultOwner[id] = stored.ref
             default:
@@ -96,7 +98,7 @@ public extension ContextPipeline {
                 errors.append(label + "summary too short")
                 continue
             }
-            let span = start.ordinal...end.ordinal
+            let span = start.ordinal ... end.ordinal
             let refsIn = messages.map(\.ref).filter { span.contains($0.ordinal) }
             if let first = refsIn.first(where: { protected.contains($0) }) {
                 errors.append(label + "protected ref \(first)")
@@ -104,7 +106,7 @@ public extension ContextPipeline {
             }
             let active = blocks.filter(\.active)
             let splitBlock = active.first { block in
-                let hits = block.effectiveMessageRefs.filter { span.contains($0.ordinal) }.count
+                let hits = block.effectiveMessageRefs.count(where: { span.contains($0.ordinal) })
                 return hits > 0 && hits < block.effectiveMessageRefs.count
             }
             if let splitBlock {
@@ -131,7 +133,7 @@ public extension ContextPipeline {
                 errors.append(label + "splits tool call \(splitCall)")
                 continue
             }
-            if unfolded.isEmpty && absorbed.count <= 1 {
+            if unfolded.isEmpty, absorbed.count <= 1 {
                 errors.append(label + "already folded")
                 continue
             }

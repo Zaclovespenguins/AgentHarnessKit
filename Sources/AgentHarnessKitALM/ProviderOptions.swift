@@ -6,9 +6,9 @@ import Foundation
 enum ProviderOptions {
     private typealias ALMJSON = AnyLanguageModel.JSONValue
 
-    static func apply<Model: LanguageModel>(
+    static func apply(
         _ requestContext: RequestContext?,
-        modelType: Model.Type,
+        modelType: (some LanguageModel).Type,
         to options: inout GenerationOptions
     ) throws {
         guard let requestContext else {
@@ -131,13 +131,13 @@ enum ProviderOptions {
     private static func anthropicToolChoiceJSON(_ choice: AnthropicToolChoice) -> ALMJSON {
         switch choice {
         case let .auto(disableParallel):
-            return anthropicToolChoiceObject("auto", disableParallel: disableParallel)
+            anthropicToolChoiceObject("auto", disableParallel: disableParallel)
         case let .any(disableParallel):
-            return anthropicToolChoiceObject("any", disableParallel: disableParallel)
+            anthropicToolChoiceObject("any", disableParallel: disableParallel)
         case let .tool(name, disableParallel):
-            return anthropicToolChoiceObject("tool", name: name, disableParallel: disableParallel)
+            anthropicToolChoiceObject("tool", name: name, disableParallel: disableParallel)
         case .none:
-            return .object(["type": .string("none")])
+            .object(["type": .string("none")])
         }
     }
 

@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("Protected zones and compressible ranges (H2)")
 struct ProtectedZonesTests {
     private func config(messages: Int, tokens: Int) -> ContextConfiguration {
         ContextConfiguration(protectedRecentMessages: messages, protectedRecentTokens: tokens)

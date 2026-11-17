@@ -9,7 +9,7 @@ final class MockURLProtocol: URLProtocol {
     typealias Handler = @Sendable (URLRequest, Data) throws -> (status: Int, headers: [String: String], body: Data)
 
     private static let lock = NSLock()
-    nonisolated(unsafe) private static var handlers: [String: Handler] = [:]
+    private nonisolated(unsafe) static var handlers: [String: Handler] = [:]
 
     static func register(host: String, handler: @escaping Handler) {
         lock.lock(); defer { lock.unlock() }
@@ -21,8 +21,13 @@ final class MockURLProtocol: URLProtocol {
         return handlers[host]
     }
 
-    override class func canInit(with request: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override class func canInit(with _: URLRequest) -> Bool {
+        true
+    }
+
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        request
+    }
 
     override func startLoading() {
         guard let url = request.url, let host = url.host, let handler = Self.handler(for: host) else {
@@ -59,7 +64,7 @@ final class MockURLProtocol: URLProtocol {
 }
 
 /// A recorded request seen by a mock server.
-struct RecordedHTTPRequest: Sendable {
+struct RecordedHTTPRequest {
     let method: String
     let headers: [String: String]
     let body: Data

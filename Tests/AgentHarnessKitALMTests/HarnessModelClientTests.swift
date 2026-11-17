@@ -8,7 +8,9 @@ private let history: [ChatMessage] = [.system("You are terse."), .user("What is 
 
 private func collect(_ stream: AsyncThrowingStream<StreamDelta, Error>) async throws -> [StreamDelta] {
     var deltas: [StreamDelta] = []
-    for try await delta in stream { deltas.append(delta) }
+    for try await delta in stream {
+        deltas.append(delta)
+    }
     return deltas
 }
 
@@ -109,7 +111,9 @@ private func roles(_ body: [String: Any]) -> [String] {
     @Test func responseFormatSendsJSONSchema() async throws {
         struct Answer: SchemaProviding, Decodable {
             let sum: Int
-            static var jsonSchema: JSONSchema { .object(properties: ["sum": .integer()], required: ["sum"]) }
+            static var jsonSchema: JSONSchema {
+                .object(properties: ["sum": .integer()], required: ["sum"])
+            }
         }
         let server = try MockServer()
         server.enqueue(.text(#"{"sum":5}"#))
@@ -205,7 +209,9 @@ private func roles(_ body: [String: Any]) -> [String] {
             .toolCallStart(index: 1, id: "call_2", name: "add", kind: .function),
         ])
         var arguments: [Int: String] = [:]
-        for case let .toolCallDelta(index, chunk) in deltas { arguments[index, default: ""] += chunk }
+        for case let .toolCallDelta(index, chunk) in deltas {
+            arguments[index, default: ""] += chunk
+        }
         #expect(jsonObject(arguments[0] ?? "") == ["a": 2, "b": 3])
         #expect(jsonObject(arguments[1] ?? "") == ["a": 4, "b": 5])
         #expect(deltas.last == .finished(usage: TokenUsage(input: 20, output: 5)))

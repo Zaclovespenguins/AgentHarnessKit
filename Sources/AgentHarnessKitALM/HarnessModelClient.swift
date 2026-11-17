@@ -48,7 +48,7 @@ public struct HarnessModelClient<Model: LanguageModel>: ToolCallSurfacingClient 
                     let response = try await model.respond(
                         within: session,
                         to: Prompt(""),
-                        schema: try ToolBridging.generationSchema(from: responseFormat.schema),
+                        schema: ToolBridging.generationSchema(from: responseFormat.schema),
                         includeSchemaInPrompt: false,
                         options: opts
                     )
@@ -96,7 +96,7 @@ public struct HarnessModelClient<Model: LanguageModel>: ToolCallSurfacingClient 
             let task = Task {
                 do {
                     for try await element in inner {
-                        if case .delta(let delta) = element {
+                        if case let .delta(delta) = element {
                             continuation.yield(delta)
                         }
                     }
@@ -184,8 +184,8 @@ public struct HarnessModelClient<Model: LanguageModel>: ToolCallSurfacingClient 
 /// Returns every tool call to the harness unexecuted.
 private struct StopDelegate: ToolExecutionDelegate {
     func toolCallDecision(
-        for toolCall: Transcript.ToolCall,
-        in session: LanguageModelSession
+        for _: Transcript.ToolCall,
+        in _: LanguageModelSession
     ) async -> ToolExecutionDecision {
         .stop
     }

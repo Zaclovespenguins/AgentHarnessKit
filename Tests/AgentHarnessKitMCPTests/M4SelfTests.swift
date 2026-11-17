@@ -9,7 +9,9 @@ import Testing
 struct M4SelfTests {
     private func collect(_ transport: HTTPMCPTransport) async throws -> [String] {
         var out: [String] = []
-        for try await message in transport.messages() { out.append(String(decoding: message, as: UTF8.self)) }
+        for try await message in transport.messages() {
+            out.append(String(decoding: message, as: UTF8.self))
+        }
         return out
     }
 
@@ -17,9 +19,11 @@ struct M4SelfTests {
         do { try await body(); return nil } catch { return error }
     }
 
-    private func payload(_ text: String) -> Data { Data(text.utf8) }
+    private func payload(_ text: String) -> Data {
+        Data(text.utf8)
+    }
 
-    // Point 1 and 2: init does no I/O, connect sends nothing.
+    /// Point 1 and 2: init does no I/O, connect sends nothing.
     @Test func initAndConnectDoNoNetworkRequests() async throws {
         let server = MockHTTPServer { _ in (200, [:], Data()) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -29,7 +33,7 @@ struct M4SelfTests {
         await transport.disconnect()
     }
 
-    // Point 3: send before connect and after disconnect throws transportClosed.
+    /// Point 3: send before connect and after disconnect throws transportClosed.
     @Test func sendBeforeConnectOrAfterDisconnectThrows() async throws {
         let server = MockHTTPServer { _ in (200, ["Content-Type": "application/json"], Data("{}".utf8)) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -42,7 +46,7 @@ struct M4SelfTests {
         #expect(server.requests.isEmpty)
     }
 
-    // Point 3: request shape, and a plain JSON 2xx body is yielded whole.
+    /// Point 3: request shape, and a plain JSON 2xx body is yielded whole.
     @Test func postsRequiredHeadersAndYieldsJSONBody() async throws {
         let server = MockHTTPServer { request in
             (200, ["Content-Type": "application/json"], request.body)
@@ -69,7 +73,7 @@ struct M4SelfTests {
         #expect(post.header("Mcp-Session-Id") == nil)
     }
 
-    // Point 3 and 4: session id captured case-insensitively, then sent on every later request.
+    /// Point 3 and 4: session id captured case-insensitively, then sent on every later request.
     @Test func capturesAndReusesSessionID() async throws {
         let server = MockHTTPServer { request in
             if request.header("Mcp-Session-Id") == nil {
@@ -86,7 +90,7 @@ struct M4SelfTests {
         await transport.disconnect()
     }
 
-    // Point 3: 202 yields nothing; an empty 200 body yields nothing.
+    /// Point 3: 202 yields nothing; an empty 200 body yields nothing.
     @Test func acceptedAndEmptyResponsesYieldNothing() async throws {
         let server = MockHTTPServer { request in
             request.body == payload("202") ? (202, [:], payload("ignored")) : (200, [:], Data())
@@ -99,7 +103,7 @@ struct M4SelfTests {
         #expect(try await collect(transport).isEmpty)
     }
 
-    // Point 3: SSE content type with parameters yields each event payload in order.
+    /// Point 3: SSE content type with parameters yields each event payload in order.
     @Test func sseResponseYieldsEachPayloadInOrder() async throws {
         let body = "event: message\ndata: {\"a\":1}\n\n: keepalive\n\ndata: {\"b\":2}\n\n"
         let server = MockHTTPServer { _ in
@@ -112,7 +116,7 @@ struct M4SelfTests {
         #expect(try await collect(transport) == ["{\"a\":1}", "{\"b\":2}"])
     }
 
-    // Point 3: non-2xx throws connectionFailed with the status code.
+    /// Point 3: non-2xx throws connectionFailed with the status code.
     @Test func nonSuccessStatusThrowsWithCode() async throws {
         let server = MockHTTPServer { _ in (500, [:], payload("boom")) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -126,7 +130,7 @@ struct M4SelfTests {
         await transport.disconnect()
     }
 
-    // Point 3: a 404 clears the stored session id, so the next request starts without it.
+    /// Point 3: a 404 clears the stored session id, so the next request starts without it.
     @Test func notFoundClearsSessionID() async throws {
         let server = MockHTTPServer { request in
             if request.body == payload("expire") { return (404, [:], Data()) }
@@ -143,7 +147,7 @@ struct M4SelfTests {
         await transport.disconnect()
     }
 
-    // Point 3: a URLSession error becomes connectionFailed.
+    /// Point 3: a URLSession error becomes connectionFailed.
     @Test func urlSessionErrorBecomesConnectionFailed() async throws {
         let server = MockHTTPServer { _ in throw URLError(.notConnectedToInternet) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -156,7 +160,7 @@ struct M4SelfTests {
         await transport.disconnect()
     }
 
-    // Point 4: disconnect sends DELETE with the session id, is idempotent, and finishes the stream.
+    /// Point 4: disconnect sends DELETE with the session id, is idempotent, and finishes the stream.
     @Test func disconnectSendsDeleteOnceAndFinishesStream() async throws {
         let server = MockHTTPServer { request in
             request.method == "POST" ? (200, ["Mcp-Session-Id": "abc"], payload("hi")) : (500, [:], Data())
@@ -179,7 +183,7 @@ struct M4SelfTests {
         #expect(try await collect(transport) == ["hi"])
     }
 
-    // Point 4: disconnect without a session id sends no DELETE.
+    /// Point 4: disconnect without a session id sends no DELETE.
     @Test func disconnectWithoutSessionSendsNoDelete() async throws {
         let server = MockHTTPServer { _ in (200, [:], Data()) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -188,7 +192,7 @@ struct M4SelfTests {
         #expect(server.requests.isEmpty)
     }
 
-    // Point 4: disconnect before connect is a no-op that still ends the stream.
+    /// Point 4: disconnect before connect is a no-op that still ends the stream.
     @Test func disconnectBeforeConnectIsNoOp() async throws {
         let server = MockHTTPServer { _ in (200, [:], Data()) }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -197,7 +201,7 @@ struct M4SelfTests {
         #expect(try await collect(transport).isEmpty)
     }
 
-    // Point 6: SSE parsing edge cases.
+    /// Point 6: SSE parsing edge cases.
     @Test func parsesSingleEvent() {
         let events = HTTPMCPTransport.parseServerSentEvents(payload("data: hello\n\n"))
         #expect(events == [payload("hello")])

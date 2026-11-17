@@ -2,7 +2,7 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite struct H1SelfTests {
+struct H1SelfTests {
     @Test func tokenLabelTruncates() {
         #expect(ContextPipeline.tokenLabel(999) == "999")
         #expect(ContextPipeline.tokenLabel(1000) == "1.0K")
@@ -17,21 +17,21 @@ import Testing
         #expect(minted.map(\.tokens) == [1, 2])
     }
 
-    @Test func tagsUserAndToolOnly() {
-        let system = stored([.system("s")]).first!
-        let assistant = stored([.assistant(AssistantMessage(content: "x", toolCalls: []))]).first!
+    @Test func tagsUserAndToolOnly() throws {
+        let system = try #require(stored([.system("s")]).first)
+        let assistant = try #require(stored([.assistant(AssistantMessage(content: "x", toolCalls: []))]).first)
         #expect(ContextPipeline.tag(for: system) == nil)
         #expect(ContextPipeline.tag(for: assistant) == nil)
 
-        let user = stored([.user("hi")], tokens: [1234]).first!
+        let user = try #require(stored([.user("hi")], tokens: [1234]).first)
         #expect(ContextPipeline.tag(for: user) == "<acp tokens=\"1.2K\" type=\"text\">m00001</acp>")
 
-        let tool = stored([.tool(id: "1", name: "bash", content: "out")], tokens: [7]).first!
+        let tool = try #require(stored([.tool(id: "1", name: "bash", content: "out")], tokens: [7]).first)
         #expect(ContextPipeline.tag(for: tool) == "<acp tokens=\"7\" type=\"bash\">m00001</acp>")
     }
 
-    @Test func renderTagsAndSummarizes() {
-        let user = stored([.user("hi")], tokens: [1234]).first!
+    @Test func renderTagsAndSummarizes() throws {
+        let user = try #require(stored([.user("hi")], tokens: [1234]).first)
         let rendered = ContextPipeline.render([.message(user)])
         #expect(rendered == [.user("<acp tokens=\"1.2K\" type=\"text\">m00001</acp>\nhi")])
 

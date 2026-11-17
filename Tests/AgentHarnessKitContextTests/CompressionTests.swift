@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("Compress and decompress (H3)")
 struct CompressionTests {
     private static let summary = String(repeating: "summary ", count: 8)
 

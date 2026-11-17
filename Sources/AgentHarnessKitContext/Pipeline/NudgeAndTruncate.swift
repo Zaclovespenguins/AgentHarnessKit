@@ -24,11 +24,10 @@ public extension ContextPipeline {
         messages: [StoredMessage],
         configuration: ContextConfiguration
     ) -> ChatMessage {
-        let body: [String]
-        if ranges.isEmpty {
-            body = ["No compressible ranges right now."]
+        let body = if ranges.isEmpty {
+            ["No compressible ranges right now."]
         } else {
-            body = ["Compressible ranges (\(ranges.count), oldest first):"] + ranges.map { range in
+            ["Compressible ranges (\(ranges.count), oldest first):"] + ranges.map { range in
                 let inRange = messages.filter { range.contains($0.ref) }
                 let tokens = inRange.reduce(0) { $0 + $1.tokens }
                 return "\(range.lowerBound)\u{2013}\(range.upperBound)  \(inRange.count) msgs  \(tokens) tokens"

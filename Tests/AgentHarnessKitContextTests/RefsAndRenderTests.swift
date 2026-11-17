@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("Refs and render (H1)")
 struct RefsAndRenderTests {
     @Test func refFormatAndParsing() {
         #expect(MessageRef(42).description == "m00042")

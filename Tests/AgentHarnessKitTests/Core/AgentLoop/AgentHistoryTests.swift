@@ -173,9 +173,7 @@ struct AgentHistoryTests {
     }
 }
 
-struct AgentTruncationTests {
-
-}
+struct AgentTruncationTests {}
 
 private struct EchoParams: Codable, SchemaProviding {
     let message: String

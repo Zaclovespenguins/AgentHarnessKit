@@ -481,9 +481,9 @@ struct ChatSubAgentInheritanceTests {
         #expect(cleanSlate == [.system("child system"), .user("task")])
     }
 
+    /// Deviation from AgentRunKit: its control half relied on Chat(maxMessages:) truncating the orphan away;
+    /// this repo has no truncation, so request validation rejects the history in any round.
     @Test
-    // Deviation from AgentRunKit: its control half relied on Chat(maxMessages:) truncating the orphan away;
-    // this repo has no truncation, so request validation rejects the history in any round.
     func malformedInheritedPrefixThrowsWhenSubAgentRoundBegins() async throws {
         let history: [ChatMessage] = [
             .tool(id: "orphan", name: "lookup", content: "stale"),

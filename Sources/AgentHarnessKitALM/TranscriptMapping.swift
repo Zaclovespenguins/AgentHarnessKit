@@ -23,7 +23,7 @@ enum TranscriptMapping {
             case let .user(text):
                 entries.append(.prompt(.init(segments: [.text(.init(content: text))])))
             case let .userMultimodal(parts):
-                entries.append(.prompt(.init(segments: try parts.map(segment(for:)))))
+                try entries.append(.prompt(.init(segments: parts.map(segment(for:)))))
             case let .assistant(assistant):
                 entries += try assistantEntries(assistant, replaySubstrate: replaySubstrate)
             case let .tool(id, name, content):
@@ -84,10 +84,10 @@ enum TranscriptMapping {
         if !message.toolCalls.isEmpty {
             var calls: [Transcript.ToolCall] = []
             for call in message.toolCalls {
-                calls.append(Transcript.ToolCall(
+                try calls.append(Transcript.ToolCall(
                     id: call.id,
                     toolName: call.name,
-                    arguments: try arguments(call.arguments, tool: call.name)
+                    arguments: arguments(call.arguments, tool: call.name)
                 ))
             }
             entries.append(.toolCalls(Transcript.ToolCalls(calls)))

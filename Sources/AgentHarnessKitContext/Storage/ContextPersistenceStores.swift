@@ -146,16 +146,16 @@ public final class GRDBContextPersistence: ContextPersistence {
                 try Self.upsert(block, session, db)
             }
             try db.execute(sql: """
-                INSERT INTO session_meta (sessionID, nextBlockOrdinal, nudgeBaseline, lastInputTokens, version)
-                VALUES (?, ?, ?, ?, ?)
-                ON CONFLICT(sessionID) DO UPDATE SET
-                    nextBlockOrdinal = excluded.nextBlockOrdinal,
-                    nudgeBaseline = excluded.nudgeBaseline,
-                    lastInputTokens = excluded.lastInputTokens,
-                    version = excluded.version
-                """, arguments: [
-                    session, state.nextBlockOrdinal, state.nudgeBaseline, state.lastInputTokens, state.version,
-                ])
+            INSERT INTO session_meta (sessionID, nextBlockOrdinal, nudgeBaseline, lastInputTokens, version)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(sessionID) DO UPDATE SET
+                nextBlockOrdinal = excluded.nextBlockOrdinal,
+                nudgeBaseline = excluded.nudgeBaseline,
+                lastInputTokens = excluded.lastInputTokens,
+                version = excluded.version
+            """, arguments: [
+                session, state.nextBlockOrdinal, state.nudgeBaseline, state.lastInputTokens, state.version,
+            ])
         }
     }
 
@@ -167,17 +167,17 @@ public final class GRDBContextPersistence: ContextPersistence {
         let session = sessionID.rawValue.uuidString
         return try await writer.read { db in
             let blockRows = try Row.fetchAll(db, sql: """
-                SELECT block.id AS id, block.summary AS summary FROM block_fts
-                JOIN block ON block.rowid = block_fts.rowid
-                WHERE block_fts MATCH ? AND block.sessionID = ? AND block.active = 1
-                ORDER BY block.sortOrdinal, block.id LIMIT ?
-                """, arguments: [match, session, limit])
+            SELECT block.id AS id, block.summary AS summary FROM block_fts
+            JOIN block ON block.rowid = block_fts.rowid
+            WHERE block_fts MATCH ? AND block.sessionID = ? AND block.active = 1
+            ORDER BY block.sortOrdinal, block.id LIMIT ?
+            """, arguments: [match, session, limit])
             let messageRows = try Row.fetchAll(db, sql: """
-                SELECT message.ordinal AS ordinal, message.body AS body FROM message_fts
-                JOIN message ON message.rowid = message_fts.rowid
-                WHERE message_fts MATCH ? AND message.sessionID = ?
-                ORDER BY message.ordinal LIMIT ?
-                """, arguments: [match, session, limit])
+            SELECT message.ordinal AS ordinal, message.body AS body FROM message_fts
+            JOIN message ON message.rowid = message_fts.rowid
+            WHERE message_fts MATCH ? AND message.sessionID = ?
+            ORDER BY message.ordinal LIMIT ?
+            """, arguments: [match, session, limit])
             let blocks = blockRows.map { row -> ContextSearchHit in
                 let id: String = row["id"]
                 let summary: String = row["summary"]
@@ -251,7 +251,7 @@ public final class GRDBContextPersistence: ContextPersistence {
     // MARK: - Rows
 
     private static func encode(_ message: ChatMessage) throws -> String {
-        String(decoding: try JSONEncoder().encode(message), as: UTF8.self)
+        try String(decoding: JSONEncoder().encode(message), as: UTF8.self)
     }
 
     private static func loadMessages(_ db: Database, _ session: String) throws -> [StoredMessage] {
@@ -273,9 +273,9 @@ public final class GRDBContextPersistence: ContextPersistence {
     ) throws -> [String: (messages: [MessageRef], blocks: [ContextBlockID])] {
         var result: [String: (messages: [MessageRef], blocks: [ContextBlockID])] = [:]
         let rows = try Row.fetchAll(db, sql: """
-            SELECT blockID, kind, messageOrdinal, sourceBlockID FROM block_source
-            WHERE sessionID = ? ORDER BY blockID, kind, position
-            """, arguments: [session])
+        SELECT blockID, kind, messageOrdinal, sourceBlockID FROM block_source
+        WHERE sessionID = ? ORDER BY blockID, kind, position
+        """, arguments: [session])
         for row in rows {
             let blockID: String = row["blockID"]
             let kind: String = row["kind"]
@@ -303,7 +303,7 @@ public final class GRDBContextPersistence: ContextPersistence {
         let effectiveJSON: String = row["effective"]
         let effective = try JSONDecoder().decode([Int].self, from: Data(effectiveJSON.utf8))
         let source = sources[id]
-        let block = ContextBlock(
+        return ContextBlock(
             id: ContextBlockID(id),
             tier: row["tier"],
             topic: row["topic"],
@@ -316,45 +316,44 @@ public final class GRDBContextPersistence: ContextPersistence {
             survivedCount: row["survivedCount"],
             createdByCallID: row["createdByCallID"]
         )
-        return block
     }
 
     private static func upsert(_ block: ContextBlock, _ session: String, _ db: Database) throws {
         let effective = try JSONEncoder().encode(block.effectiveMessageRefs.map(\.ordinal))
         try db.execute(sql: """
-            INSERT INTO block (sessionID, id, sortOrdinal, tier, topic, summary, effective, active,
-                               generation, survivedCount, createdByCallID)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(sessionID, id) DO UPDATE SET
-                sortOrdinal = excluded.sortOrdinal,
-                tier = excluded.tier,
-                topic = excluded.topic,
-                summary = excluded.summary,
-                effective = excluded.effective,
-                active = excluded.active,
-                generation = excluded.generation,
-                survivedCount = excluded.survivedCount,
-                createdByCallID = excluded.createdByCallID
-            """, arguments: [
-                session, block.id.rawValue, block.ordinal ?? Int.max, block.tier, block.topic, block.summary,
-                String(decoding: effective, as: UTF8.self), block.active, block.generation.rawValue,
-                block.survivedCount, block.createdByCallID,
-            ])
+        INSERT INTO block (sessionID, id, sortOrdinal, tier, topic, summary, effective, active,
+                           generation, survivedCount, createdByCallID)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(sessionID, id) DO UPDATE SET
+            sortOrdinal = excluded.sortOrdinal,
+            tier = excluded.tier,
+            topic = excluded.topic,
+            summary = excluded.summary,
+            effective = excluded.effective,
+            active = excluded.active,
+            generation = excluded.generation,
+            survivedCount = excluded.survivedCount,
+            createdByCallID = excluded.createdByCallID
+        """, arguments: [
+            session, block.id.rawValue, block.ordinal ?? Int.max, block.tier, block.topic, block.summary,
+            String(decoding: effective, as: UTF8.self), block.active, block.generation.rawValue,
+            block.survivedCount, block.createdByCallID,
+        ])
         try db.execute(
             sql: "DELETE FROM block_source WHERE sessionID = ? AND blockID = ?",
             arguments: [session, block.id.rawValue]
         )
         for (position, ref) in block.directMessageRefs.enumerated() {
             try db.execute(sql: """
-                INSERT INTO block_source (sessionID, blockID, kind, position, messageOrdinal, sourceBlockID)
-                VALUES (?, ?, 'message', ?, ?, NULL)
-                """, arguments: [session, block.id.rawValue, position, ref.ordinal])
+            INSERT INTO block_source (sessionID, blockID, kind, position, messageOrdinal, sourceBlockID)
+            VALUES (?, ?, 'message', ?, ?, NULL)
+            """, arguments: [session, block.id.rawValue, position, ref.ordinal])
         }
         for (position, source) in block.directBlockIDs.enumerated() {
             try db.execute(sql: """
-                INSERT INTO block_source (sessionID, blockID, kind, position, messageOrdinal, sourceBlockID)
-                VALUES (?, ?, 'block', ?, NULL, ?)
-                """, arguments: [session, block.id.rawValue, position, source.rawValue])
+            INSERT INTO block_source (sessionID, blockID, kind, position, messageOrdinal, sourceBlockID)
+            VALUES (?, ?, 'block', ?, NULL, ?)
+            """, arguments: [session, block.id.rawValue, position, source.rawValue])
         }
     }
 }

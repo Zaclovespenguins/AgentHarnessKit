@@ -24,7 +24,6 @@ private func history(pairs: Int) -> [ChatMessage] {
     }
 }
 
-@Suite("HierarchicalContextStore (H8)")
 struct HierarchicalContextStoreTests {
     private let session = SessionID()
     private let persistence = InMemoryContextPersistence()
@@ -209,7 +208,7 @@ struct HierarchicalContextStoreTests {
 
     @Test func searchAndStatus() async throws {
         let contextStore = store()
-        _ = try await contextStore.render(sessionID: session, messages: history(pairs: 4), windowSize: 50_000)
+        _ = try await contextStore.render(sessionID: session, messages: history(pairs: 4), windowSize: 50000)
         let found = try await contextStore.executeTool(
             ToolCall(id: "s1", name: "search_context", arguments: #"{"query":"question"}"#), sessionID: session
         )
@@ -281,13 +280,12 @@ struct HierarchicalContextStoreTests {
         _ = try await contextStore.executeTool(
             compressCall([CompressRange(startRef: "m00003", endRef: "m00010", summary: longSummary)]), sessionID: session
         )
-        let third = try await contextStore.render(sessionID: session, messages: messages, windowSize: 10_000)
+        let third = try await contextStore.render(sessionID: session, messages: messages, windowSize: 10000)
         #expect(third.last == .assistant(AssistantMessage(content: "answer 10")))
     }
 }
 
 /// Thousands of synthetic messages: a scripted "model" folds everything compressible whenever nudged.
-@Suite("Long session (H8)")
 struct LongSessionTests {
     @Test(arguments: [PersistenceKind.inMemory, .grdbQueue])
     func renderedSizeStaysUnderTheWindow(kind: PersistenceKind) async throws {

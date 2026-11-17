@@ -2,7 +2,6 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite("Nudge gating and emergency truncate (H5)")
 struct NudgeAndTruncateTests {
     @Test(arguments: [
         (44999, nil, false), (45000, nil, true), (60000, 45000, false), (65000, 45000, true), (90000, 80000, false),

@@ -265,6 +265,7 @@ actor ContinuityStreamingMockLLMClient: LLMClient, RunStreamingClient {
             }
         }
     }
+
     nonisolated func streamForRun(
         messages _: [ChatMessage],
         tools _: [ToolDefinition],

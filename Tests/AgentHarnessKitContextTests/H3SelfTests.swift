@@ -2,12 +2,12 @@ import AgentHarnessKit
 @testable import AgentHarnessKitContext
 import Testing
 
-@Suite struct H3SelfTests {
+struct H3SelfTests {
     private let config = ContextConfiguration(minSummaryLength: 5)
     private let summary = "summary text long enough"
 
     private func plain(_ count: Int) -> [StoredMessage] {
-        stored((1...count).map { ChatMessage.user("u\($0)") })
+        stored((1 ... count).map { ChatMessage.user("u\($0)") })
     }
 
     @Test func compressFoldsRangeIntoTierOneBlock() {
@@ -20,8 +20,8 @@ import Testing
         #expect(out.nextBlockOrdinal == 1)
         let block = out.blocks[0]
         #expect(block.tier == 1)
-        #expect(block.effectiveMessageRefs == refs(1...3))
-        #expect(block.directMessageRefs == refs(1...3))
+        #expect(block.effectiveMessageRefs == refs(1 ... 3))
+        #expect(block.directMessageRefs == refs(1 ... 3))
         #expect(block.createdByCallID == "c1")
     }
 
@@ -66,7 +66,7 @@ import Testing
         #expect(parent.id == ContextBlockID("b2"))
         #expect(parent.tier == 2)
         #expect(parent.directBlockIDs == [ContextBlockID("b0"), ContextBlockID("b1")])
-        #expect(parent.effectiveMessageRefs == refs(1...4))
+        #expect(parent.effectiveMessageRefs == refs(1 ... 4))
         #expect(parent.directMessageRefs.isEmpty)
         #expect(third.blocks[0].active == false && third.blocks[1].active == false)
     }
@@ -132,7 +132,7 @@ import Testing
     @Test func originalTextFormatsRolesAndRefs() {
         let messages = stored([.system("sys"), .assistant(AssistantMessage(content: "hi")), .tool(id: "1", name: "bash", content: "out")])
         let text = ContextPipeline.originalText(
-            of: block(0, covering: refs(1...3)), messages: messages
+            of: block(0, covering: refs(1 ... 3)), messages: messages
         )
         #expect(text == "m00001 [system]\nsys\n\nm00002 [assistant]\nhi\n\nm00003 [tool:bash]\nout")
     }
