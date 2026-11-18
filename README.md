@@ -12,7 +12,7 @@ Add the package to your `Package.swift` and depend on the products you need:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/zaclovespenguins/agentharnesskit", from: "0.2.0"),
+    .package(url: "https://github.com/zaclovespenguins/agentharnesskit", from: "0.2.1"),
 ],
 targets: [
     .target(

@@ -4,7 +4,7 @@ import Foundation
 private enum MCPConstants {
     static let protocolVersion = "2025-06-18"
     static let clientName = "AgentHarnessKit"
-    static let clientVersion = "0.2.0"
+    static let clientVersion = "0.2.1"
 }
 
 private struct MCPInitializeResult: Decodable {

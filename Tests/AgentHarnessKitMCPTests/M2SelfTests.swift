@@ -120,7 +120,7 @@ struct M2SelfTests {
         // JSONEncoder escapes "/" as "\/", so match on the bare method word.
         #expect(messages.contains { $0.contains("initialized") })
         #expect(messages.contains { $0.contains("\"cursor\":\"page2\"") })
-        #expect(messages.contains { $0.contains("AgentHarnessKit") && $0.contains("0.2.0") })
+        #expect(messages.contains { $0.contains("AgentHarnessKit") && $0.contains("0.2.1") })
     }
 
     @Test func protocolVersionMismatchFailsConnect() async throws {

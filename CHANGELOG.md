@@ -5,6 +5,27 @@ All notable changes to AgentHarnessKit are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-11-18
+
+### Fixed
+
+- `MCPClient` reports version 0.2.1 to MCP servers. The 0.2.0 tag still reported 0.1.0, and the README install snippet still said `from: "0.1.0"`.
+- `partialHistory` after a cancel between the `finish` commit and `.finished` restores the answer as plain assistant text, the same as a finished turn, instead of a `finish` call with a synthetic cancelled result (0.2.0 known gap 6.1).
+- `ToolApprovalQueue.denyAll(reason:)` no longer publishes an unchanged empty snapshot when nothing is parked.
+
+### Changed
+
+- The recommended Stop flow is now `stream.cancel()` first, then `denyAll(reason:)`, so `partialHistory` is captured before any parked approval resumes (0.2.0 known gap 6.2). README, spec and `ToolApprovalQueue` docs are updated.
+- Documented that request ids must be unique across runs sharing a `ToolApprovalQueue`; `resolve(id:decision:)` takes the oldest match (6.4).
+- `partialHistory` after an error is kept and documented, and pinned by a test (6.3).
+- The 0.2.0 changelog entry now includes its Changed, Notes and Known gaps sections.
+- New `make check-local` target runs SwiftFormat, SwiftLint and the tests without `mint`.
+
+### Known gaps
+
+- Partial history is only available through `AgentStream`. `Chat.stream` and `Agent.stream` do not expose it (6.5).
+- Sub-agent work in progress is lost on cancel (6.6).
+
 ## [0.2.0] - 2026-11-18
 
 ### Added
