@@ -341,12 +341,27 @@ struct CustomCompletionRequestBoundaryTests {
     }
 
     @Test
-    func defaultAgentsStillAdvertiseTheBuiltInFinishTool() async throws {
+    func defaultAgentsDoNotAdvertiseTheBuiltInFinishTool() async throws {
+        let lookup = try makeLookupTool { _, _ in LookupOutput(matches: 1) }
+        let client = MockLLMClient(responses: [AssistantMessage(content: "done", toolCalls: [])])
+        let agent = Agent<ReportContext>(client: client, tools: [lookup])
+
+        let result = try await agent.run(userMessage: "Summarize", context: ReportContext(documentID: "doc-1"))
+
+        #expect(result.content == "done")
+        let definitions = try #require(await client.allCapturedTools.first)
+        #expect(definitions == [ToolDefinition(lookup)])
+    }
+
+    @Test
+    func optedInAgentsAdvertiseTheBuiltInFinishTool() async throws {
         let lookup = try makeLookupTool { _, _ in LookupOutput(matches: 1) }
         let client = MockLLMClient(responses: [
             AssistantMessage(content: "", toolCalls: [reservedFinishCall])
         ])
-        let agent = Agent<ReportContext>(client: client, tools: [lookup])
+        let agent = Agent<ReportContext>(
+            client: client, tools: [lookup], configuration: AgentConfiguration(offersFinishTool: true)
+        )
 
         _ = try await agent.run(userMessage: "Summarize", context: ReportContext(documentID: "doc-1"))
 

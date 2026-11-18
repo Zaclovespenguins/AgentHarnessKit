@@ -12,6 +12,10 @@ public struct AgentConfiguration: Sendable {
     public let approvalPolicy: ToolApprovalPolicy
     /// Maximum sub-agent depth at which iteration events carry the history snapshot; nil means no limit.
     public let historyEmissionDepthLimit: Int?
+    /// Offers the model the built-in `finish` tool. Off by default: the agent ends when the model replies with
+    /// plain text and no tool calls, which streams as `.delta` events. A `finish` answer arrives only in
+    /// `.finished`, because tool-call arguments are not streamed. Ignored when the agent has a completion tool.
+    public let offersFinishTool: Bool
 
     public init(
         maxIterations: Int = 10,
@@ -20,7 +24,8 @@ public struct AgentConfiguration: Sendable {
         maxToolResultCharacters: Int? = nil,
         contextStore: (any ContextStore)? = nil,
         approvalPolicy: ToolApprovalPolicy = .none,
-        historyEmissionDepthLimit: Int? = nil
+        historyEmissionDepthLimit: Int? = nil,
+        offersFinishTool: Bool = false
     ) {
         precondition(maxIterations >= 1, "maxIterations must be at least 1")
         precondition(toolTimeout >= .milliseconds(1), "toolTimeout must be at least 1ms")
@@ -38,5 +43,6 @@ public struct AgentConfiguration: Sendable {
         self.contextStore = contextStore
         self.approvalPolicy = approvalPolicy
         self.historyEmissionDepthLimit = historyEmissionDepthLimit
+        self.offersFinishTool = offersFinishTool
     }
 }

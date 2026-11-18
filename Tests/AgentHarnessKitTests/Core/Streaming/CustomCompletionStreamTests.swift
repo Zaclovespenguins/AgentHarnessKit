@@ -359,14 +359,16 @@ struct CustomCompletionStreamBoundaryTests {
     }
 
     @Test
-    func defaultModeStillStreamsTheBuiltInFinishTool() async throws {
+    func optedInModeStreamsTheBuiltInFinishTool() async throws {
         let lookup = try makeLookupTool { _, _ in LookupOutput(matches: 1) }
         let client = StreamingMockLLMClient(streamSequences: [[
             .toolCallStart(index: 0, id: "call_finish", name: "finish", kind: .function),
             .toolCallDelta(index: 0, arguments: #"{"content": "done"}"#),
             .finished(usage: nil),
         ]])
-        let agent = Agent<ReportContext>(client: client, tools: [lookup])
+        let agent = Agent<ReportContext>(
+            client: client, tools: [lookup], configuration: AgentConfiguration(offersFinishTool: true)
+        )
 
         _ = try await collect(agent.stream(
             userMessage: "Summarize", context: ReportContext(documentID: "doc-1")

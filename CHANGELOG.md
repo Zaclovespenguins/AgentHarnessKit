@@ -13,6 +13,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Changed
 
+- **Breaking:** `Agent` no longer offers the built-in `finish` tool by default. It ends when the model replies with plain text and no tool calls, so the final answer streams as `.delta` events instead of arriving all at once in `.finished`. Pass `AgentConfiguration(offersFinishTool: true)` to restore the old behavior. A `finish` call is still honored when the tool isn't offered, so existing histories and checkpoints keep working.
 - Documented that cancelling a turn while a sub-agent runs keeps only the synthetic cancelled result for the sub-agent call, not the sub-agent's own messages (0.2.1 known gap 6.6).
 - Doc comments for `AgentStream.init`, both `AgentStream.send` overloads and `PartialTurnRecorder`.
 

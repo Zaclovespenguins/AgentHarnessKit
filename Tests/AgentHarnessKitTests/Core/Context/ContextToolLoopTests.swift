@@ -99,7 +99,7 @@ struct ContextToolLoopTests {
         ])
         let agent = Agent<EmptyContext>(
             client: client, tools: [],
-            configuration: AgentConfiguration(contextStore: store, approvalPolicy: .allTools)
+            configuration: AgentConfiguration(contextStore: store, approvalPolicy: .allTools, offersFinishTool: true)
         )
         let result = try await agent.run(
             userMessage: "Go", context: EmptyContext(),
@@ -130,7 +130,7 @@ struct ContextToolLoopTests {
         ])
         let agent = Agent<EmptyContext>(client: client, tools: [], configuration: AgentConfiguration())
         let result = try await agent.run(userMessage: "Go", context: EmptyContext())
-        #expect(await client.toolNames.first == ["finish"])
+        #expect(await client.toolNames.first == [])
         let toolContent = result.history.compactMap { message -> String? in
             if case let .tool(_, _, content) = message {
                 return content

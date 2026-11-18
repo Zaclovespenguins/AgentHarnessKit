@@ -11,7 +11,8 @@ public final class Agent<C: ToolContext>: Sendable {
     let completionPolicy: AgentCompletionPolicy
     let completionTool: (any AnyTool<C>)?
 
-    /// Creates an agent that finishes through the built-in finish tool.
+    /// Creates an agent that finishes when the model replies with plain text and no tool calls, or through the
+    /// built-in finish tool when `configuration.offersFinishTool` is set.
     public convenience init(
         client: any LLMClient,
         tools: [any AnyTool<C>],
@@ -59,7 +60,7 @@ public final class Agent<C: ToolContext>: Sendable {
         self.client = client
         self.tools = executableTools
         var defs = executableTools.map { ToolDefinition($0) }
-        if completionTool == nil {
+        if completionTool == nil, configuration.offersFinishTool {
             defs.append(reservedFinishToolDefinition)
         }
         defs.append(contentsOf: contextDefinitions)
