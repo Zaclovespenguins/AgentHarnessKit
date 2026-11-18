@@ -23,6 +23,11 @@ package extension [ChatMessage] {
         try validateHistory(using: .agentHistory)
     }
 
+    /// History with a trailing `finish` call restored as plain assistant answer text and no tool result.
+    ///
+    /// Returns `self` unchanged when the last message is not an assistant message with a `finish` call. Drops the
+    /// last message when the restored answer is empty. Throws `finishMustBeExclusive` when `finish` shares the
+    /// message with other tool calls.
     func sanitizedTerminalHistory() throws -> [ChatMessage] {
         guard let lastIndex = indices.last,
               case let .assistant(message) = self[lastIndex]

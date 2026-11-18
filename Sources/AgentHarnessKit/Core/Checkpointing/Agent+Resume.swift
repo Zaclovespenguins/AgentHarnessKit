@@ -2,19 +2,23 @@ import Foundation
 
 extension Agent {
     /// Resumes a previously checkpointed run, replaying iteration history before continuing live.
+    ///
+    /// - Parameter partialTurnRecorder: Records the resumed turn, starting from the checkpointed messages, so that
+    ///   ``PartialTurnRecorder/snapshot()`` returns valid history after a cancel.
     public func resume(
         from checkpointID: CheckpointID,
         checkpointer: any AgentCheckpointer,
         context: C,
         tokenBudget: Int? = nil,
         requestContext: RequestContext? = nil,
-        approvalHandler: ToolApprovalHandler? = nil
+        approvalHandler: ToolApprovalHandler? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) async throws -> AsyncThrowingStream<StreamEvent, Error> {
         let target = try await checkpointer.load(checkpointID)
         return try await resume(
             target: target, checkpointer: checkpointer, context: context,
             tokenBudget: tokenBudget, requestContext: requestContext,
-            approvalHandler: approvalHandler
+            approvalHandler: approvalHandler, partialTurnRecorder: partialTurnRecorder
         )
     }
 

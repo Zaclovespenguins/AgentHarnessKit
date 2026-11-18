@@ -1,6 +1,12 @@
 import Foundation
 
-/// Records the in-flight turn so that `AgentStream` can expose it as valid history after Cancel.
+/// Records the in-flight turn so that it can be read back as valid history after a cancel.
+///
+/// `AgentStream` uses one per turn and exposes it as `partialHistory`. Code that consumes `Agent.stream` or
+/// `Agent.resume` directly (no Observation, server-side Linux) creates one, passes it as `partialTurnRecorder:`,
+/// and calls ``snapshot()`` after cancelling the consuming task. Take the snapshot before cancelling, or before
+/// resolving parked approvals, so that a parked call gets the synthetic cancelled result rather than a deny.
+/// After `.finished`, use the event's history instead. `Chat.stream` does not record.
 ///
 /// The streaming loop writes into the recorder as it goes: `begin` with the history at the start of the
 /// turn, `appendText` for assistant text deltas, `commitAssistant` once an assistant message is fully
@@ -9,9 +15,9 @@ import Foundation
 ///
 /// All mutable state sits behind an `NSLock`. `Synchronization.Mutex` is not used because the package
 /// targets macOS 14 / iOS 17.
-package final class PartialTurnRecorder: @unchecked Sendable {
+public final class PartialTurnRecorder: @unchecked Sendable {
     /// Content of the synthetic `.tool` result given to a tool call that was cancelled before it returned.
-    package static let cancelledToolResultContent = "Cancelled by user before this tool returned."
+    public static let cancelledToolResultContent = "Cancelled by user before this tool returned."
 
     private let lock = NSLock()
 
@@ -20,7 +26,9 @@ package final class PartialTurnRecorder: @unchecked Sendable {
     /// Assistant text received for the in-flight response that has not been committed yet.
     private var uncommittedText = ""
 
-    package init() {}
+    /// Creates an empty recorder. The loop calls `begin` when the turn starts, so one recorder can serve
+    /// several turns in a row; each snapshot reflects the latest turn.
+    public init() {}
 
     /// Starts a turn. `baseHistory` is the history as of the start of the turn:
     /// system, prior history, and the user message.
@@ -61,7 +69,8 @@ package final class PartialTurnRecorder: @unchecked Sendable {
         uncommittedText = ""
     }
 
-    /// The history of the turn so far, sealed so that it passes `validateForLLMRequest()`.
+    /// The history of the turn so far, sealed so that it passes `validateForLLMRequest()`. Empty if the loop has
+    /// not started the turn yet.
     ///
     /// Non-mutating: the stored state is left as it is, so calling this more than once returns the same result
     /// and the synthetic results never reach the committed messages.
@@ -73,7 +82,7 @@ package final class PartialTurnRecorder: @unchecked Sendable {
     /// - A last assistant message whose only call is `finish` is restored as plain answer text with no tool
     ///   result, the same restore a finished turn gets (`sanitizedTerminalHistory()`).
     /// - Uncommitted text is appended as an assistant message with no tool calls, after any synthetic results.
-    package func snapshot() -> [ChatMessage] {
+    public func snapshot() -> [ChatMessage] {
         lock.lock()
         defer { lock.unlock() }
 

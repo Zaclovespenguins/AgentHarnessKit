@@ -47,6 +47,14 @@ private func awaitPending(
     }
 }
 
+private actor RanLog {
+    private(set) var messages: [String] = []
+
+    func add(_ message: String) {
+        messages.append(message)
+    }
+}
+
 struct ToolApprovalQueueConcurrencyTests {
     /// Three independent runs share one queue. All three requests park at once, and they are resolved in the
     /// order 3, 1, 2 with different decisions. Each run's result must match its own decision.
@@ -146,5 +154,67 @@ struct ToolApprovalQueueConcurrencyTests {
         #expect(tools[1].content.contains("beta ran: edited"))
         #expect(tools[1].content.contains("from-beta") == false)
         #expect(tools[2].content.contains("gamma ran: from-gamma"))
+    }
+
+    /// 6.11: two concurrency-safe sub-agents run in one wave and both park on the parent's shared queue. They are
+    /// resolved out of order with different decisions, and each child acts on its own decision.
+    @Test
+    func parallelSubAgentsParkOnSharedQueueAndResolveOutOfOrder() async throws {
+        let ran = RanLog()
+        func makeChild(_ label: String) throws -> Agent<SubAgentContext<EmptyContext>> {
+            let echo = try Tool<ConcurrentEchoParams, ConcurrentEchoOutput, SubAgentContext<EmptyContext>>(
+                name: "echo",
+                description: "Echoes",
+                executor: { params, _ in
+                    await ran.add(params.message)
+                    return ConcurrentEchoOutput(echoed: params.message)
+                }
+            )
+            let client = MockLLMClient(responses: [
+                AssistantMessage(content: "", toolCalls: [
+                    ToolCall(id: "child_\(label)", name: "echo", arguments: #"{"message":"\#(label)"}"#),
+                ]),
+                AssistantMessage(content: "", toolCalls: [
+                    ToolCall(id: "child_finish", name: "finish", arguments: #"{"content":"\#(label) done"}"#),
+                ]),
+            ])
+            return Agent(client: client, tools: [echo], configuration: AgentConfiguration(approvalPolicy: .allTools))
+        }
+        let first = try SubAgentTool<ConcurrentEchoParams, EmptyContext>(
+            name: "first", description: "First child", agent: makeChild("a"), isConcurrencySafe: true
+        ) { $0.message }
+        let second = try SubAgentTool<ConcurrentEchoParams, EmptyContext>(
+            name: "second", description: "Second child", agent: makeChild("b"), isConcurrencySafe: true
+        ) { $0.message }
+        let parentClient = MockLLMClient(responses: [
+            AssistantMessage(content: "", toolCalls: [
+                ToolCall(id: "parent_1", name: "first", arguments: #"{"message":"go a"}"#),
+                ToolCall(id: "parent_2", name: "second", arguments: #"{"message":"go b"}"#),
+            ]),
+            finishResponse(),
+        ])
+        let parent = Agent<SubAgentContext<EmptyContext>>(client: parentClient, tools: [first, second])
+        let queue = ToolApprovalQueue()
+
+        let run = Task {
+            try await parent.run(
+                userMessage: "Go",
+                context: SubAgentContext(inner: EmptyContext(), maxDepth: 3),
+                approvalHandler: queue.handler
+            )
+        }
+
+        let parked = await awaitPending(in: queue) { $0.count == 2 }
+        #expect(Set(parked.map(\.toolCallId)) == ["child_a", "child_b"])
+        #expect(await queue.resolve(id: "child_b", decision: .deny(reason: "no b")))
+        #expect(await queue.resolve(id: "child_a", decision: .approve))
+
+        let result = try await run.value
+        #expect(try requireContent(result) == "done")
+        #expect(await ran.messages == ["a"])
+        let tools = toolContents(result.history)
+        #expect(tools.map(\.id) == ["parent_1", "parent_2"])
+        #expect(tools.map(\.content) == ["a done", "b done"])
+        #expect(await queue.pending().isEmpty)
     }
 }

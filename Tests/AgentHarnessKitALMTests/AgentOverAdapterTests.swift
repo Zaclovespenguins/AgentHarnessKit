@@ -19,12 +19,25 @@ private struct AddOutput: Codable {
     let sum: Int
 }
 
-private func makeAgent(_ server: MockServer) throws -> Agent<EmptyContext> {
+private func makeAgent(
+    _ server: MockServer,
+    configuration: AgentConfiguration = AgentConfiguration()
+) throws -> Agent<EmptyContext> {
     let add = try Tool<AddParams, AddOutput, EmptyContext>(
         name: "add", description: "Add two integers and return the sum.",
         executor: { params, _ in AddOutput(sum: params.a + params.b) }
     )
-    return Agent(client: mockClient(server), tools: [add])
+    return Agent(client: mockClient(server), tools: [add], configuration: configuration)
+}
+
+private func awaitPending(_ queue: ToolApprovalQueue, count: Int) async -> [ToolApprovalRequest] {
+    let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+    while ContinuousClock.now < deadline {
+        let pending = await queue.pending()
+        if pending.count == count { return pending }
+        try? await Task.sleep(for: .milliseconds(2))
+    }
+    return await queue.pending()
 }
 
 private func enqueueAddThenFinish(_ server: MockServer) {
@@ -185,5 +198,37 @@ struct AgentOverAdapterTests {
         #expect(snapshot.count == 4)
         #expect(snapshot.last == .tool(id: "call_1", name: "add", content: #"{"sum":5}"#))
         #expect(!snapshot.contains(where: isEmptyAssistant))
+    }
+
+    /// 6.14: v0.2 items 1 and 4 over the real adapter. The call parks in a `ToolApprovalQueue`; the consumer takes
+    /// the snapshot through the public `partialTurnRecorder:` and then cancels. The snapshot holds the synthetic
+    /// cancelled result, the queue drains, and the tool never runs (no second request).
+    @Test func cancelWhileParkedInQueueGivesSyntheticResultOverAdapter() async throws {
+        let server = try MockServer()
+        enqueueAddThenFinish(server)
+        let agent = try makeAgent(server, configuration: AgentConfiguration(approvalPolicy: .allTools))
+        let queue = ToolApprovalQueue()
+        let recorder = PartialTurnRecorder()
+
+        let consumer = Task {
+            for try await _ in agent.stream(
+                userMessage: "What is 2 + 3?", context: EmptyContext(),
+                approvalHandler: queue.handler, partialTurnRecorder: recorder
+            ) {}
+        }
+        let parked = await awaitPending(queue, count: 1)
+        #expect(parked.map(\.toolCallId) == ["call_1"])
+
+        let snapshot = recorder.snapshot()
+        consumer.cancel()
+        _ = await consumer.result
+
+        try snapshot.validateForLLMRequest()
+        #expect(snapshot.first == .user("What is 2 + 3?"))
+        #expect(snapshot.last == .tool(
+            id: "call_1", name: "add", content: PartialTurnRecorder.cancelledToolResultContent
+        ))
+        #expect(await awaitPending(queue, count: 0).isEmpty)
+        #expect(server.requestCount == 1)
     }
 }

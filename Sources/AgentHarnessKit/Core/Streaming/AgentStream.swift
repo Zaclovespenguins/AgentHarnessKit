@@ -38,6 +38,9 @@ public struct ToolCallInfo: Sendable, Identifiable {
         public private(set) var iterationsReplayed: Int = 0
         public private(set) var currentCheckpoint: CheckpointID?
         /// History of the interrupted turn after `cancel()`; pass it as `history:` to the next `send`.
+        ///
+        /// A sub-agent that was running at the cancel gets the synthetic cancelled result like any other tool
+        /// call; the sub-agent's own messages are not kept.
         public private(set) var partialHistory: [ChatMessage]?
 
         private let agent: Agent<C>
@@ -47,11 +50,19 @@ public struct ToolCallInfo: Sendable, Identifiable {
         /// Recorder for the turn of the current generation, read by `cancel()` while the turn is still running.
         private var currentRecorder: PartialTurnRecorder?
 
+        /// Creates a stream for `agent`.
+        ///
+        /// - Parameter bufferCapacity: When set, the last `bufferCapacity` events of the current turn are kept for
+        ///   ``replay(from:)``. When nil, replay is disabled and `replay(from:)` throws `bufferDisabled`.
         public init(agent: Agent<C>, bufferCapacity: Int? = nil) {
             self.agent = agent
             buffer = bufferCapacity.map { StreamEventBuffer(capacity: $0) }
         }
 
+        /// Starts a turn with a text user message. Cancels the previous turn first and clears every observed property,
+        /// including `partialHistory`, so read `partialHistory` before calling `send` again.
+        ///
+        /// To continue after a Stop, pass the old `partialHistory` as `history:`.
         public func send(
             _ message: String,
             history: [ChatMessage] = [],
@@ -70,6 +81,10 @@ public struct ToolCallInfo: Sendable, Identifiable {
             )
         }
 
+        /// Starts a turn with `message` as the user message. Cancels the previous turn first and clears every
+        /// observed property, including `partialHistory`, so read `partialHistory` before calling `send` again.
+        ///
+        /// To continue after a Stop, pass the old `partialHistory` as `history:`.
         public func send(
             _ message: ChatMessage,
             history: [ChatMessage] = [],

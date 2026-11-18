@@ -75,6 +75,11 @@ public final class ToolApprovalQueue: Sendable {
         await store.snapshot()
     }
 
+    /// Number of live `updates` subscribers. For tests.
+    package func subscriberCount() async -> Int {
+        await store.subscriberCount()
+    }
+
     /// Emits the FIFO snapshot of parked requests after every change. Each subscriber receives the current
     /// snapshot first.
     public var updates: AsyncStream<[ToolApprovalRequest]> {
@@ -146,6 +151,10 @@ private actor ToolApprovalQueueStore {
     func addSubscriber(_ id: UUID, _ continuation: AsyncStream<[ToolApprovalRequest]>.Continuation) {
         if case .terminated = continuation.yield(snapshot()) { return }
         subscribers[id] = continuation
+    }
+
+    func subscriberCount() -> Int {
+        subscribers.count
     }
 
     func removeSubscriber(_ id: UUID) {

@@ -46,35 +46,37 @@ Branch note: items 1 and 2/3 were on unmerged branches (`claude/v0-2-phase-1-dis
 
 ## Gaps in scope
 
-### 6.5 Partial history only through `AgentStream`
+### 6.5 Partial history only through `AgentStream` — Done (public recorder)
 
 - `PartialTurnRecorder` and `InvocationOptions.partialTurnRecorder` are `package`. Consumers of `Chat.stream` or `Agent.stream` (non-Observation code, server-side Linux use) get nothing after cancel, which is the case item 1 was meant to remove. `AgentStream` also requires `Observation`.
 - **Do (proposal):** a public entry point, e.g. `Agent.stream(..., partialHistory: PartialHistoryHandle)` where the handle is a small public `Sendable` class with `snapshot() -> [ChatMessage]?`. Decide in the spec before coding.
+- **Done:** no new wrapper. `PartialTurnRecorder` is public (`init()`, `snapshot()`, `cancelledToolResultContent`; the writers stay `package`), and both public `Agent.stream` overloads and `Agent.resume(from:)` take `partialTurnRecorder:`. `snapshot()` returns an empty array, not nil, before the turn starts. `Chat.stream` is out of scope. Spec bullet updated; covered by `agentResumeRecordsIntoCallerRecorder` and the 6.14 test.
 
-### 6.6 Sub-agent work is lost on cancel
+### 6.6 Sub-agent work is lost on cancel — Done (documented)
 
 - Cancelling a parent while a sub-agent runs gives the parent's sub-agent tool call the synthetic cancelled result; the child's own partial history is discarded. Decide whether the synthetic result should carry a short summary of the child's completed iterations, or document the loss. Low priority.
+- **Done:** documented the loss in the spec and on `AgentStream.partialHistory`. A summary in the synthetic result would need a recorder per child; left for a later release if anyone asks.
 
 ## Tests to add
 
 | # | Test | Where | Why |
 |---|------|-------|-----|
-| 6.7 | `partialHistory` after `cancel()` during `resume(from:)`: cancel before the checkpoint loads (nil), and mid-iteration after resume (checkpointed messages plus in-flight text). | `AgentStreamResumeObserverTests` or a new `AgentStreamResumeCancelTests` | 5.2: `resume` body changed and no test asserts `partialHistory` there. |
-| 6.8 | Resume from a checkpoint whose history ends with an assistant tool call with no result, then cancel immediately: snapshot synthesizes the cancelled result and validates. | same | `begin(baseHistory:)` gets the checkpointed messages unchanged. |
+| 6.7 | **Done** (`AgentStreamResumeCancelTests`). `partialHistory` after `cancel()` during `resume(from:)`: cancel before the checkpoint loads (nil), and mid-iteration after resume (checkpointed messages plus in-flight text). | `AgentStreamResumeObserverTests` or a new `AgentStreamResumeCancelTests` | 5.2: `resume` body changed and no test asserts `partialHistory` there. |
+| 6.8 | **Done, premise corrected.** `resume` rejects such a checkpoint with `malformedHistory(.unfinishedToolCallBatch)` before the turn starts, so there is nothing to synthesize; the test pins that and nil `partialHistory`. Resume from a checkpoint whose history ends with an assistant tool call with no result, then cancel immediately: snapshot synthesizes the cancelled result and validates. | same | `begin(baseHistory:)` gets the checkpointed messages unchanged. |
 | 6.9 | **Done.** 6.1 and 6.2 tests above. | `PartialTurnRecorderTests`, `V02CrossFeatureTests` | Behavior fixes. |
 | 6.10 | **Done** (in `ToolApprovalQueueTests`). Queue concurrency: `denyAll` while three runs are parked resumes all three with the deny, in FIFO order, and `updates` emits exactly one empty snapshot. | `ToolApprovalQueueConcurrencyTests` | 5.2: concurrency suite never touches `denyAll` or `updates`. |
-| 6.11 | Sub-agents in parallel waves both parked on a shared queue (loop level), resolved out of order. | `ToolApprovalQueueConcurrencyTests` | 5.1 confirmed sub-agent tools run in concurrent waves with the shared handler; existing loop-level coverage uses separate top-level runs. |
-| 6.12 | Strengthen `V02CrossFeatureTests.terminatedSubscriberDoesNotBlockOthers`: the dropped iterator going out of scope does not reliably terminate the `AsyncStream`. Cancel a consuming task instead and assert the store drops the subscriber (e.g. via a `package` subscriber count). | `ToolApprovalQueueTests` | Current test passes whether or not removal happens. |
-| 6.13 | Terminal answer through `Chat.stream` and non-streaming `Agent.run` with a `completionTool` configured: history unchanged (spec says completion-tool runs are untouched). | `TerminalAnswerHistoryTests` | Only the `finish` paths are covered end to end. |
-| 6.14 | Mock-server (`MockServer`) cancel-during-parked-approval through `HarnessModelClient`, so item 1 + item 4 are covered over the real adapter on macOS/Linux/iOS. | `AgentOverAdapterTests` | Roadmap item 1 asks for mock-server coverage; the cross-feature tests use a scripted client. |
+| 6.11 | **Done** (`parallelSubAgentsParkOnSharedQueueAndResolveOutOfOrder`). Sub-agents in parallel waves both parked on a shared queue (loop level), resolved out of order. | `ToolApprovalQueueConcurrencyTests` | 5.1 confirmed sub-agent tools run in concurrent waves with the shared handler; existing loop-level coverage uses separate top-level runs. |
+| 6.12 | **Done** (`package subscriberCount()`). Strengthen `V02CrossFeatureTests.terminatedSubscriberDoesNotBlockOthers`: the dropped iterator going out of scope does not reliably terminate the `AsyncStream`. Cancel a consuming task instead and assert the store drops the subscriber (e.g. via a `package` subscriber count). | `ToolApprovalQueueTests` | Current test passes whether or not removal happens. |
+| 6.13 | **Already covered** by `completionToolRunHistoryIsUnchanged` and `completionToolStreamHistoryIsUnchanged`; `Chat` has no completion tool. Terminal answer through `Chat.stream` and non-streaming `Agent.run` with a `completionTool` configured: history unchanged (spec says completion-tool runs are untouched). | `TerminalAnswerHistoryTests` | Only the `finish` paths are covered end to end. |
+| 6.14 | **Done** (`cancelWhileParkedInQueueGivesSyntheticResultOverAdapter`, through the public recorder). Mock-server (`MockServer`) cancel-during-parked-approval through `HarnessModelClient`, so item 1 + item 4 are covered over the real adapter on macOS/Linux/iOS. | `AgentOverAdapterTests` | Roadmap item 1 asks for mock-server coverage; the cross-feature tests use a scripted client. |
 
 ## Polish
 
-- **6.15 Doc comments** (5.2): `AgentStream.init`, both `AgentStream.send` overloads (now document that `send` cancels the previous turn and clears `partialHistory`), `PartialTurnRecorder.init()`, `sanitizedTerminalHistory()`.
-- **6.16 `public extension` in the adapters** (5.2): `FoundationModelsClient.swift` and `MLXClient.swift` moved `public` from members to `public extension`. Access is unchanged; restore explicit `public` on members if the project prefers greppable declarations. Not compiled on Linux, so check on macOS.
+- **6.15 (Done) Doc comments** (5.2): `AgentStream.init`, both `AgentStream.send` overloads (now document that `send` cancels the previous turn and clears `partialHistory`), `PartialTurnRecorder.init()`, `sanitizedTerminalHistory()`.
+- **6.16 (No change) `public extension` in the adapters** (5.2): SwiftFormat's default `extensionAccessControl` rule produces this form (see `1c2544f`) and the rest of the sources use it, so explicit member `public` would fail lint. `FoundationModelsClient.swift` and `MLXClient.swift` moved `public` from members to `public extension`. Access is unchanged; restore explicit `public` on members if the project prefers greppable declarations. Not compiled on Linux, so check on macOS.
 - **6.17 Stale task text (Done):** `V0-2/04-queued-approval-handler.md` 4.2 describes a token set for cancel-before-enqueue; the shipped code checks `Task.isCancelled` inside `park` instead (`ToolApprovalQueueStore.park`). Update the task text to match. `ROADMAP_V0.2.md` and 04 name `ToolApprovalCoordinator`; say it is the app class.
 - **6.18 (Done) `denyAll` on an empty queue** publishes an unchanged empty snapshot to every subscriber. Skip the publish when nothing was parked.
-- **6.19 Commit trailers:** some Phase 5 agent commits carry a Haiku `Co-Authored-By` line, others Opus. Harmless; standardize if the project cares.
+- **6.19 (Won't fix) Commit trailers:** the commits are on `main` and tagged; changing them means rewriting published history. some Phase 5 agent commits carry a Haiku `Co-Authored-By` line, others Opus. Harmless; standardize if the project cares.
 - **6.20 (Done: `make check-local`) `make check` without mint:** `swiftformat` 0.60.1 and `swiftlint` 0.63.0 are on PATH in the cloud image. A `make check-local` target calling them directly would let agents run the real target.
 
 ## Run order
