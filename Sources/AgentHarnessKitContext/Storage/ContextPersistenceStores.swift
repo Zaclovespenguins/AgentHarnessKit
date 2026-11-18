@@ -80,6 +80,10 @@ public actor InMemoryContextPersistence: ContextPersistence {
         }
         return Array(hits.prefix(limit))
     }
+
+    public func delete(sessionID: SessionID) async throws {
+        sessions[sessionID] = nil
+    }
 }
 
 /// GRDB persistence: one shared database keyed by session (docs/ARCHITECTURE.md section 4).
@@ -195,6 +199,16 @@ public final class GRDBContextPersistence: ContextPersistence { // swiftlint:dis
                 return ContextSearchHit(source: .message(MessageRef(ordinal)), snippet: body)
             }
             return Array((blocks + messages).prefix(limit))
+        }
+    }
+
+    public func delete(sessionID: SessionID) async throws {
+        let session = sessionID.rawValue.uuidString
+        // The FTS5 tables are synchronized by triggers, so deleting base rows removes their index rows.
+        try await writer.write { db in
+            for table in ["block_source", "block", "message", "session_meta"] {
+                try db.execute(sql: "DELETE FROM \(table) WHERE sessionID = ?", arguments: [session])
+            }
         }
     }
 
