@@ -387,4 +387,33 @@ struct LiveEndpointTests {
         let final = try await secondTurn(after: first)
         #expect(final.content.contains("5"))
     }
+
+    /// The default agent's final answer arrives as several `.delta` events over time, not all at once in `.finished`.
+    @Test func agentStreamsTheFinalAnswer() async throws {
+        let agent = Agent<EmptyContext>(client: client, tools: [])
+        let start = ContinuousClock.now
+        var deltaTimes: [Duration] = []
+        var streamed = ""
+        var finishedContent: String?
+        var finishedAt: Duration?
+        for try await event in agent.stream(
+            userMessage: "Write four short sentences about the ocean.", context: EmptyContext()
+        ) {
+            switch event.kind {
+            case let .delta(text):
+                deltaTimes.append(ContinuousClock.now - start)
+                streamed += text
+            case let .finished(_, content, _, _):
+                finishedContent = content
+                finishedAt = ContinuousClock.now - start
+            default: break
+            }
+        }
+        let first = deltaTimes.first ?? .zero
+        let last = deltaTimes.last ?? .zero
+        print("LIVE agent: \(deltaTimes.count) deltas, first \(first), last \(last), finished \(finishedAt ?? .zero)")
+        #expect(deltaTimes.count > 1)
+        #expect(last - first > .milliseconds(100))
+        #expect(finishedContent == streamed)
+    }
 }
