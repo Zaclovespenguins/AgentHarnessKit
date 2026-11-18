@@ -105,6 +105,11 @@ public final class Agent<C: ToolContext>: Sendable {
         )
     }
 
+    /// Streams one turn.
+    ///
+    /// - Parameter partialTurnRecorder: Records the turn as it runs, so that ``PartialTurnRecorder/snapshot()``
+    ///   returns valid history to resend when the turn is stopped. Take the snapshot, then cancel the consuming
+    ///   task. `AgentStream` does this for you.
     public func stream(
         userMessage: String,
         history: [ChatMessage] = [],
@@ -113,13 +118,14 @@ public final class Agent<C: ToolContext>: Sendable {
         requestContext: RequestContext? = nil,
         approvalHandler: ToolApprovalHandler? = nil,
         sessionID: SessionID? = nil,
-        checkpointer: (any AgentCheckpointer)? = nil
+        checkpointer: (any AgentCheckpointer)? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) -> AsyncThrowingStream<StreamEvent, Error> {
         let options = InvocationOptions(
             tokenBudget: tokenBudget, requestContext: requestContext,
             systemPromptOverride: nil, approvalHandler: approvalHandler,
             sessionID: sessionID ?? SessionID(), runID: RunID(),
-            checkpointer: checkpointer
+            checkpointer: checkpointer, partialTurnRecorder: partialTurnRecorder
         )
         return stream(
             userMessage: .user(userMessage), history: history,
@@ -127,6 +133,11 @@ public final class Agent<C: ToolContext>: Sendable {
         )
     }
 
+    /// Streams one turn.
+    ///
+    /// - Parameter partialTurnRecorder: Records the turn as it runs, so that ``PartialTurnRecorder/snapshot()``
+    ///   returns valid history to resend when the turn is stopped. Take the snapshot, then cancel the consuming
+    ///   task. `AgentStream` does this for you.
     public func stream(
         userMessage: ChatMessage,
         history: [ChatMessage] = [],
@@ -135,13 +146,14 @@ public final class Agent<C: ToolContext>: Sendable {
         requestContext: RequestContext? = nil,
         approvalHandler: ToolApprovalHandler? = nil,
         sessionID: SessionID? = nil,
-        checkpointer: (any AgentCheckpointer)? = nil
+        checkpointer: (any AgentCheckpointer)? = nil,
+        partialTurnRecorder: PartialTurnRecorder? = nil
     ) -> AsyncThrowingStream<StreamEvent, Error> {
         let options = InvocationOptions(
             tokenBudget: tokenBudget, requestContext: requestContext,
             systemPromptOverride: nil, approvalHandler: approvalHandler,
             sessionID: sessionID ?? SessionID(), runID: RunID(),
-            checkpointer: checkpointer
+            checkpointer: checkpointer, partialTurnRecorder: partialTurnRecorder
         )
         return stream(
             userMessage: userMessage, history: history,

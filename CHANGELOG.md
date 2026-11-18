@@ -5,6 +5,17 @@ All notable changes to AgentHarnessKit are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `PartialTurnRecorder` is public, and `Agent.stream` and `Agent.resume` take an optional `partialTurnRecorder:`. Code that consumes the event stream directly, without `AgentStream` or Observation, can call `snapshot()` when it stops a turn and resend the result as `history:` (0.2.1 known gap 6.5). `Chat.stream` still does not record.
+
+### Changed
+
+- Documented that cancelling a turn while a sub-agent runs keeps only the synthetic cancelled result for the sub-agent call, not the sub-agent's own messages (0.2.1 known gap 6.6).
+- Doc comments for `AgentStream.init`, both `AgentStream.send` overloads and `PartialTurnRecorder`.
+
 ## [0.2.1] - 2026-11-18
 
 ### Fixed

@@ -183,6 +183,15 @@
         return await queue.pending().isEmpty
     }
 
+    private func waitForSubscriberCount(_ queue: ToolApprovalQueue, _ count: Int) async -> Bool {
+        let deadline = ContinuousClock.now.advanced(by: .seconds(10))
+        while ContinuousClock.now < deadline {
+            if await queue.subscriberCount() == count { return true }
+            try? await Task.sleep(for: .milliseconds(2))
+        }
+        return await queue.subscriberCount() == count
+    }
+
     private func toolResults(_ messages: [ChatMessage]) -> [(id: String, content: String)] {
         messages.compactMap { message in
             if case let .tool(id, _, content) = message { return (id: id, content: content) }
@@ -446,16 +455,22 @@
             #expect(await queue.pending().isEmpty)
         }
 
-        /// A subscriber that stops iterating is dropped, and later changes still reach other subscribers.
+        /// 6.12: cancelling the task that iterates `updates` removes its subscriber from the store, and later
+        /// changes still reach the other subscriber.
         @Test
         func terminatedSubscriberDoesNotBlockOthers() async {
             let queue = ToolApprovalQueue()
-            do {
-                var dropped = queue.updates.makeAsyncIterator()
-                #expect(await dropped.next() == [])
+            let dropped = Task {
+                for await _ in queue.updates {}
             }
+            #expect(await waitForSubscriberCount(queue, 1))
+            dropped.cancel()
+            await dropped.value
+            #expect(await waitForSubscriberCount(queue, 0))
+
             var live = queue.updates.makeAsyncIterator()
             #expect(await live.next() == [])
+            #expect(await queue.subscriberCount() == 1)
 
             let task = Task { await queue.handler(request("x")) }
             #expect(await live.next()?.map(\.toolCallId) == ["x"])
