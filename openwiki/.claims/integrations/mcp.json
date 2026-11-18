@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:819ab648e6e4fba13c8819bc3bdec05e247ece4edb9e37e9c06eef29483ef003",
+  "pageVersion": "sha256:74349e5b3e1de0c0770cc2ff6ec8c69a6c14f84a444286c34299790a1aba2016",
   "claims": [
     {
       "id": "claim_af5bc7124e3f4e81a045bfa81d1ab23b",
@@ -27,8 +27,12 @@
       "statement": "MCPClient pages through tools/list using the returned nextCursor until no cursor remains during connectAndInitialize.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L280-L295",
-          "version": "repo-lines-v1:sha256:72d413a2303de578625d045e742f9ede4d93b3ac31005ac942accbf4db50c779:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YmZmOWFjZmM5OWFlODAwNDZkYmI3N2U2MzQ5ZGQwOGZmOWFlODdiNTU1OTBkYWI1ZDQwYzgyODgxYWRjZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzYwY2FkODBiMDEzYzFlMmJlNjkyYjk3Yjg2Y2MwNjcwZjUxYjc5ZGIzZDEyMDhiMWM1Y2RjZWFmY2UyYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L274-L296",
+          "version": "repo-lines-v1:sha256:f04cce560921f8452cc799e30e159092e6b56222841a14efed2a2ad5349fdce5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkMGRhMTllNWVlMjc5ZjMwODhjMzk5Y2I2Njc1NjE5YWZkNWNiYjEyMjMyZTI0YWU5OTQ4NzdkMDgzMzAyNDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4MDU1NTIyN2IxNGM1ZmEwYTQ0NTA1NjhmM2U0N2RmNzAxMDg1NjFlZDU4NjM3ZTZiODlkZDc5ZmVhOGE3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L62-L63",
+          "version": "repo-lines-v1:sha256:a034e3a9b91a6f3ecb3076c1c786178f5d7ca7f5cb0dd649149b8bf86a034dcf:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWE5YmViNjc0M2I3NmFlOTNlZWQwZTM1MjE0MzRkYjdlOTc3NzMxYTUzYjgxZTgwOWM0ZTc1OTVkYzhlNDBkOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFiM2FiNGM1ZDJlYTFhNDg0MWM2NWJjOGZiNGNiMDAxZmI4OGQzOWY5YzNlMzhkNzU5ZTdjZmJiZWMwZTllNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmYwZDc1OTUwZGYwZmY5YTNlZTk2NjM5ZGNjOGZmNWVhZWRiNDBkNjgyYmVhOTI2MjJiNTIwZGQ4ODdkOTNlOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjMxZjdhY2NiM2UzMDU2MjdiYzU3YzlhYjI0ZjU4NDU2MTgxYzg2NjYwNjlhOTQ1NTFkNWMxOThiMDNjM2VjMSJ9"
         }
       ]
     },
@@ -55,6 +59,6 @@
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }

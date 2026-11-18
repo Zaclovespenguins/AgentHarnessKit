@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:ca857402f9cc7bc845e1eb066d8abe20b423be8c95997d7455f7a25c9f1d8c65",
+  "pageVersion": "sha256:fbcaeac9ee17f01862a180710f373dc2d6056ddf302bacee26138f4d0a0017c4",
   "claims": [
     {
       "id": "claim_1d9eeb9675ce446da35150b033b06d7f",
       "statement": "Agent.run executes at most configuration.maxIterations model iterations (default 10) and returns reason maxIterationsReached when exhausted.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L194-L240",
-          "version": "repo-lines-v1:sha256:c1c6515969ee04bec2422c5255bb91e16cb1a487cd5f626a4733452349d329eb:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmU0NDdkYzUyNzdiOTBjNWJiNzNlODJjM2JmMzBmNGRlNWExZGQxZTUxYzJmZDA4ZDEyZmEyMmQzMTJmNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhNTUwYTFhNTkxNTZlZTJiNTFjN2FmZjUzZTRkYTA5NzBjNjY0ZTg2NTdiYWM4NDkwYTliZTE0Mzk0MmVmOWIifQ"
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L207-L254",
+          "version": "repo-lines-v1:sha256:52284288e125239da36765bfb2deaf8094bb170b825e6f38c7cf8fb32c9feed0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmU0NDdkYzUyNzdiOTBjNWJiNzNlODJjM2JmMzBmNGRlNWExZGQxZTUxYzJmZDA4ZDEyZmEyMmQzMTJmNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2MjgzMTA5MjkzMWI1M2FiMmIyNDZkODc0Y2Q4ZmYwYjhmZmUyYTgwOWZmMjRmMGRmOGM4ODdjNTRlZDEyOTUifQ"
         },
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentConfiguration.swift#L16-L34",
-          "version": "repo-lines-v1:sha256:de208f9868572f92a89cfd714ddb98421e08d5ef25d0300611db7e30055202a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYjc4YTBhYmU3YWE5YTA1YmY5NDJhYWZhMmQ0Y2Y5NjQ0ZTVlZDc4MjAwYTcyZTYxY2EzMDM1YmU5ZTc2ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzMzY1MTI5NWQ3MzE2NTM3ZDYwNTBjMGIwYTc3MzQ3MWVjZTY2ZmY3YTQ5ZmMwMjJjYzVlYTU3ZGE0NWRjYzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NmRlMzNhMzRhNjkzZmFiYjBlNTA1YmIzMTA5MTNmYzE1ZWZkMTM2NWZmNjk2NjAzMGExNTJkODAwYTA4Y2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3YWI4OTA4ZDBmM2Q2ZDBkMTZlNjQ5NGY1YjkxMDI0MWFhNDc0NzdjNDU0ZjE5ZTI3OWM4MDA1NTA2YWUxNTkifQ"
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentConfiguration.swift#L20-L30",
+          "version": "repo-lines-v1:sha256:5bd4b9da3612215be39a4e3e5bce9942a2c1d78d213b3cb85c8311e85cd2bc9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYjc4YTBhYmU3YWE5YTA1YmY5NDJhYWZhMmQ0Y2Y5NjQ0ZTVlZDc4MjAwYTcyZTYxY2EzMDM1YmU5ZTc2ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmOWUyYTNiODY2OTc4NmQ1ZWUzMjQ4YTU1OTZhZmNjNzIxNDZlYzBjZWE4NTQ1N2E1M2Q5Y2ExZTU3YjIyNTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI5NGRkOTUzOWI0NDE2MWJmNjFjZTlmZjMxMmE5NWNiNzhkMTYwMDliOTk0YzkxYmEwNzM5N2I5Mzg4NTQwOWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE5Zjg4NGZhNjljNjk1NTcyZWI0YTQ4NjNiMDE1ZGU0OWI5YTIzMmQyYmMyZTlkZjE1M2E2NWEzNGEyMzQ5MjgifQ"
         }
       ]
     },
@@ -65,14 +65,42 @@
       "statement": "Agent construction traps via precondition on empty, duplicate, or reserved tool names.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L30-L60",
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L31-L61",
           "version": "repo-lines-v1:sha256:58ccf0f70553b5b0e5bfeaa97518a080241c47ddd6293a421286fd06ca8213bf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjMDM3NmM2ODJkMmNjN2M2NTZhYjk2YmVhYWQ3Y2ZkNmRhYjlmNDFlNjA4NjI5OGM2YzE3NDdmNTYyM2E5OTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMGY1MmIzYjc0OWM2YjI4ZjYwNzkzMmExZGM4N2IyNjkyYzY4MDA2ZDMxNjYzODIzZDBhYTBlZDFkZTc1M2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MmJlYjNmZTNkNjA5MDc4Yzc4MTUwNWViYWY2YWFlNWIxMGQ2MjJiZTY1NmI5NjVlNmFiYzA1OGQzNzU2NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2MzE0NjRlNjM1NzY5ODM5OTUyMzNhZWY4M2M3YmJjOGQzMWZkMzlkZTNmY2NkNWM4MWZiODgyODM0Zjg0ZTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a63bb725bd9841d484a9b91a736b896d",
+      "statement": "The built-in finish tool is offered to the model only when AgentConfiguration.offersFinishTool is true (default false) and no custom completion tool is supplied; otherwise a default agent ends when the model replies with non-empty plain text and no tool calls.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L62-L70",
+          "version": "repo-lines-v1:sha256:10d625e50579a90b342a19183f67874da631e4e4c3df499bc5de316d0eb2bdb3:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzg1Y2UyZTJjZmUxZjc4OTBhYmMwNGZmMDc1YzY3MTE4ZDE2ZTY0ZmNjMGEzZmI4NjRjNTQ2ZDJiMTJkNWFlYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTgyNzMyNmFiZmQ5MTI2MzM3YTZjYzY3ZmVjNzE3MmNhYTgzMmI0MDUwYTNiY2QxMDgxMDg3ODFmZmRlMmY3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTY0OThjNzdhMDUzNzdlMDE2ODZmYmFhMzk5ZTgzMzU4MGExYzNlOTNmMDQxY2YxMzdiZTc5NzRmMWQ5ZWU4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzY0YTIwMTMyZDZjNzA3MGIzM2UxZWZjNGI0ZTdlYzAwMjRjNTI5OGIzYTU0YWNmMDhkZmViYzA0MDYyNGNkOCJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentCompletionPolicy.swift#L16-L21",
+          "version": "repo-lines-v1:sha256:4dbe56c8a454bc47232aefd7044bf82885cd253ebdc847fbabac6c747df71c0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FjOWE4MTU2OGJmYzVjYTJhYThjNDM3MDc4ZTI3NjBmMDE5YjIyZTg2N2IwYWRjNDJjNGI0ZjQ0NzY3NmVhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWU0YjA4ZTkzMWQzNmIzYjI1MjNjYWNlMDE4YzA3NDM3MjVmOWYzYzgyMWQ5NDAwNzc1MWRkMDZhMDQ4MzhhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGRmZTI1MWFiYWRhNTk5NGU0ZTk2ZjM3ZGZjZTFiM2I1NjU5YjRjMjQzODdhMzc4MGU1ZDRmMzU0MGIwYWI1ZSJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentConfiguration.swift#L15-L28",
+          "version": "repo-lines-v1:sha256:973006edea1c88c5af45975a788aa8e77293f1b84fb20fdb29e3fe7d629c353c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1NjQzMGZmYmUxNTFlN2MwNGIxNmNhMWI1Y2MwNDIxZDljMDk5MThiNmQyYjhhNGMwMWYwOTY1MGM2N2MxNTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViOTcxZjBlODc1NjJiYWJiNTNlYzYzYzk2OWE3NzA5MmE5MDFmNmY0YmVhYTE0NzE2MjM2OGVhYWI5NzRiNDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3OTIyOGJkNDM3OGZmMDEyNzM3ZDA3Nzk4ZDM4OTFlN2ZiNjQxMmEyYzU4OWMwZDFhY2JhMTk4YThiNGU4YjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzZWZjNjE2OTUxMWIwZWYyYjlhMDEzYmUxYjQ2MTQwZTdlMWMwZDI1NDQ4ZDM3NzA0NDU4YWVhYTk2Y2E2NjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_036b0e08012343fd9150ccc236bc4463",
+      "statement": "A reserved finish call is classified as a built-in finish by tool name even when the finish tool was not offered to the model.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentCompletionPolicy.swift#L34-L43",
+          "version": "repo-lines-v1:sha256:74ae6b7f41d42543a842d2f5d7c256d110f542db5f83f40ff8cb61c053a4a337:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4OGEwMjBiOGViODliNzcxNzg5ZDgwYjRhZDlhYmEwMzk2ZmU2MTJkOWE0YTBjN2QyZWMzMzIxZjJiMTNmN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljODQzNzFmZDk5ZjNlMjkyYWJjOTFjZmUyYzQzNjhjZTMwMGQwOTg0ZDYwMTY3ZDAxNDgyNWU0NDA2ZDZjNGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyMzk0MTY5NTNjOTkzZTU0ODM5YWYwOWRhNTViZWM4ZWQ3MjBhMjNlNDMxZTY5YmZlZDI3OWRlNTY5ZGQ0MTgifQ"
         }
       ]
     }
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }

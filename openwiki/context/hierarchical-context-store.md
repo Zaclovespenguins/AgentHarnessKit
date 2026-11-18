@@ -5,7 +5,7 @@ description: How the AgentHarnessKitContext module stores a session's messages, 
 tags: [context, compression, folding, grdb, persistence, tools, token-budget]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-45c269b4a3ccd7c1d9e49842
     resource: repo://Sources/AgentHarnessKitContext/ContextModel.swift

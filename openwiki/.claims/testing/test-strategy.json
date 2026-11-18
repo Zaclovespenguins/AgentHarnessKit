@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:156eea7ad46853424df911fb2d6b2233a238b2e36b4ab0d3f37b6557b90095d6",
+  "pageVersion": "sha256:5e304a93390eb2efcaf4f68814398cb610bbdf692e016b15de3294ac5e8febc1",
   "claims": [
     {
       "id": "claim_5230cec2b9fb494ba160b4adff332425",
@@ -27,11 +27,11 @@
       "statement": "The wireFormat tag is applied to suites in MCPToolTests and MCPClientTests, and no Makefile or CI step selects tests by tag.",
       "evidence": [
         {
-          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPClientTests.swift#L546-L546",
+          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPClientTests.swift#L583-L583",
           "version": "repo-lines-v1:sha256:a4764dfdd9045de37a6e6850d52782a54777f07ca50bbdcc0e883b0bf24381e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2ViMTQ0OTM2OGJkODU1NDAzNWZlYjBjZTU0YTg2MWUyMWFiZTc2ZWU5MmU4MzViZDA1NDJkODI2YWE1YzM3ZCJ9"
         },
         {
-          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPToolTests.swift#L338-L338",
+          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPToolTests.swift#L354-L354",
           "version": "repo-lines-v1:sha256:a4764dfdd9045de37a6e6850d52782a54777f07ca50bbdcc0e883b0bf24381e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTY3M2VlN2IzNWVhNDBjYTc4YmMwZDg1YTg0MjM1NTBiYmE3NGUzYjkzNzAxNTZiYWZjZGRiY2U2YzhmZGE2YSJ9"
         }
       ]
@@ -49,10 +49,30 @@
           "version": "repo-lines-v1:sha256:00e299cf10c6fe83e2f92a816f3e67b33f52226114dcdfced868ad2aa8df36df:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2MxY2Q5MTMxOGNlZTEyNzE2ZTZlZjk3ZjQ3NjAyYWRmMWE3ZjM3M2FlZGQ2YjQxZDFlNTg5ZDgxZDg1NjhmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjM0MmIxN2VlYjA4YzdhNDM0MjlmN2Y2MjlhMDBmMDdjMDA2NTA2MDZhMjgzZDUwNjdmNzU3NDk4OWQ1N2FhYiJ9"
         }
       ]
+    },
+    {
+      "id": "claim_c8994cba9b9d4d9980e894036b032255",
+      "statement": "LiveEndpointTests runs only when AHK_LIVE_BASE_URL is set and includes agentStreamsTheFinalAnswer, which checks that a default Agent.stream turn delivers its answer as multiple .delta events spread over time that match the .finished content.",
+      "evidence": [
+        {
+          "resource": "repo://Tests/AgentHarnessKitALMTests/HarnessModelClientTests.swift#L320-L419",
+          "version": "repo-lines-v1:sha256:ed57dec11c0132fbf9f47e2bf9411f177b4bbe838c4cc376be277983ae64a780:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwODZlNzFmOTBkNTM1MTQ5MDdlZDU4MzVkNzQ4YWY0MTc5ZTkzZmIzNjkxYzNhNjIwMjhiZjAyNzRkZmI4NDhhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOWU3NjM1NWNmMTE5OTQ4MGMzZjk5ODM2YjE0ODZjODQxZDg5MWZhYWQ5MDRjNjA4ZTA5MzAyMmQzNzU3YWVlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a264cdd3e6c14aef8ed115c9ef97eeee",
+      "statement": "plainTextFinalAnswerStreamsAsDeltas verifies offline, against the scripted mock server, that a plain-text final answer streams as .delta events before .finished in a single request.",
+      "evidence": [
+        {
+          "resource": "repo://Tests/AgentHarnessKitALMTests/AgentOverAdapterTests.swift#L130-L151",
+          "version": "repo-lines-v1:sha256:f2e4231ce5fd84324b129a98e7c57fe705cafd7011cf3bf2db196cedfd0d34fc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlNTQyN2E1ZDJhYTViYTE2YjYxMTliYzdhNDdlNGVjMzM3MWM5YWJjOTgyNGMwNWIwNTAyODdiNTY1ZTkyYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NTlmZDVkMzNjODkxODJiYjQ0YTA0ZDExMTM0YjU4M2ZkMTViOThlODIzYzQxMTRlY2RlMTBjYzIxNmUwNjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwZDNjNmNkMjk2ZGFiZWE2ZWFlNmRjZDAwNmI1MGEzMjc2MDcwYWZhNjRhYjVjZWQ0MWJmNTlkZjVlYjY3ODcifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }
