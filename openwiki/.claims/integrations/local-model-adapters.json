@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:27c3814a7bdc952284a94a208881f10c3abfa01b3d3ebe6e0d82a971f6aaa96d",
+  "claims": [
+    {
+      "id": "claim_3d04e4b3c858484aa4b5d5a138bcb404",
+      "statement": "The Foundation Models adapter is compiled only when FoundationModels can be imported, and its declarations are available only on macOS 26, iOS 26, and visionOS 26 or later.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitFoundationModels/FoundationModelsClient.swift#L5-L10",
+          "version": "repo-lines-v1:sha256:a20114ed6d3bba307849c399369be844206894fe7860e860403dadec0babced9:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM1NzAxNjJkYzQ3MGM4NzU4ZTEyYzIzZjZjYzliMDRmNTdiNmE4YWQ4NWVlYmFhYTBiZmIwMmY0MTRhYTI5MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDUxZGVjYTU1ZmEyMjQ5ZGQyZGFhZmJhZjE0Njk5Yzk5ZDhhMDczN2QwOWQ4ZTcyYWY0MjdhYzU0NTkwMzU3MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWZkMWY1YmY0Y2VmMWJmYzk0YTQ3YmQ3MDkxYTBhMGYwOTk4OTY0ZDFjMTEzNGJkZjlkMDY2ZGM3OGMwZjEzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTc1NzVlZTU3YWZhYzU4YWYyMmM2YmJjOTA0NjcwMzYyYWM5NWUxMDc4YzFlMDNjNGVmMDI1NGI0ZjE3NDBjYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_90f34defcec24153b30b950e974d5f1d",
+      "statement": "The Foundation Models initializer uses the system model's context size as the context window and sets no replay substrate, and checkAvailability throws llmError when the model's availability is unavailable.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitFoundationModels/FoundationModelsClient.swift#L13-L31",
+          "version": "repo-lines-v1:sha256:a4315b29d496aab9ae54f1e9422fa03386a79363687c9e59a065eb35387d443f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1YmEzZWNhZDAwNzM4MGU4ZGI2NjcwNDhkNmFjOTA5YjRiMTcxNjIyNzBmYTU1ZjQ1MDEzNTViMmMwMDhiZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmMmVkNzQ5YTgxZTYzMmY0MDEyZTRmNjY0YmYxNmVhNjBjYjVkOGJlMzRkNDU1NTMyNzA1ZTAwNjI3OGE2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiMTg2M2Q4Njg3OTcxYTY0ZjViOTdkMmI1YTMzNmYyYWE0NTIzYWU3MjU2MDIxOTg2YTQ2MjdlY2ViMTUxMzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_af5becfde27043f0ba936e02f124604c",
+      "statement": "The MLX adapter compiles only under the MLX compile condition, which the package's MLX trait sets, and that trait also enables AnyLanguageModel's MLX trait through a conditional dependency.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L27-L39",
+          "version": "repo-lines-v1:sha256:40e550e964d06b8122fc106339bfc2efed11a0ecfd267123d490605c3f68f95e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyN2Q0OWJhMjk0YmM3NjI2YmJmMDk2MjgxMDUzNDMzZDYzNGIxYjQwZTBlNDgzZDliZDE0YjVhNmI0MTgyYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlMWNmOTJhODU1OWJjMGYzNmVhNjBhNDk4YzVmNDM0YTlkYmVhY2U5NDJjZWQyZWJjODY1ZDJjZDA1NWRkMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlNTczOWIxYTAyNTZjYTg1YzVmMzYzN2JiMjEwMWJlZjBhZGI2YzkyZTc2OGU3MzJlNGFjNjEzYzE3ZTYxZDMifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitMLX/MLXClient.swift#L5-L24",
+          "version": "repo-lines-v1:sha256:05b3fa5574072e195f728491165baea3f504b0afa082dd6f15fbae373d074b3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MTQzZmQ0NDU4Njc5M2E1MDBkNTA5ODQ4ODA1ZWYzZDRmMTI4ODJjMjc1ZjI2NDQ1NWVkOWNhN2VmZmZjY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmZDFmNWJmNGNlZjFiZmM5NGE0N2JkNzA5MWEwYTBmMDk5ODk2NGQxYzExMzRiZGY5ZDA2NmRjNzhjMGYxMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMzQ5YmJkMWEyMTEwNGYwNTFlMzRiMmM4YTllNzBjYzdmYmI1MGJjMTlhNjc3ODFmMmExNDBjMzg2ZDk0MzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2be0c1eb7c7a459d85b79fa47b316fc6",
+      "statement": "The MLX initializer uses the mlx provider identifier, passes the caller's context window size through, and sets no replay substrate.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMLX/MLXClient.swift#L9-L23",
+          "version": "repo-lines-v1:sha256:a42427f098bc2523b59378da931b3f0ee7054bb05216370382c7db9235f7a783:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwMjc4ZDdmM2Q4NzdiOTRjNmRmMzhjZTVhNWE5NmM5ZTAxZjFhOTIyNmM2OWFhZjllNDM4ODFhNWQyMDc0ZDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjMmRhMDBkYTJkY2ZkZTMzYzdkNDM3ZDAyNjgwMWYyNTA1Njg5NGM0ZjBhZTMyM2I4MzhlMDkwYTFiODI1MWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhiMTg2M2Q4Njg3OTcxYTY0ZjViOTdkMmI1YTMzNmYyYWE0NTIzYWU3MjU2MDIxOTg2YTQ2MjdlY2ViMTUxMzEifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

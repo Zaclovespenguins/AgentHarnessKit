@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ca857402f9cc7bc845e1eb066d8abe20b423be8c95997d7455f7a25c9f1d8c65",
+  "claims": [
+    {
+      "id": "claim_1d9eeb9675ce446da35150b033b06d7f",
+      "statement": "Agent.run executes at most configuration.maxIterations model iterations (default 10) and returns reason maxIterationsReached when exhausted.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L194-L240",
+          "version": "repo-lines-v1:sha256:c1c6515969ee04bec2422c5255bb91e16cb1a487cd5f626a4733452349d329eb:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmU0NDdkYzUyNzdiOTBjNWJiNzNlODJjM2JmMzBmNGRlNWExZGQxZTUxYzJmZDA4ZDEyZmEyMmQzMTJmNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MDlhNTNhNjE4ZDAyOGUxZDMwMDBjMGE3YWJjZWVjYmU1ZmIzN2Y0ZTUxMWVmZTQ2NjQzZmFkNmU2Njg3MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhNTUwYTFhNTkxNTZlZTJiNTFjN2FmZjUzZTRkYTA5NzBjNjY0ZTg2NTdiYWM4NDkwYTliZTE0Mzk0MmVmOWIifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentConfiguration.swift#L16-L34",
+          "version": "repo-lines-v1:sha256:de208f9868572f92a89cfd714ddb98421e08d5ef25d0300611db7e30055202a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYjc4YTBhYmU3YWE5YTA1YmY5NDJhYWZhMmQ0Y2Y5NjQ0ZTVlZDc4MjAwYTcyZTYxY2EzMDM1YmU5ZTc2ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzMzY1MTI5NWQ3MzE2NTM3ZDYwNTBjMGIwYTc3MzQ3MWVjZTY2ZmY3YTQ5ZmMwMjJjYzVlYTU3ZGE0NWRjYzciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NmRlMzNhMzRhNjkzZmFiYjBlNTA1YmIzMTA5MTNmYzE1ZWZkMTM2NWZmNjk2NjAzMGExNTJkODAwYTA4Y2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3YWI4OTA4ZDBmM2Q2ZDBkMTZlNjQ5NGY1YjkxMDI0MWFhNDc0NzdjNDU0ZjE5ZTI3OWM4MDA1NTA2YWUxNTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fa8a36edaa804f0ca34890cd9bdbfd74",
+      "statement": "A built-in finish call must be the only tool call in its assistant message, otherwise the run throws malformedHistory(finishMustBeExclusive); a custom completion tool with sibling calls yields exclusivityViolation feedback rather than termination.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentCompletionPolicy.swift#L34-L49",
+          "version": "repo-lines-v1:sha256:80794d03b778849f55eb705f731be34521d58a162cc8daec932115cd44f7c5b4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4OGEwMjBiOGViODliNzcxNzg5ZDgwYjRhZDlhYmEwMzk2ZmU2MTJkOWE0YTBjN2QyZWMzMzIxZjJiMTNmN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9b73b9455ab24f18962f209c3d04398b",
+      "statement": "Content-only termination is permitted only under the built-in finish policy; custom completion tools never end a run on content alone.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent%2BRun.swift#L40-L90",
+          "version": "repo-lines-v1:sha256:c61148539a69fc6bbd4e9d210a4ab9dcb18278f01560a3574fa514522540babe:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ODIyYjIyODFkNTFhNTQwNjk5OWNhMmE1YjU0Mjk3NDg5MTRjMjFmNTNhMWRlZmVlMTViYTJhNjFhYjFmYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRhNTM5MmExZDRlNDQyZjRkMDlmZWMxYjg1YTFhYzRlZmI3NjhhMzA5MzQ4ZGI5NTE4ODY0YzA1MTc4MTVkNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY3Y2EyMjI2NTdiMWNlYWQxYWZlNThlODU5ZThlNGJjNWM1NTgyMTZiMzgwOWUwMmIxYjQ5NDcxMzIwYmFlNTgifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentCompletionPolicy.swift#L15-L21",
+          "version": "repo-lines-v1:sha256:ae8390b191d1c2b08a849e13649ef97604d6b22d811e3e829dc318409adee58e:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTJmNmM3Y2RkMDZkNGM3ODk1MWU5Yzk3MzEyYWNmNTBhYmVlMmI3MzkzNGIzMjQ3NmE4NjRiZjk1M2MzZmI3NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzAyMjk0ZTI1OTZkZTExNmEwYzA0NWQyYWUyZTNjMzQwYTg3YzgzYTMzY2JhNjlmZDg4MjRmMDMzZWU2MDg3YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGRmZTI1MWFiYWRhNTk5NGU0ZTk2ZjM3ZGZjZTFiM2I1NjU5YjRjMjQzODdhMzc4MGU1ZDRmMzU0MGIwYWI1ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e5765e115e374e339df84bcf7e35463b",
+      "statement": "Tool calls are grouped into execution waves: consecutive concurrency-safe tools run concurrently, and each non-safe tool runs alone in its own serial wave.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent%2BToolExecution.swift#L220-L239",
+          "version": "repo-lines-v1:sha256:c2ea903161ca0aa1710583559292312039a02db9cae0eb1c3a52e03352125d2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlMjAzMDNmNzZmZmVmOTE1MDBkZmY1ZmRkNGZjYjYxODY1MjliOGVhNjZkOGI2OGVhYTA4NTY2OTRjNWU0ODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlMGI5MGEzYjI5ZGIwYmEyMzMzMTVjMGFiYmYwYmY5NDQ3ZjE3NGQ4YmUzMDk3ZGRmNWJlYjZmYWM5ZjljZDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlOTIyOTMwZWEyYWZiYzkxNGJlNDhjZmYyNTY3YzQ5OGNjMDMxNDZkMmE2NjUzMTdjMGIwNWQ2YTcwOGQyNjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1cf606eec9604ff5a7261b4cf03305fb",
+      "statement": "Tool approval is requested one call at a time, and calls in the run allowlist skip the approval prompt.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent%2BToolExecution.swift#L123-L155",
+          "version": "repo-lines-v1:sha256:dab1135d4bfdbb21e8195a4b3cde1796b5b663377b231b3ee838e16134af7a67:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3MzQyNzQzZmE4Mzc5Y2I1NTBkYmZjZjlmYTNmNjYyMmZjMzhmMzhmMWZlNTFjYjAzZDZmZDAyYjNkMDE5ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3NTJiODhiNDUyMTE2NmJiM2ZlMTgwZjBkNTU0MmQ0NTg2OThjYzIzYjE0MGU4ZWEzYjE3MGNlYTU0OGZhNjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5MzAwMGVlOGI2MWIyYTY4YmRmYjZkNjQ2OGJkOGEyN2FhOTViNWZmNmE1Y2JiMjdlNzlkYTRlM2Y0ZjNkMTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bbc8eef8005043e39919d0baecae4958",
+      "statement": "Agent construction traps via precondition on empty, duplicate, or reserved tool names.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift#L30-L60",
+          "version": "repo-lines-v1:sha256:58ccf0f70553b5b0e5bfeaa97518a080241c47ddd6293a421286fd06ca8213bf:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjMDM3NmM2ODJkMmNjN2M2NTZhYjk2YmVhYWQ3Y2ZkNmRhYjlmNDFlNjA4NjI5OGM2YzE3NDdmNTYyM2E5OTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMGY1MmIzYjc0OWM2YjI4ZjYwNzkzMmExZGM4N2IyNjkyYzY4MDA2ZDMxNjYzODIzZDBhYTBlZDFkZTc1M2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MmJlYjNmZTNkNjA5MDc4Yzc4MTUwNWViYWY2YWFlNWIxMGQ2MjJiZTY1NmI5NjVlNmFiYzA1OGQzNzU2NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2MzE0NjRlNjM1NzY5ODM5OTUyMzNhZWY4M2M3YmJjOGQzMWZkMzlkZTNmY2NkNWM4MWZiODgyODM0Zjg0ZTcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

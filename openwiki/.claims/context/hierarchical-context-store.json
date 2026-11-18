@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f3b480620fbabb2933028db3de49ebf26f7136a88d8b4bb8185aa33aa4bfa7ba",
+  "claims": [
+    {
+      "id": "claim_81db073ce3e345faae7596fa52479edc",
+      "statement": "HierarchicalContextStore.render rejects a history that diverges from the stored log with ContextStoreError.historyDiverged, and throws AgentError.missingContextWindowSize when no window size is given.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/HierarchicalContextStore.swift#L98-L106",
+          "version": "repo-lines-v1:sha256:bc505d6b71597e503f7236583e8284925eabd408675c074c1ba9a986ef56f71f:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDhkNjU0NTY4YWNlNmQzOWVhOTc3MzU0YzcyMTM2OWY0Yjk3NzUyYTk0YzQ1MDFkMGUzMWJlNDc1NjE0YmQ3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZiMDQ0OTE0Njk3MjJlODM2M2E5NGU0MDQ0NTM4ZTAxM2EyYTIxN2UzNmIxZTU2OGJhNjBhY2I3YjRjOGYyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWUxYjIwNzM0M2YxMmMyZGE1ODUyMGI5MDlmZTcxOWIxYjQ4YmIyOTIxN2IwOWRiYWI3ZWU2NmFhMjcwMDdiNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGI4OWI3OTRiZTQyZDU3ZjEzMGM0ODYxMGRmNTI1MGNmYTA3ZGUxYjU3NzkzODM3NTg2ZDA5N2IxMzA1ZDhiMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba9cb8ac54f14246946133a81ad2a4f7",
+      "statement": "The nudge fires when used tokens reach nudgeFloor times the window size, and after the first nudge only when usage has grown by nudgeGrowthTokens since the last nudge baseline.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/ContextModel.swift#L117-L144",
+          "version": "repo-lines-v1:sha256:2eadd9c29fef05275b1d2feeffedc2c7e0af405b4cffe707f5676d46bcd59d19:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViZjgzOTFhYTg5ZTlmYWM1Njk0ZGFlZDU3NWNmNDE4MTA5MTQ0NjU2OGVmZDQ2YTkyNjhkNzhiMjkzMWFiNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxYTA5ODQ4OWUzMjBlOTQ2ZjIyYzIzYWU3YzhmZmQ1N2U5MWJlM2UwYjc1ZjZkOGNkOWM5ZGQ5MjdjZGQwMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlN2IyNzgwOWIxMTU5NWZiYjdkZjZjMDA3MzNiNGZjNTZkNWI3ZjI0MGU5MzhhZTE5N2ZjNGIzMDBjNGQ4NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNjI3NTAxMjExNjAwNGNkNWM5NWE0YzNlOWQ4OTQwYzA1YzY3MWY4MTk3YjZmZTRiZTRiNTlmOGRlMzE3NzkifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/Pipeline/NudgeAndTruncate.swift#L7-L19",
+          "version": "repo-lines-v1:sha256:cca6372ed2fde03dd2e6ca4c19fda6967b6d21f3cdc2099f7f9db722d53cf291:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNWM5ODA2NDE2ZjY3ODEzNDI2MzMyYWE3ODc2ZTA5OGY1OWQ5NDI3OTQ4ODhkMDVhMWE1NGZkMTMzMjY4YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiYzgxMWU1ZjU1ZDdhNjFiZDQ4N2RmODUxNTg4ODY4Y2M1YzIyMjkxOTg4NTNlNWU2ZTlmNWEyMDYyZDZhMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2MGQ0MmQ4NTNlYzRhZjEwYzc4M2QzYjAyN2JjZDRhOTlkNzA2MDk5MzM5Zjk3MDE4NDQwZjRhNWJjNmIyY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlN2NkZDM2MTA3ZTE5NDgyNWIyZTkzZmQ2YmQyNGZkM2RhNmIzYjExMTJjZjFiM2FjNmNmMjExNDkxNzFiYTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4bbaa5c550e847498ec7197a6f0f1e04",
+      "statement": "ContextPipeline.protectedRefs protects every system message, the first and last user message, the recent zone, and messages that call or report context tools.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/Pipeline/ProtectedZones.swift#L14-L40",
+          "version": "repo-lines-v1:sha256:68b7c3a9d3fbbe5304af108532431b2537764e83a3687ef9db864d2ae664096b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZWQ2Y2EyNDNiMjA0NTUwOTQ1MjBlOWU2NzYyZDZiOGE4YjlkMTNkMmEyNTVmNDkyNTg1YWIwNjkyNzczNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzMGJlYmMwYmYxNDQyZTM2OGMwNDQ4NzgzZmUxZjg3NjJhMmE0MjMzZDUwNzVkYmU0YTZmY2EwOGIyZjNiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmMmZkZWYyNWM5MDJjYzk0NmI5ZmJkOWJiODUxYmVhMGE5Y2M3OGQwZGQyYzNkMzMyMDZhMmU0NDE2NzZjYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1NjcyN2YxY2Q1MTc4MTMxYjYxNGIwYmY0NjRiMTEzNjVhZDg2M2Y5NzIwNDc4NjQ5OTU5ZmNlMjMxMWRkYzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7ae144e0701e440683457e080b9c6a85",
+      "statement": "A successful compress saves the new blocks, increments the state version, and resets the nudge baseline to nil.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/HierarchicalContextStore.swift#L220-L240",
+          "version": "repo-lines-v1:sha256:92b3f5296a009aa847b9f77f8e1c9f2f93d2257d2ecfa847180097ec8ea6eb6b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzMTU3YzBiOWNiNjhhZDUwMWI5YzEzMzM5OTVmOGJiNGVhNGEzMmMxNjY4MDRkNjRiZTMzZWE4ZTlmMjg5YTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNTM3NGFjZDhiYTM0NWQzOGI4NTRiYzc1NWI0YzBiYTc3Zjk3NDFjNWZjYjA5NzBhZTgxYTQ5M2NhYWJiMzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwMGQzYmMzYTE5ZjUzYTEwZGFkODUzMWEwYjcyZWQ0ZWJhZDE1MjVmZDZlNGU5MWEwYTVjZjQ1MjRjMjkzN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlMmI3ZWY4MWNkOTFjNGZmMzE0YTUyZTdlMmYwNGU1OWJiZjgxNzNjN2JlNDA3ZmYyNGM3ODcwMzBjNWYyYjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e780e7d47c014444bcde6998f6d4ddb2",
+      "statement": "GRDBContextPersistence opens a DatabasePool in WAL mode at the given directory and file name and runs migrations, while its in-memory initializer uses a DatabaseQueue.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/Storage/ContextPersistenceStores.swift#L88-L105",
+          "version": "repo-lines-v1:sha256:fae73951a72c389ade8ee7ca21e30ae6891ee8a0b6888e6ac0183ec73e5a5b30:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlMTlhNjNjZGM3NmNhZjk3MjJhZGYwNTM1YjJhYmE1NDFmNDc3ZDViMDBhMTA0MzczNmE3MzU3NGQ4NzJkNDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1MmE4NDRkNGE2YzVkMTRhZGQ1ZGIyYmMzM2U1NDhhNmEwZmUyNjVjMGUzNDkyNGQ0NWYwNDU4MDdlZjIwMDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5M2VhODNkMjVmMzIzNjg2ZDNjYWI3YTM4YzdhYjliYjRjNGE1OWRjOTI2ZWU5NjMyOGM3MTQ2NDYyYWNiYTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8a26af6a91134388a978e8f78064fa08",
+      "statement": "The context store rejects an export file name that contains a path separator, is '.' or '..', or is empty, and export is disabled when no export directory is configured.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitContext/HierarchicalContextStore.swift#L24-L35",
+          "version": "repo-lines-v1:sha256:9ece659f8b98f50a2904d3dbe01ab0a0079a860d056688215c99f69d60495553:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzNzJiMTZiMGFkZWFkYzk3Yjg0YTUzMjQ2YjMwZDUyMDYzNGU0MGQ5NmZlMjk0YTJmNDUzMGU0MjA2OTk2MmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFhYTU3MjkzNDJlZGRjNWE5MzViYzY5ZTllYWQ0M2MyMzViMzVkOTY3YjBkZDYyZTI3ZWUxODE1YTdjODM0NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU4OTdmNWU1YTc2MzVmODUxZjVhZjdjODljMWM5ZWYwZWVmNjM0MDIxY2ZkNTZiNjkwMmY2NTJhOTFlNGE5MjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjYTQ3NTE1MmJhNjFiMDI2Y2YyNmE1MDRjOGE3YmMwYjNkNjVkYWM3ZjQ3NDdiMTUzNGRjMzYzNmY3YTVkYjYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

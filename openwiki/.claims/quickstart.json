@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:06be364da230f031710e7fa0a210128d29e7a228be83f9ee2fab39985e5e0140",
+  "claims": [
+    {
+      "id": "claim_77c362e394e043fba98d871f95c3894e",
+      "statement": "The package declares seven library products: AgentHarnessKit, AgentHarnessKitALM, AgentHarnessKitContext, AgentHarnessKitMCP, AgentHarnessKitTesting, AgentHarnessKitFoundationModels, and AgentHarnessKitMLX.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L19-L25",
+          "version": "repo-lines-v1:sha256:5258f970a525f6b42882f1eb5ebeb4717fc83ef6e6dde60bf8c634a726eff803:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWVmZDVlMDIzMGM2OGY1ZDcxY2U3MDQ0N2Q2ZDg5YTFkMGFjZjJhNTJiOTI1N2RjMzQ0NTUwODBlMTk1OGY3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmI5NzUxMjM1ZGU0OTMzMTA1NGU5OTQxMmYwN2U0M2E1NTA2NzFkODE3NWJkZmYzMGQ5MWRiZDRkODM2NWYzMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzFlYzkxMDk5ZDQ0N2ZjOTk2NDI5YTBkNTQ3YTk0YjFkNDE4MjIyMGM2YjYwZjMxOTg1ZDRiNzA4Yjg0YTlmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDM5MDcxNjJjNTNiNzNiYzA5OGQ5MzYwOTJkY2EyOTRlYmI4NjNkMjljMDMzZGMzNTU5YTBlMmY3NGFjNzM0MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_71ae931326d0413494559a48842291bd",
+      "statement": "The MLX package trait is declared in Package.swift and is what enables the MLX adapter.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L27-L39",
+          "version": "repo-lines-v1:sha256:40e550e964d06b8122fc106339bfc2efed11a0ecfd267123d490605c3f68f95e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyN2Q0OWJhMjk0YmM3NjI2YmJmMDk2MjgxMDUzNDMzZDYzNGIxYjQwZTBlNDgzZDliZDE0YjVhNmI0MTgyYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlMWNmOTJhODU1OWJjMGYzNmVhNjBhNDk4YzVmNDM0YTlkYmVhY2U5NDJjZWQyZWJjODY1ZDJjZDA1NWRkMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlNTczOWIxYTAyNTZjYTg1YzVmMzYzN2JiMjEwMWJlZjBhZGI2YzkyZTc2OGU3MzJlNGFjNjEzYzE3ZTYxZDMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_83324db5ec6a45acb63e730eeb4dd16c",
+      "statement": "make check runs the format check, lint, and the warnings-as-errors test target, and make dev-check applies formatting before lint and test.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L22-L27",
+          "version": "repo-lines-v1:sha256:ac17e386636f85c3ddd742461a350b8fbb90c0820ad3afc42c6842691678dfea:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTViMmI0YTc2YWVlMGJhMzcyZTU0Yzk3ODZiZDBiYTU3MWNjYjBiM2U3N2ZjNzVjYjdlNjM3YTgzOWZjZWE3NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGIyN2YzYzBmOTA0MTRmMDQ3ZTY2MDliNTAwMjFkMmFjYjM0MjFiMGFhMWU3ZjdiZGNkMTk5MzlhZjI1ZWI1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjM0MmIxN2VlYjA4YzdhNDM0MjlmN2Y2MjlhMDBmMDdjMDA2NTA2MDZhMjgzZDUwNjdmNzU3NDk4OWQ1N2FhYiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

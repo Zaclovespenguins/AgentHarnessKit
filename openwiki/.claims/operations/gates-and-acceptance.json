@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ac62547bcd868b90f53fb2c0f945eec5d16acd3586aa5b9396062eb95c82aa77",
+  "claims": [
+    {
+      "id": "claim_3973d00a277f427497126da8fae83bd8",
+      "statement": "The GRDB gate package requires exactly eight checks in GRDBGateCoreTests, with no FAIL results, WAL journal mode, and ENABLE_FTS5 in the SQLite compile options, and its last check is N/A.",
+      "evidence": [
+        {
+          "resource": "repo://Gates/GRDBGate/Tests/GRDBGateCoreTests/GRDBGateCoreTests.swift#L8-L24",
+          "version": "repo-lines-v1:sha256:2798f42f98499d00a64aba2b2525fe69237d1ea2d7b8eca8b337441977d070ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwMjAyOGYyZWFlZGMxMGE3NWViNWY4YWNkZDBmM2JlZDJiMTg2YjBmYmI2NjAzYjgyZjBjMmZmNzU3NDg1MTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5Mzc0NjAzZDg2MTJjODdiMTVhY2ZhYmI3ZjY2Y2NmZTViYzYwNjhiM2E1NDFkN2QzYWZhNzA4NzJiZGIxZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwNmI4ODhlY2E3NjA3NDVkNzcyNjE1YTdhMzZhYWMyZWVlYWI1ODRlZThjMjY2MTRlZDFkMDBhN2NmNDQzYTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_283107c2788f4d0abe74a5d321be7a70",
+      "statement": "openGatePool opens a GRDB DatabasePool in the given directory, and gateMigrator builds the migrations the gate exercises.",
+      "evidence": [
+        {
+          "resource": "repo://Gates/GRDBGate/Sources/GRDBGateCore/GRDBGateCore.swift#L38-L50",
+          "version": "repo-lines-v1:sha256:a9f818a5e840c6347491d385e4a06f2e81a35741726bb8498be1c502604b362b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjNmEzZjY4YjIzNWY5ZDFlMzI4NGM1ZTZhMjBmYjhhZWJiNjZjOWViNmE3MDMxNTk5NDllYjUzYTBkODJiNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmZmRiNDVkOTEwZWFjOGUwOTNmMTkzMzE1Yzg1MWZmM2JkZTNmMDZmYmIwZWJkZGZmMGU4N2FmYTY3MGFlY2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlYWNiOGZiMjAwNGZmZmRlZTI1YzdiM2RiYzYyMzEyNmU2OTc3M2YwYmE4MjIzYzNkMThmOTM0OTg0ODVlNjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY0ZWZlNzUzMWQxMWE2YzQ2ZWNjOGQ4MjFmYjRlMjczZmI3MGFlYWMyMjljNDIxYzQ5NWY0Y2RlMjVmOWNhYTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8432e8e031c54495929f8cdd4aabbbbd",
+      "statement": "The gate package pins GRDB to upToNextMajor 7.12.0 and AnyLanguageModel to upToNextMinor 1.3.0.",
+      "evidence": [
+        {
+          "resource": "repo://Gates/GRDBGate/Package.swift#L11-L14",
+          "version": "repo-lines-v1:sha256:30674c19ba6f0fd1aeb360c127e2576e735baa6d157f3ba712cf770599285e1d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTA2NWZjY2JmYzY4OWE4N2FiNmE4ZDAyZTZkYTk4MGFhNzA3MTM3MDU0ODdjNTc5OGEyN2JiMWNmZTI4ZGE2OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzYzZDUzNWNlMzgwNjNkNmI0YzUxZDhjMzg2YTdmOWIzZTU4MGExNGExMGMwN2IxOThkZmFmMTljOTNhM2JmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGE4ZTQyMGQwNzQxNjdiODViMDI3YjFmMzIwYWUwMDM2MDQ0NTgyOGFmZTE2NDA3Y2QzNDgwMjEzYWYzMzBhZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTQ1NmQ4MmI5ZTdiMjdjMTkxNzhhMGIzMDZhOTk2YzViNzEwZTgwMjU5ODFjMmEzYTlkMGUyOGM4NGQwYzczOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2a92e677d1842fda3c55260dd01010f",
+      "statement": "The phase8 acceptance script's ci section requires every uses reference in the CI workflow to be pinned to a 40-character commit SHA and rejects secrets references inside run scripts.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/phase8_acceptance.py#L50-L53",
+          "version": "repo-lines-v1:sha256:96cf13d89174a5432d4b6425f8f8eab92388cfe4cd496cda274ecaf2a86e8fac:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2M4OTk2MTZjODAzOTNlODJhMDU0YTNkMzMzMTQxZTM1ZjUwYjQwODE5ZGNlYTAyNTE2YTQ4NWUwZGMxZDY3NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODg4N2QzNWE0ZDhkYTI2YzZmOTBhODNjZWI1MjliODdjNDYyZGY5ZWE3NDZlM2I3YTNlNTdkMmU1OTVmYWQyNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWYyMTZhNjE3OWRmMjAzODY0NzFmZTBkNmMyZmI4MWVjYWQyZDU0NzVhNWExMTI1ZjZmZGQ2NmNiZGNiYjgyMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWRmZTU0NmIzMmI1Y2EzMGJjYzJiMzI1OGJjOWUwOTZkYzMwZmJkYmYwYjk2YzViZDRjZjI3Yjg5YzMzMjE2YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ecbaff7aa3da4865b8625a3f162506bf",
+      "statement": "The keys section fails the acceptance run when any tracked file matches an Anthropic, OpenAI, AWS, or GitHub key pattern.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/phase8_acceptance.py#L135-L147",
+          "version": "repo-lines-v1:sha256:464e2ff65586926cbec9bb8b148afc369105c169583a747b476a1b401ab38c43:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkMGNmN2E3YzcxYzBlYzM3MWMyM2MxNGRmZWIxMWFiNjUxMzdiNmVlZWZmZTAyOWFjM2U5MDY0YTQzYjg3OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2YzVjOGQ3YzVhOWE0MGY0NjM2NzgwYWY3OGEzMTJmMDRlZjQ2NGM4NThhNDFlNzQzN2Y1MjRhZTg5YTg0N2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwOTExYWFhOWFmNWU2YTgzYmVlNDVmYjEzYTQ1Yjc1NGIzNjVlM2IwOTBiZGE2M2M0YjkzMjZmODlkZDg0MDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3N2MxZTI2MzNhZWM3NjZiMjU3OWI4NmMzMzY1NWMxMmIzOThjMzJhZTFhMDJiNmU5ZjFlYmYyOTk5NTAyNGQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

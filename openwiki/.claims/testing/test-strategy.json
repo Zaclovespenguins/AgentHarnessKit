@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:156eea7ad46853424df911fb2d6b2233a238b2e36b4ab0d3f37b6557b90095d6",
+  "claims": [
+    {
+      "id": "claim_5230cec2b9fb494ba160b4adff332425",
+      "statement": "Package.swift declares six test targets, one per product area, and the CheckpointResumeProbe executable is a child process for the cross-process resume test rather than a product.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L93-L104",
+          "version": "repo-lines-v1:sha256:89ff808bb7f1e069c3665b4c437ad94fc8599c27890318ee3a43b246594e42b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZGRkZTFjODFlMGU2ZTA1MDEzOTZhNTYyMWIwMzVlOTExZjIyNjhhNTQ4YzZmODZiMDdjYjYwMmNkYzMxNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4Y2Y2MmVmM2NiZDg2YTdhNjY3M2EyMTg1OWI2ZDFiNGRmN2M3Y2NhODY3NzA4NjU0N2E1MzA5ZjM1YWUwMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2YmUxYjkxZjViNWQ0Yjc5YjA2M2FhZThjYjYxZjc0NzE1MTI5OThhMTc3OTRjZjg4Nzg1NzhlZDI5NWUyOGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bcabef8b3a6243439cadb42ae619b78b",
+      "statement": "The MCP suite's SupportSmokeTests checks that MockHTTPServer serves a request and records it.",
+      "evidence": [
+        {
+          "resource": "repo://Tests/AgentHarnessKitMCPTests/SupportSmokeTests.swift#L7-L12",
+          "version": "repo-lines-v1:sha256:4a59f74f7cc3714e3962898032922d5d161acb7eb47664dd451ba06ce3451f28:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzc5ZTIxNGJmMGIzZDczZWYyNzQyYTAzYTMxZjQ4YmU4OTg1YzA0ZmY0ZDNiZmFlMzUwNjFmOTRlYjc3ZmIxNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmJmNTU1YzA1NTY1OTQ3OTEwOTM5YzI0ZWY4YzQ2YTFjNDcwZTM1N2M1MWMwYWU0ZmUwNGMxMWJkZWM1OWE2NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWZlNzUwZDZkOGQyMDdiZGFlNWMyYzdmMWVkZDRiNGE2NjRmMmU1ZmQzZThlODhjYWRlYmYzMTlkODVkNzY3ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWI5Njg4ZGM2MTJjYjQ4NzY4NmZiNmUxYjM3ZGZjZWY1MWNiOTU0NmEyNTFiZDFjYWY1MDdiY2Y2YmNjMjU4NiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d8c3456827924ea3af3731d96f992307",
+      "statement": "The wireFormat tag is applied to suites in MCPToolTests and MCPClientTests, and no Makefile or CI step selects tests by tag.",
+      "evidence": [
+        {
+          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPClientTests.swift#L546-L546",
+          "version": "repo-lines-v1:sha256:a4764dfdd9045de37a6e6850d52782a54777f07ca50bbdcc0e883b0bf24381e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2ViMTQ0OTM2OGJkODU1NDAzNWZlYjBjZTU0YTg2MWUyMWFiZTc2ZWU5MmU4MzViZDA1NDJkODI2YWE1YzM3ZCJ9"
+        },
+        {
+          "resource": "repo://Tests/AgentHarnessKitMCPTests/MCPToolTests.swift#L338-L338",
+          "version": "repo-lines-v1:sha256:a4764dfdd9045de37a6e6850d52782a54777f07ca50bbdcc0e883b0bf24381e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTQ3NjRkZmRkOTA0NWRlMzdhNmU2ODUwZDUyNzgyYTU0Nzc3ZjA3Y2E1MGJiZGNjMGU4ODNiMGJmMjQzODFlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTY3M2VlN2IzNWVhNDBjYTc4YmMwZDg1YTg0MjM1NTBiYmE3NGUzYjkzNzAxNTZiYWZjZGRiY2U2YzhmZGE2YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1f1c04872d7a4eadb15a69d664d6bcde",
+      "statement": "The test-ci Make target runs swift test --parallel with -warnings-as-errors, and the make check target runs format-check, lint, and test-ci.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L13-L14",
+          "version": "repo-lines-v1:sha256:b24f3218beabc75dc30a1bca34a0586e9faa5916e7a8460191cf0de09ef2786e:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdkZDM5ODQ3ZDYxYjM0MzRiMTkxMDMzMTZkNGM1ZWEwNDI3Mzc2YjJkNDFjODAzYjA0MzEzYzM4YmMwODIyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzU0MDViNmIxMDU0MTc2MjgxNjVhMWI3YjBmZmM1MmM2M2ViZGFkOGZmOGVlZTU2NDM1YTc1MWEyZDE4ZmRhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc3ODQ2YjExZjgyZTBhNGQ0MmQ5OTk5YTliMDhjYzllMDc2MTA4Y2IxYTU2ZDlhMGY3OTc5NTMyNGI4Y2RkZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzAxMTgzNzZiYmI2ODJkZWQ5NzQ1NDYwMzIwNTJlOWQzM2NkOGE3YzA3OGQxY2QzYjdjZmIyYjAxN2I2OGY3MyJ9"
+        },
+        {
+          "resource": "repo://Makefile#L27-L27",
+          "version": "repo-lines-v1:sha256:00e299cf10c6fe83e2f92a816f3e67b33f52226114dcdfced868ad2aa8df36df:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2MxY2Q5MTMxOGNlZTEyNzE2ZTZlZjk3ZjQ3NjAyYWRmMWE3ZjM3M2FlZGQ2YjQxZDFlNTg5ZDgxZDg1NjhmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjM0MmIxN2VlYjA4YzdhNDM0MjlmN2Y2MjlhMDBmMDdjMDA2NTA2MDZhMjgzZDUwNjdmNzU3NDk4OWQ1N2FhYiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

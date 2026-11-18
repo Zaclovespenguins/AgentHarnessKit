@@ -1,0 +1,8 @@
+# Files
+
+- [Agent Loop](agent-loop.md) - How the Agent run loop iterates model calls, classifies completion, executes tools in approval-gated concurrency waves, and terminates with an AgentResult.
+- [Checkpointing and Resume](checkpointing.md) - How the agent loop persists per-iteration AgentCheckpoint snapshots through an AgentCheckpointer, and how Agent.resume validates and replays a checkpoint before continuing the loop live.
+- [Messages and History](messages-and-history.md) - The canonical ChatMessage model, multimodal content parts, token usage accounting, assistant continuity fields, and the history validation and truncation rules that keep conversation state well-formed for the agent loop.
+- [Architecture Overview](overview.md) - Package layering of AgentHarnessKit, with the dependency-free core target and its adapter targets for ALM, Context (GRDB), MCP, Testing, Apple Foundation Models and MLX, plus the MLX trait and platform floors declared in Package.swift.
+- [Streaming Pipeline](streaming.md) - How the agent loop emits StreamEvent values, how StreamProcessor and ToolCallAccumulator assemble model deltas into assistant messages and tool calls, how AgentStream keeps observable state and a bounded replay buffer, and how events are encoded as JSON.
+- [Tools and Schema](tools-and-schema.md) - The typed Tool and AnyTool contracts, how tool arguments are decoded and results encoded, how JSON Schema is inferred from Decodable parameter types with SchemaDecoder, and how sub-agent tools run a child Agent under a depth limit.

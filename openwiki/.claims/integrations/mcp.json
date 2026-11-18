@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:819ab648e6e4fba13c8819bc3bdec05e247ece4edb9e37e9c06eef29483ef003",
+  "claims": [
+    {
+      "id": "claim_af5bc7124e3f4e81a045bfa81d1ab23b",
+      "statement": "MCPSession.withTools connects all configured servers, collects their tools, passes them to the caller's closure, and shuts every client down afterward; duplicate tool names across servers throw duplicateToolName.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPSession.swift#L23-L60",
+          "version": "repo-lines-v1:sha256:700494e8d4134ab69de1f8d89e6314b5a837e72760adf3aef76717879a11ed52:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMmNmMjkxYWQ3Nzc5NjhhY2FjZDIwMGNhNmZiNGU0Y2RmY2I0NjVhYjg3OGJiMDI4NGE1NjBlMTdlZmFjMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNDE2ZWMyNTM5MGNjMGI3ZTY0MDE4NzhiMGVmZjA3YjAzNjU5M2UwYzNhNWVlOTZmNzM3ZTI2OTUwZjU5NWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiZjkwNWQ2ZTM4OGRlNjM4MmRmYzc0ZmU4NDlhNDc4M2RhZGE4MjMxYmM1YmE0NWQzY2FjZjc0OWU0ZDg4YTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjExZDRhYWYxMTRhMzA2NzQ0NTk0YjM1MDliOTUyYTQ3NzIwOWI2OTI3ZjU1OWY3NjE5Nzc0NDdiYjlkYzAxOTMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3b1efef2c4bc46998f735899cfeff40b",
+      "statement": "MCPClient.callTool requires the client to be in the ready state, otherwise it throws transportClosed, and it applies the tool-call timeout (default 60 seconds) to the tools/call request.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L129-L150",
+          "version": "repo-lines-v1:sha256:d225e5a021b8b3cd14b72dd2cb2bd2f23427bcfbb879ff1bcb7531b1243233bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNjJmNjAyYTlkOWNkYjkyOWQ3MDc4ODU2MDYzYzUzNjVkNTliN2U1ZGZmMzU4MzI5NjE0NDZkODliNDdlNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlOGY2ZDcwNDQxNGZjYzRmMjFmNWU2NTJhM2MzM2E1ZTUwMzIxYzI2MGFhZjIyOGY2YWJkYjdlZGI0MWQzMGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0MjE4NzI4MTRjY2M5MDQzMGQwYzBiZGEwMzRlN2Q4ZmJjMDIwZjA5MTIzNTc2YzI0NDhhZmYwZTJhYTIwZDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9ac0814f07e42a2ae6c2eda79f4259d",
+      "statement": "MCPClient pages through tools/list using the returned nextCursor until no cursor remains during connectAndInitialize.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L280-L295",
+          "version": "repo-lines-v1:sha256:72d413a2303de578625d045e742f9ede4d93b3ac31005ac942accbf4db50c779:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YmZmOWFjZmM5OWFlODAwNDZkYmI3N2U2MzQ5ZGQwOGZmOWFlODdiNTU1OTBkYWI1ZDQwYzgyODgxYWRjZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzYwY2FkODBiMDEzYzFlMmJlNjkyYjk3Yjg2Y2MwNjcwZjUxYjc5ZGIzZDEyMDhiMWM1Y2RjZWFmY2UyYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ea4a95d254bb420ca51c5c0c0ff58e85",
+      "statement": "MCPTool maps CancellationError to itself and every other error to AgentError.toolExecutionFailed, so MCP-backed tools produce the same error shape as local tools.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPTool.swift#L20-L32",
+          "version": "repo-lines-v1:sha256:f72f48d64ced6bcf71cb9a8001ffc61d2a1c4b12be3c1103fa3638a2dbb66a9e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmMWY1MTVhM2MzYzkzNTcxNDRkOGE4NTZmODZiNzRkZTM1NTAwYWY5MzIwZDQzZjVjZmM3MTEzMGYwNWQ3OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhZDYzYTQzYTcwYWExMzI0MDk3MjlhNThhNmNlOTY5M2NjMzNjMzgzMzUwODJiYzZiZmMwMjJlZjQ2MzE3ZDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MTg2NGU1ZTYzODA1M2IxNmVkZjdmOTBhYTkwMmUxOTg1MjczNmEyYjgyNzRjNDlmMmExMzUyMWMzMmJjNzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTRkMDJhODEyMTk0NGQxNzZkMjY1ZTliYjljYzU5ZjZhYjg5MGJjYWRmOGFlZmRlYmRiYmI0ZjJlYTg0NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc36803fc61547e88578be50b5d3af5a",
+      "statement": "The initialization timeout defaults to 30 seconds and the tool-call timeout defaults to 60 seconds in MCP client configuration.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitMCP/MCPClient.swift#L44-L50",
+          "version": "repo-lines-v1:sha256:112ae45a74c294b40981449f9c21e8a8ad5bbbe19ff2a9e90914b3eb8e5e7e46:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjY3YzlkNzQ2MWIyNGFiNzQyMWJjZjI1YjYwY2MwM2IxODhhZWZkMWE1ZmNhZjk0M2Y4MzZjMTNiNDkxMjA0YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTYzZjg3NWRiYTIzMzQ2M2ZkYzUxZGYzMDU5MDkyOTAxN2UyYmEzYzMwNzU2Y2Q1MjQzZjhlMWM3ZjNiOThjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTNlYTExMjYzZjIyZDU1OGQ3YzM5NjY2YTY4OWMzYWM1NmJlNWRjNmFlNDZhYWRhMmJiZDFkM2I1YTYzMTljNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTQ1NmMxNzYzM2QxMzlmNThhOWNiYzdkZDhhMGNjZDAyNjNlYmEyZTMyMjhiNGM2NWEzODMxMzI4OGUwY2RkNCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d1a95036f4df34204856dbec44cb7d67d12d88fb45b27377f8868a2d48e9ef0b",
+  "claims": [
+    {
+      "id": "claim_92eef44e798148039ddafceb81e4710b",
+      "statement": "CI's macOS and Linux build and test steps run swift build and swift test with -Xswiftc -warnings-as-errors, so a new compiler warning fails those jobs.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L43-L46",
+          "version": "repo-lines-v1:sha256:18b0838e4f1f18294ec3372391d2b5411913eac6ff702f0b9f29d4ee9cd880c7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzJkOWRlMTUxOWYxNzc0MmM5Y2IzNjE0NDk0ZmFmMmNmNmQ4MzUyM2JkNTkwNDY3MWNhNTBlZTNjMDc2MzZkOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzJmNzcyYjZjMTQ2YjY0MTliOGY5ZWQ2NzMxZjk3ODM2ZWJiZWFmMWI3YWYwZGUzMDdmNGU4MzgxMjI0NzA2YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjBjODc5NjkzMGNlODQyYzJmNDdjYjhlNzNkYzczMmMwNDg5YTUxMTY1MzIwNThlNGUyNWRlNjdhNmNjZWM0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMThjMjA3MmI5MGE5NDRjYzRiZjI2NTZjMjNhNjJmNWY1YzcxMTZiMWQyMGMxMWUzOWNhZmNlYzYyNTlkZWE5NiJ9"
+        },
+        {
+          "resource": "repo://.github/workflows/ci.yml#L60-L66",
+          "version": "repo-lines-v1:sha256:42a312dabce0facf5e5f06b7aa8563fb0c38a74b15aaaece3d9a9f5186db65a6:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2YxZDFlNWE0Njk2YjVlYmExZDEzMjk2MTlmZjE1YTRhNzdhZTc4NTA1MmMyZDlkZjg5MjdjYzI3NmI2NDBhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTIxMjY3MmI5MWNmNzBlYjdjYjVhNjI1ZDQzMjUzNjk1ZDE5Y2FkZjkzZWNmMmE2YTdkZmVmYjc2NWZjMzEyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDJmNjkwZTI4NTk5ZTY2ZDY2MWU3YjZhMzUyOTgxM2Y2MTA2NTk3ZTA3NzIyNGQ1ZWVlZGUyN2RiZjM4YzYxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjIzZjI5OTZkNmY5M2NkYTE2ODc2NGEyNzcxOTFkY2RjZjA0M2U1MGU4Yzk2MjYwMjBmZmFmZTkwYjA5MWVkYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_de360698dd1e48298d4ecc3e14327938",
+      "statement": "The lint job runs SwiftFormat 0.60.1 in lint mode and SwiftLint 0.63.0 in strict mode in pinned Docker images, followed by scripts/phase8_acceptance.py.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L26-L33",
+          "version": "repo-lines-v1:sha256:429d6c04bb88cba0d6fde53b4a33279431343986c6bf5fdbc93dc006cf4501d7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2QxMGQ5MGRjM2FmNmVhZDZkYjIyMTM3MTI0MTYwMzZiZjFhMTU0OGI4ZGJlODA4NjgzNDQ3MGZmMWFhNDM1MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRhYjdjMmFiYzAyMDQwNjVlNzQwZWYyZjY0NDEzMzAxN2NlNDZmOWY2MWE5ZmE4NDczOWE2Zjc0ZTc1YWRiZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDUyNzdjNDFiNDAwZjU1NzJhNWU3YTQ0YWIyNmViNDdhMTMzNTNkNjI1MWFmNTk2ZDE1ODY4MTc3NGNmOWRjNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTkxOTQ4MjU3MDY1ZDA5M2JkMTkwYjFlODgzYTc3YmNhODMwMzUwNWE0NDQ1NjMyZGEzYjdiNjRmMjlkNWJlNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5d0e274aff0f4454bc422a85fff7feec",
+      "statement": "The live provider steps run only when the AHK_LIVE_BASE_URL secret is non-empty, so forks and pull requests without secrets skip them.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L68-L72",
+          "version": "repo-lines-v1:sha256:f4fda25e7aba48200649ee0e6fc57f5c998c23c80f18582ea3891b31b49b1902:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjhiYzFkMDAyNTlhNDk2OGIxZWI1YjZlZGFkNTllNTFmZGI4OTg2YTUyNjM3YmMzNzY0ZTE0YzVkZGZlYTQzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTI2ZDNlOTEyZTJjYjI2ZmZiNDAwZDQ1NzZkOGM5MjAwYTNhMTE0ODM3NTE1YWY1YWU0ZjkyZGY5YWJjMjdkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDc0YTMyMTdlMThkZjJkOTJhNGEwNmUxNjczZDU2NjcxZDg3YjVhMDVkYjk1YTJmNTZiMDAzMDBkOTg2M2ZkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTY0MTFmMmFiZmU1ZWU2MmRhMTZkNjczMTNjYjM1YTVhNGYyMzU1ZjllNWIyOTA4YTg2MTBjYzI5MDAwOTczMiJ9"
+        },
+        {
+          "resource": "repo://.github/workflows/ci.yml#L94-L96",
+          "version": "repo-lines-v1:sha256:81a0c16bf43a587f3fc23b9230d686d2c6f4570a1b6471fa01153fb65c63e81b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWUwYmZhMDdhOWQ4ZGQ5YTk2NmM1MjlhOTc1NjRlZGU1Y2E4NWM4MTQ5NTUyYjc0MWY1MjFiODdiNDhhODQzZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2I5Nzc5YzliOTc2MmJmZjk0MTMyZmI3MzE2MmIwNThiZmY2Y2JlZjRhZjI0YTI2YTlmYWUxZjE3MDE4NWRmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjBjODc5NjkzMGNlODQyYzJmNDdjYjhlNzNkYzczMmMwNDg5YTUxMTY1MzIwNThlNGUyNWRlNjdhNmNjZWM0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmJmZGJiZWRlM2JhZGY1N2MzYzBjM2M3Yjc5OTZjMGEzOWRiYzlkYmVkOTIwZWE3YTVlMjBlZDRkNmUzOTU4MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b76ad219c5d54f53a93abf7d0fb9eaa8",
+      "statement": "The Makefile check target runs format-check, lint, and test-ci, and test-ci uses the same parallel test command with -warnings-as-errors as CI.",
+      "evidence": [
+        {
+          "resource": "repo://Makefile#L13-L14",
+          "version": "repo-lines-v1:sha256:b24f3218beabc75dc30a1bca34a0586e9faa5916e7a8460191cf0de09ef2786e:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdkZDM5ODQ3ZDYxYjM0MzRiMTkxMDMzMTZkNGM1ZWEwNDI3Mzc2YjJkNDFjODAzYjA0MzEzYzM4YmMwODIyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzU0MDViNmIxMDU0MTc2MjgxNjVhMWI3YjBmZmM1MmM2M2ViZGFkOGZmOGVlZTU2NDM1YTc1MWEyZDE4ZmRhMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc3ODQ2YjExZjgyZTBhNGQ0MmQ5OTk5YTliMDhjYzllMDc2MTA4Y2IxYTU2ZDlhMGY3OTc5NTMyNGI4Y2RkZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzAxMTgzNzZiYmI2ODJkZWQ5NzQ1NDYwMzIwNTJlOWQzM2NkOGE3YzA3OGQxY2QzYjdjZmIyYjAxN2I2OGY3MyJ9"
+        },
+        {
+          "resource": "repo://Makefile#L27-L27",
+          "version": "repo-lines-v1:sha256:00e299cf10c6fe83e2f92a816f3e67b33f52226114dcdfced868ad2aa8df36df:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBlMjk5Y2YxMGM2ZmU4M2UyZjkyYTgxNmYzZTY3YjMzZjUyMjI2MTE0ZGNkZmNlZDg2OGFkMmFhOGRmMzZkZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2MxY2Q5MTMxOGNlZTEyNzE2ZTZlZjk3ZjQ3NjAyYWRmMWE3ZjM3M2FlZGQ2YjQxZDFlNTg5ZDgxZDg1NjhmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjM0MmIxN2VlYjA4YzdhNDM0MjlmN2Y2MjlhMDBmMDdjMDA2NTA2MDZhMjgzZDUwNjdmNzU3NDk4OWQ1N2FhYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2d1114512eb47e58d3ba6574790bc00",
+      "statement": "Both iOS Simulator steps pass -skipMacroValidation because CI cannot approve Xcode's macro trust prompt.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L127-L133",
+          "version": "repo-lines-v1:sha256:a214c77e224a1354a51d5ea2edefaf5c31a01e18e4324a3b870f7949c1cd9e3b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmY3MDhhYmJjN2UzYTQ4NTFjOTk5MGI4NTQ0ZGRlZTUzNTkwOTJmYThlOTFhNWRiMTY4ZmVjMzI4NjQ1OWFlMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTVkM2JkMTAxNGIxMTZiMDJmNzFkNzNmOTZiNmY1MTVlMThkZjhlNWZmODdiNzEwMjE4Yjc5MjM4MTAxOTlkYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjBjODc5NjkzMGNlODQyYzJmNDdjYjhlNzNkYzczMmMwNDg5YTUxMTY1MzIwNThlNGUyNWRlNjdhNmNjZWM0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTEyN2RjYTA2OGNiYTg2MmQzMGM3NWJkMjE4NTNhODU2N2U5NDljNGNmOTg4ZmZhYjQ1MGMyYzBmNmI5NDAxNiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

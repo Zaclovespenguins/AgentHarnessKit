@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8eb043c42a1ee646777bf12cf0ec2ece56cc4cb25d2360175b0ab838fd43222e",
+  "claims": [
+    {
+      "id": "claim_16e3aa74af6b4ee0ab449a4cab7c5398",
+      "statement": "HarnessModelClient makes one AnyLanguageModel request per call with a LanguageModelSession whose toolExecutionDelegate is a StopDelegate that returns .stop for every tool call, so tool calls are returned to the harness unexecuted.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift#L185-L195",
+          "version": "repo-lines-v1:sha256:afea27addcd51979e6f895aa152c3139c60ac587be1d9a9950781c28941db3e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZDdjZDEzMDE5MzgxZmVjOWNmZmVjYTI4ZTQ4YTVjODc3NjNmNDIzNWNkMGI5MjNjZDJhMzU0MTM1NTNiMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MGI2YjFiOWY5NzAyNmZlMThmOWZmZjRlYWM0OWY2ZWYyZWVmNGM5MmE0ODA5M2Y4ZDM0YTJhODMxMGU2MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdmZGI3N2UyMTRlZDE2N2JlMTUzZTlkZDA1ZmMxNTBhYzJjZGJmYjlkNWE3Zjk3NTdhYTAzN2U2Y2VhZDUyNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxYTE2ZTYxNzEyYmNkZjc0Y2MxZWQyODU4MDE0MWE1YTQwNTkyYjU2NjA4ODlkMmRjMzExMDkyOTZjYmQxNzMifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift#L29-L43",
+          "version": "repo-lines-v1:sha256:0c3913bcb9390304328b11158f6f5e76d55ffb1ed0f9678126cdc4cbae97b870:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwODhkZjQ0ZDUyOWY1ZjllODhhZjBmYWMzZWVhNGQ1ZWNkMjUzZDZmNDUxNjNkM2Y2M2Y4ZWVjODgzZjMxNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzAyNGEwMjllYzc3ZTg4NGQ1ZjU0NjBlNzYxNGU3MDU5ZWVlOWRhMDllYmUxOTJkNDk1MjNiMjMwMTJkZWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MjMwMzg5Y2RjMDlmZTYzNzAyMzZiZTUzMGJkZTEzZjc5NzEyMzlmY2Q1OTg0ZDg3NjQ5ZmU5OGVkNTQ5MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjNzA2YWVhZmFhYmZkMWJjMTMyNTk1ODg4MzYyM2UzOGFiNmFhNGEzODQ3YTMxNmE1NWFmODFiZjRlNzM4MmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b467e8307b0843f1bfd341341cc10744",
+      "statement": "When the provider stops for tool calls, generate treats the ToolExecutionStopped error as a normal outcome and returns an empty-content assistant message with the unexecuted calls and zero usage.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift#L75-L82",
+          "version": "repo-lines-v1:sha256:43c9b8c2eede24df41ed7bb340f561ef7a1163f66d31cb934ec98bb6a8ebba51:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDc1MjJkMDY5YjAxMDIyNDQ2MDcyNzMzN2I3YThiMmZlNGIwZWNiNjhjZWQ1NDljYjZlNTdiYjAyYjk3NzhlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTEwMzQ4MWM1N2QwZjBkYzBmNzZjZDJjYzhiMzYwNGM0ZTgyOTZkYTQxMjJhZGQxOWU4MTc0NWRjN2UzMzFhNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGEwNTU3NjgyNWQ4YmJjYjBmMDMwOTA0MzBkYzllMmJjZmYwMWM2NTFhNTU2MDAyNTE5MTE0OGI3N2FhOTU4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjljYzJiYzRlZTQ5ZjJlNGFkMTA3NzE2OGQ1OWZjOWE5ZmQ4NjUyMDNiMWZiMmZkZjRkMzAyOWZjN2YzZmEzMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_17de3f7679d14d7fa930b8639ef057f1",
+      "statement": "Streaming yields text deltas as snapshots arrive, then tool-call deltas, an optional finalizedContinuity element, and a final finished delta.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift#L114-L178",
+          "version": "repo-lines-v1:sha256:61b8d4bc22a4fcc318d22118e2c9c9b84b683b36c45bd9a5bf066781cb2cd307:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxMzAzZjhjZDkzZmE2MGU3NWQzYjFmYzFlYzhjOWQ4NTAwZjY4ZjJhYzE1OTU5ZmQ1OTExMWNlOGExMGM4OGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3MTllMjFlNGE4NGU3MDJjODhkODA3NDdjMTBmYzAzNzNiMjVmNTBlMjkwMzU1MDM1NTZiMmNlMDllODMyOTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyNzVlNzg1ODkwNzYyYzRmZDU1ZGQ0NWE3ODUxYmQyZWMzNmE0ODk0YWUzMTgxNjIzM2YxZDg1NmFhZDZkYmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5265752c1e814555b10aca5727e445da",
+      "statement": "A turn whose continuity substrate matches the client's replay substrate and whose payload contains the almEntries key is replayed verbatim from the stored transcript entries; otherwise it is rebuilt from semantic fields.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/ResponseMapping.swift#L25-L44",
+          "version": "repo-lines-v1:sha256:dec69881749785537ce551244b51e479b089162758fc3ef7b76082e81c2e814c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMDQ2NTkyOGE4NGFlZTllZGJjZTYyNzk5ZDYyMjFiNmVjMWVlZDVmNWZkOWY2ODFlNTk0MTRjMzczOGY4NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiMmZlNWNhZWRjYzQ0YTE2Y2ZlNWYzZmIyN2U3ZGE2NmU3MWQwMTUxYjc3MjYyNmZkZTFmMmZlM2E2ODY4ZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkNGU2MjA2NDBiOTJmNDU0NDFlYzJlMDM4NDc3MTJiYWJhZWE4ODUzMmE2MzQxNjM2OWUzZTVkYjFlNWM3NzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/TranscriptMapping.swift#L60-L66",
+          "version": "repo-lines-v1:sha256:5dd235044bb2d449018f36b8922a55c72aa56b4c5b6de83415be00ca1e98a6d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWM5MWRkMDFmMDM5ZjM3ZDdlNGM0MTI0MDk0MDQ2YWUxZDU3ZjdkODFiNjc3YjRlMzU3MjdjYTI3NjllZjAyNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjkyZTNhNzEwODQ3M2NiZTI3OTlmMTlkMmJkY2YwNTNhMWE5ODc2NWE1NjE4OTJmYzk0MWZlMTQwNWY3N2M0MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZkODk3NmM2ODFmNmMyMGE5YTUwZDIxM2Y3NGE5M2JhYWEyNmMxOTdjMDQ4Y2E4MzIzY2YyMGI5NjdlYjQ1ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjA4NTM1Y2RmZWQ0Y2Y5ZDlmMTE5ZDkyMTBjM2ZlNTJiNzdkMjAyMmU3MmFjMDJlYzlmNjFkM2U5Yzg0NGRiMCJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/TranscriptMapping.swift#L9-L14",
+          "version": "repo-lines-v1:sha256:710a2caa63a68aab41f1999a21a1047face905651ada4e25fef4e4c19e3ea3d1:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdlNjY3ZWVmMmIxMTU4NDVlM2NiOGI2NmM1Y2ZmY2FjMjgwNjIyMmE3NTQ3MDBhZTAwMjRiMDZkMTg0MWQ3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjFmMDgxNDc2MzBiNmQ0YzQwOGEyMDkxZTk3ZWUxMDkyNDM0MWFlMGRhZjgxOTU0NWM0M2E5YmQ2NmYxOTAxOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2NiN2U5ZmY2ODI5ZjI0ZWM1NmMyZjFlNTI2OGQ0NTkxNjU2NzczNzNiMDNiN2M2MmYwZWExYmQ5MzhmZTUyZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTAwM2VkZjJkMmIzMmJjMDU5YjE4YjUxNjAxODQyN2UzNTgwYzYwMGRkZDVhYmQ5NTYwNmM2YmE0ZTUzNTU3ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2d1de52f912748b49b4e3f6ef589685e",
+      "statement": "ToolBridging verifies that each object's property names and required list survive conversion to GenerationSchema, and DeclaredTool.call always throws because the harness is the only executor.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/ToolBridging.swift#L47-L60",
+          "version": "repo-lines-v1:sha256:220b441a637f8fa93b94c964262ec1d8456ccf7b0cbbadab86c2dc2d319b0a67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyYmJjYWM1YzJiZTc3NTI1NzM3ZDcwZjAxYWU4ODg1MTgyOTNmNWNlMWU1YWI2ZWZhYjk5ZmI4MjQ1NTQ3ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNjQ3OWNjMjMwNDQwZmQ0MWU4MjI0MjE4Njc5Njk4NTU5ZDI4OTNiZDY3YjQzODBhZmFiODExYjM4YTU1YWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiODBjYzc0ZjBlY2M4ODAzMWJmYzExZGZiZjFmNDViMDBjMTFlMWUwYjcyMzcxYTA4OTExYzQ0NGI0YWM5ZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjN2NiNjUxZWE5NDllOTFlM2E3MDAxMzY0NzVmYjM5MDg0ODNiMGEwZTc2YzkxMTVhNTU1ZTNlMmUyNjlkYzUifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/ToolBridging.swift#L7-L29",
+          "version": "repo-lines-v1:sha256:2c3122c386c918de1ed327f87d02dfa1cabd206194b90088d60e6c975fe2882f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzZDFlMWUzZWE0MmYxYzgzMmU2NmIyMTM3NjljYTZjOGEwNTNkYzk0Yzc2NmE3YWQzZjYxNzE5MDliYjc2MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5OWRiYWYwM2VmMTk3ZDMwMmZlNzA3YzM4ODdkNDU1MzFiY2I0YzhhMzJhYTZhNmExOTQ2Y2ViMDNjMTNkMjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRhY2M0ZmZjNDdiNWU2MGYyZDNkYjNkZmU3ODFjOWExNGFjNzM0MGZkNWU2Zjk3NWM4YzQxOTYyZWU2YjBmNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJiMjcxZWI3ZTQzMjY0OTRkYmY4M2NhNmRmNGU0MWI5YzZiYzUzNDQ2NGI3MTQxZTljM2EzOTZkNjgxMmY4YzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_594a961142da4e0981ab46bf013d720a",
+      "statement": "ErrorMapping passes CancellationError and AgentError through unchanged, maps HTTP 429 to rateLimited, and maps any other unrecognized error to llmError(.other).",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/ErrorMapping.swift#L11-L57",
+          "version": "repo-lines-v1:sha256:28d88eacf1bea63ec86a2f34071df2e2528a431b88d3fc9fd50a09af51279b71:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwOGZkNWM4MzhiOTM5MmJlYzNiNmUwOTc2ZDcwOTRmYWZiMTA1MDA4YTU4NjE2Yzg0NjMyOGY0NDRmMjc1ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZGY5ZWJiNDU0YzkxNTAyNjYwOWNkOWI5MTFmMjM2ZWMzZjFjYTNhYjhhN2Y4ZjA1ZjdkYzM5NjI2OGRmOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

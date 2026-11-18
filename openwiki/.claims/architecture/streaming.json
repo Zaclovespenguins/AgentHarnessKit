@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8b5ee2bb63ef69fdf1fca3a37fab14c7b4c8a5b75014ae16c85e459255819622",
+  "claims": [
+    {
+      "id": "claim_7fecde4b01f54a3da2f4d37ec88ff6d6",
+      "statement": "StreamEventBuffer is a fixed-capacity ring that assigns monotonic cursors and overwrites the oldest entry when full, so replay from a trimmed cursor fails with cursorTrimmed.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamEventBuffer.swift#L11-L42",
+          "version": "repo-lines-v1:sha256:8d44e982e261b30ad722d40ab5af3f23af70c8abef40c363353683317c704ba0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyMzkzNjk2OTU5NDNmZWE1NzQ2NWU5NmM1ZTUxNDIyNGI0OTU0Mjc4MmVhYzhhMGE5MzMwMTM5MzQwNzdlYmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxOWQ2ZjIwMmE3MjU3NDQ2M2VkZGFmNDNmMzNlYTJkNjM1YTUyYjFkNzFjMDVjYWRmZWRjOTBlODY0YzU4NzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc2NDg5NmEwMGYyMDQ5NTQwYTg4OTllNGQzNmJhYzA3YjE4OTRhOWE2NmU5YTUzMTI1ZWQ2ZDgwMjdkYzZhODIifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamEventBuffer.swift#L4-L8",
+          "version": "repo-lines-v1:sha256:b7a277564ccaee328abb326774ea7d99cad3a9fa6b40a4e2139ebb9cc800a948:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmRhYWNkOTgxZjFkM2YxZGNiNjBkNTY3YzYwYzZjODQwYjk0ZTk4NzIwN2EzOTI0YTBhZTFkYTA1NTc5Yzc2MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjZmODJlNjQ0ZGUxYTg3YjUwMjU2M2FiMTA1NzJhYmY2OGViYjFhZDMzMzJlODgzYTk2ZjYzZmQ2NjIyNGM1ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTJjMzg4NDZiZDgyNDQ0ZTAxZGFlOGQ1MmY3MTk0NmZlZThkZDY0YTU3MjQ4ODc2ZDBhYTgzNmRmZTJkNmI2NSJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamEventBuffer.swift#L57-L68",
+          "version": "repo-lines-v1:sha256:1fcbbd5ef438f0bf4d9bee579670d01a08ba47ff60355e306e4a45a81e788872:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxYTg3ZDQzNGE5NDlmNGZiYzdmNmM4ZjhiM2RlYmE1NmQyMDIyNTUxZDdiMTAyNDg1ZTYwYzc5NTFiODc4YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyYWI1NmFjMGE4NjliZjgwOWVlZTFiZGRjZTM4OGFmMDc3YzlmYjM2NzI1MjFkYzdmYzk1ZTIwOWExMTc3Y2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkNWUyYmE3ZGZhMDBlNjg2OTM3MjUxOGVlYTg5OTUzMzU3NWRjYmEzZTgzZGU3OTZmYjc2NGE5OTRjYzJhYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzN2ZiZGJiMDEwM2MyYmQ2YTQ5YzFiZTA0NTA5MTRhMGRlNzQyYjg2NTI1NWU3YTRjZjQzZDQyYTU2ZWVmMzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_94e91933b1904cd5ac6d6d0941379b3b",
+      "statement": "AgentStream records each event into its buffer and ignores events from a superseded send generation; starting a send clears the buffer first.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L105-L115",
+          "version": "repo-lines-v1:sha256:e13fdb13566cb4b6042671b527ed2007e40ed1ac98af2332a8f3558b34ce0bb9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNTA3NmFhY2ZhZTkxZTEyNDMzNmM3MTY0ZGI0ZGQwNmNmZTNhZTY5OTI1MzkyMDQ3MDg1MWI4NDYwNmU5ZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzYTgwYjg0MDIxMTU2YmQwNDFhMzJmMmRlMjg3ZDU3Yzk5ODg5OGJkN2RhMzYwZjJiNzM4YmM1Zjk5MWNhZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3NWY1NWQ3Nzg3NzcwNDVjYWFmNDA1NDkyNjIxZGY0ZTE3YjEyMjIxYTEzZjAxNTU2Yzk3OGQ1YzBiMzdhNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlYWFhZTk3YmRlNTFmNjk1MGVkNDcwZTkwMDVjMmVkZjI5NDk3OGE3MGZhZWY0ODZlYTg3NGQxYmFhZjFiNjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_89a63b4922e04510a3857715ce79d525",
+      "statement": "AgentStream.replay fails with bufferDisabled when the stream was created without a bufferCapacity.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L183-L188",
+          "version": "repo-lines-v1:sha256:94e724320a0bad78c529a50fb9ff3666edabe9ec1a926b833879180b62dce29c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQ5YzkyNDllOWUxOTAzMzg1ODZkYjFlMTY2NmYwNmZlNjAxMGJhNzQ5ODJhYjU0YjE3MDVmNTIxZjg3NjUwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUyMmM0MmNkMTljNmQwM2Q4MDhjNDUyNzIwNTUyODI1YjdlYTFjNWI0OTFiMjE4NTExY2FjNzQxNWNmOWQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGFjN2Q2YzNhYWMyZjc3NGE5NGYzZGNjOTZlYTM3ZGU0M2FjOTdlMTI3NDRiY2I2ZjNkYjQ1YTZmODViNjI4NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1ZGFkMWRjZDJiYzNiN2FlNmRhODRlNjI0OThiZTk4NTNhMDU4NTc3MzU5NzM4Yzk1N2NkZDNlZmViOGE5YyJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L50-L52",
+          "version": "repo-lines-v1:sha256:4c1e52b5207c2ebb62f90bc457bb2f7fa575130307e44e088fe45a20c855a303:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzZWZkOGI3ZTkyZmQ3MmU2ODY0NmZkMGMyYjJjYTZkZTQyMjQyYTcwYWFmZjBmNTY1MTNkMGU0MDA1NWIzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWM1MWIyYzZmMmZhZThjY2NkODVlYWJhNWVmOGQyMjdjMGU1YmI1MDQxMDExNThlY2UwYjYwYzMwMGFlY2MwMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2YwYzhmZDkwNDRkNGIzYWY0NjFmMWVkNmJmOWJkM2JiZjVlNTg4ZDYzOWI0NGMyNTYyMjViMjQ1NTllZTYwZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmNhZDg5MjBlYjA4NDg0NmZmMDUzMmQ1MzVmMjdlY2M0MWQxN2FlODAxMTIwNzIxZjQ3NGI1NTZhMjViMGFkYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3dc712c1a41476183b93313afc3d0c7",
+      "statement": "StreamPolicy.agent maps the builtInFinish completion policy to the reserved finish tool as terminal and suppresses its tool-start event, and terminates an iteration when the terminal tool appears in its tool calls.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamProcessor.swift#L36-L44",
+          "version": "repo-lines-v1:sha256:42f4de0e3abd2a681d41c4896ccbb1f6fa16212cb2934b4e1fb39a8f56b6f6b0:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmZkYzYyZDc0YjY0MmU0OWZmNTBjY2Y4OTcxZDZlMTk1MTY4YjViMGQ4N2Y1MTNlZDQ1ZmY5MDNmMWNhZDg0MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjQzMTliYzliNTk0YWU1NjQ1ZWMyYzU4ZjcyOGUzN2VhZDJlOWViYTA4YTlkYTZlOGY4NjExNTJlY2ZiYjZjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjEyNjQ0MGMwYzVjMDA4YTRhMTNmMWRhYWY5NTg0ZjAwYzViMWJjZTJiN2QxYmY1ZDVkZWQ3NTJjOTBmMmMyNCJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamProcessor.swift#L8-L23",
+          "version": "repo-lines-v1:sha256:d1d6eb9781ebffa77e0d386eb6cd6b129b5c39953cdb283856e3ae1e4d0cc781:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiNGRjOGY3M2NmOTBiNDVlYTYyNGJhNDhmYjJkYTc3OTNlZTcyNmY3NmIxMGE0M2EzMzlmMzUyNDMxYzNiNzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYmUxMTFmYTMzZjA1ZWNiMjYyN2ZhYTRiNmQ3Njg4N2VkZjIwZjc3MGI5ZTAxM2MyNjhmMmUxMGIxMTkyM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiNDE4MTdjNzljOGNlMTliNzcyMTNlYWU4ZTFjMDIyNmZiNWUxNzdiZmRhN2E1YmQxZTJkOGFiNWM5NmRjODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_044708885a9044b59d1763edecb8d59e",
+      "statement": "The stable StreamEvent JSON codec encodes with sorted keys and base64 data, and decodes with the matching strategy.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamEventJSONCodec.swift#L4-L30",
+          "version": "repo-lines-v1:sha256:ac12b443de6e077ab84fd63a7d57f5455bc0fa3f54fa5ae6b167948b00025ac4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZWY1MDEzYTk0NDczZTQ2YTkzNDBkYmFmODQ5NzdjYjEwN2UwZmQ3OTZkMTc3ZmVmZjI3YzYyZDUwODQxMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmMGI0N2FiMTk5NGE1ZGZhOTMxZWEzMTkwNDNiN2Q0MWU1OTM4ODA1YmNlYTRiMzAzMjRlNDRiZmFkMjIxZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_01ed4ecbc3c1452580edfdcfa0657eb5",
+      "statement": "A replayed event carries origin replayed(from: CheckpointID), and AgentStream sets currentCheckpoint from that origin.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L264-L270",
+          "version": "repo-lines-v1:sha256:300076af2e634f16fd2bdc353b424df04fe578d36adb1dff46d8683bb8cc08af:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2M3OTFjZDQ5NWI0MzllYWMyYjI4NjI2OGE5NmJjOTA2N2E5NDRkMzI5ZTY2YmNjZjRmZDViYjQwYTFhOGRkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUyMmM0MmNkMTljNmQwM2Q4MDhjNDUyNzIwNTUyODI1YjdlYTFjNWI0OTFiMjE4NTExY2FjNzQxNWNmOWQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjVlZWUxOTczNGRhOTVlYWRkNDM4ZWM2MjY5YmQwYzkyOTZjMTJkN2Q1NmYxMGI4OTVhODdkMjU2ODRjMWQ5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY2OTc3N2FmZWQxMWU3YjhkMjQ4ODlmMWRmYzhhMzlhMThlNGM4ZGI0ZDdjZDI4NDkxNmQwODZiMmIwODIzMyJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/EventOrigin.swift#L4-L6",
+          "version": "repo-lines-v1:sha256:5491e75033d7f14f369c451b0c9891f6b8380c7ca81e6511b1192c96cf145736:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2JkZjM3YjczNTdjM2NiZGE3NTNiMDdkNWY5ODJjYWY4MDM1ZDQzN2E1NTE0MGZkYTgzNmM1YWRiZWNkNDFkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjY3YTAyNjA5YzAwMjBiZGQwZjI4MzVjMmZhMGVlM2E3NjJlZTE4Y2YwNTYwMjg1ODJmYmM0NmE5YWRlZWY5ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWFlZmFiZjkyYTZiNTMwZjQ4OWU4NjY4NmY4ODFlZGRkODZjOTJlY2VmZjUzOTU0MGExOTA0YWJiMDAyNzIzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmRhNDAzZjY4OWYzNTAxNzQxZTY4Y2IwYTEwNGEyZTg5MGU4NjIzZmU5ZTQ5ZDVlZTFiMTAwMjVhNGVlYzNhMSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

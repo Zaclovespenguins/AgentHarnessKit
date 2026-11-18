@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:42386f027569d56b8b10d787fb70796d13e05c03821a76c0c2fd6e1cc7ce736d",
+  "claims": [
+    {
+      "id": "claim_5bfc04237a36429980593672db336b2f",
+      "statement": "The core AgentHarnessKit target declares no package dependencies, while ALM, Foundation Models, and MLX targets depend on AnyLanguageModel and the Context target depends on GRDB.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L35-L41",
+          "version": "repo-lines-v1:sha256:b612e9d638eee726603b7a9ec7096fdd4275da31f926a28caac7c64a8ccc7687:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBhMzk3MGYwNTgzYzRjYmQwOGQ3NTVmMjcyNmE0NTE5ZjhiODVlMzgxMTBiNzRkN2NhZGQ4ZmQ5NDkzOWViOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk5MzczMDQ3YmVlZmRlZWVkNTkzMjk0NmViMDYzYzIyZDZiMzYyZDRhOTZhYmJiNGE0MmY2YjdkOTUxOWE3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTM2ODc1MGI3YzYxZmFiZWFkYzQ1MTdlOTk4ZDhkMjZlM2UzNWY1ZGJkNWQ0M2UyZWEzOTNkODRhMzI2ODQ2NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjQ3ODE0YmZlM2YyNTM5ODZkNTIxMGJkZWFiMTg2OWM1Y2Y5YjA4ZmJlN2UwNjEwNDZjM2EzMWM5ODg1MWIwMyJ9"
+        },
+        {
+          "resource": "repo://Package.swift#L44-L57",
+          "version": "repo-lines-v1:sha256:ce68bef56d07357482c36a568d61f5e7e4559a2468f9662b04742ae02d76511a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzOWJiNjYwNGI3OTI4ZDY0ODhlNmM3YmM2Y2QyNWExZWJkYTQwYmEyOTljYmRjZTMzYWI1Njk4NTUyODZhMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MzNkMGVhOWVjZjJmMzljOWE1MDQwNzM5NWVlNDExNzJmZTY4MmM5Yzg4NWEzNTA4Zjc1YmRlZTE1MWVmZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg4NGVkMmRhYTI5ZDY4NGM0MzRjNjkxZTMzYzU2MThhNmY3YTM0OWQ2YWE2NGZjN2YwMGFkNTIwODU5MGFmOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjliMDkzODc3YzEwYzUzMDE0YjFmYTkzODA5YjMwMWFkNjU5NjU3ZDE5ZjIzNWVlYjdhNTRhYmI5ZDBmZTNjMGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e090a1bf3ff54c34914574c9ab5be1c8",
+      "statement": "The MLX trait is opt-in with an empty default trait set, and the AgentHarnessKitMLX target compiles empty unless that trait is enabled.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L27-L31",
+          "version": "repo-lines-v1:sha256:8e3b0db9b179b64da6e2696e956d4ce8cee5e65f8f6b9f3d3b96605bea1b8645:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTI3ZDQ5YmEyOTRiYzc2MjZiYmYwOTYyODEwNTM0MzNkNjM0YjFiNDBlMGU0ODNkOWJkMTRiNWE2YjQxODJiYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzYzZDUzNWNlMzgwNjNkNmI0YzUxZDhjMzg2YTdmOWIzZTU4MGExNGExMGMwN2IxOThkZmFmMTljOTNhM2JmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmUxY2Y5MmE4NTU5YmMwZjM2ZWE2MGE0OThjNWY0MzRhOWRiZWFjZTk0MmNlZDJlYmM4NjVkMmNkMDU1ZGQwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTM2ODc1MGI3YzYxZmFiZWFkYzQ1MTdlOTk4ZDhkMjZlM2UzNWY1ZGJkNWQ0M2UyZWEzOTNkODRhMzI2ODQ2NyJ9"
+        },
+        {
+          "resource": "repo://Package.swift#L68-L70",
+          "version": "repo-lines-v1:sha256:6ee66cf2c04a5759e08896736339ff49bfa77c141c76e0bf5480bc269483ab47:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdiMzE5OTgwM2I5YWVkNzZlY2JjYjJkOWFlOTJkZTMyYmZjYTVkNGE4MTU1NzQxOTg2ZjkxODI2NDUxZTNlOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM4NmY0ZDM0M2E0MjgwOTRhZmIwMWU3OWEzMDUyNTkwMDE1ZTk1M2MxYTA2YTQ3ZjJjNDYyNjJmMzkzNGU4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTQzMjA4MGYwZjAxOTBhMzRhYzU0MjJkZjVkNDhhNjA0NWY4M2YwNmVhNWI0MzQ4YTQ3YzJjNDJjOTA5ZmY1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmU3NDJmZGE0ZDUzZmUzYWIxZTFiMzU0NmUzMjlmODMyZTgwMWZhMzM4NWQzOWM3ZmRjMTFjOGJhMjI2YTgxOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_931b8035b1c946d7ab883aebc63789eb",
+      "statement": "The CheckpointResumeProbe executable target is a test dependency of the core test target and is not declared as a product.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L93-L103",
+          "version": "repo-lines-v1:sha256:80630f8c95376ff27f7e16e2c66e533333c8cc7128d7a042a414a49994d8896b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZGRkZTFjODFlMGU2ZTA1MDEzOTZhNTYyMWIwMzVlOTExZjIyNjhhNTQ4YzZmODZiMDdjYjYwMmNkYzMxNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA1ZTA1ZDgyZGUxZmEwMDYyYzY1YjAxZDllZjBmMDY3ODc1MThmOTM3Mzc5MzZiNGFmMTEyMWMwYWQ2ZjliZTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4Y2Y2MmVmM2NiZDg2YTdhNjY3M2EyMTg1OWI2ZDFiNGRmN2M3Y2NhODY3NzA4NjU0N2E1MzA5ZjM1YWUwMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4ZTA4YzVkODZlYzY3YThiMjc2NjhhOTJjZDY2MWU4Y2JiYTcxOTFlZDBiNmIyYTBjZTRjNmQzNjNhMjBjMzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_62bbc2977f794e94971a7fa5c026929c",
+      "statement": "The package declares swift-tools 6.3, applies the Swift 6 language mode to every target, and sets platform floors of macOS 14 and iOS 17.",
+      "evidence": [
+        {
+          "resource": "repo://Package.swift#L1-L17",
+          "version": "repo-lines-v1:sha256:d3f32f5d319ef161627a2c4191400c4f9a56ffc92479560923be0b646b21004a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ODI2ZmEwNDhhZWYxMGRlNTVkOTYxZjYzYWNjMTU5MWZjNGJhODY3YmEzMDZjOTQzNzk1N2VmMThkYWZiYzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2M2Q1MzVjZTM4MDYzZDZiNGM1MWQ4YzM4NmE3ZjliM2U1ODBhMTRhMTBjMDdiMTk4ZGZhZjE5YzkzYTNiZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmOTdjMzU5NGNhOGVmNTNhOWYzZmVlMDdhZDk3ZmZjNzc1OTViYjhhZjg4NWQyYjM0NzQyNTg5NDI4MjU2OGMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

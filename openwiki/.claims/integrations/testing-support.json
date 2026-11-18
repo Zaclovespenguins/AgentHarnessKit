@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:35b06e8b70b5b1b3ab53cdd092645d03f9b6530081bf01c07707fa3bef2172e1",
+  "claims": [
+    {
+      "id": "claim_3e80d0d7738947c295b97c28af5e2704",
+      "statement": "TestLLMClient returns a schema-generated tool call for each selectable tool, using IDs of the form test_call_<turn>_<index>, and falls back to a completion tool call or a finish call once tool results follow the last user message.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitTesting/TestLLMClient.swift#L77-L113",
+          "version": "repo-lines-v1:sha256:01247a9f0563a9dd459444b55f483d520c44606c5414d6bedf3a6751b6d9c148:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOGMxMDYzNzkzZGUyZjZiOTE1ZGMxYzg4MmQwMWIwMTJlNGUzNjRjOGZhNzNkODNiZGQ4YTA3ZWQ3NjRlNWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkNDI3ZDNjN2UzYWIyYmVjYjFjYzcyZmQ2M2UyYmVlYmM2ZWI3NTAyNGJmMDViODY4Y2I2MjJjMzQzYjg2MDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkOTUwNTI4NGU3OGQ2MWE3YzIxMzA3MzFmMGUyYzIwOTYzNDc5MDAzYjA5NTBjMmFjNTJkZGU2YWMzYWMyMWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e4b1cef2ce2b4b81ac7f6488bd1689ad",
+      "statement": "hasToolResultsAfterLastUserMessage ignores a user message that directly follows a tool result, so budget advisories do not start a new turn.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitTesting/TestLLMClient.swift#L156-L165",
+          "version": "repo-lines-v1:sha256:048e244ab43546a054aab807e225e2b5d2cf0b1dd5fb7a0004b329eee5923e1e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiZTMyZGMwMGM4MzQyZjc0YWQ5ZTlhM2FkNmM0OWViYjNlZTkyZDE2MjY2ZjQyMzhlYjk5ZjdiYmY4NmE1ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5MmIzMWNkZTFkN2YwNGUyNzliMDBmOGYwYTNhYTg2MGVmM2NmNDc5ZWQ5YTZjNjRhMDY5OGIyMDA0NjIzYjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c0bd4979f6344fe5a58afdbe1372bfd0",
+      "statement": "TestLLMClient.stream yields content if non-empty, then a toolCallStart and toolCallDelta for each tool call, then a finished event with the usage.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitTesting/TestLLMClient.swift#L51-L70",
+          "version": "repo-lines-v1:sha256:4d00d14d539804a6dcf46ad8de640cc57ccce95ecf1116d060d57acad664e9c8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjYjg0MTVmMmM4NzNjMWYwNjA0Mjg0NDcwZGVkOWMwYzZlNmQyYjU2NGZmMDc3OGM4MjAwNGJlMzMwNTJmZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlZTRiMzE2MjA2Zjg5MDBiNTkyZjA0ZjYyZmZlZDVhOTVjZjU3ZTc5Y2ViYzMzNmFjNzU3ODUzNWRmYjUzM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb9618f443f243bdaf11322b68a2ec7b",
+      "statement": "GatedCheckpointer is an actor that blocks saves at a gate, with awaitGateEntered and release controlling the gate, so tests can observe mid-run checkpoint state.",
+      "evidence": [
+        {
+          "resource": "repo://Tests/AgentHarnessKitTests/Support/GatedCheckpointer.swift#L3-L70",
+          "version": "repo-lines-v1:sha256:d0194ac6f3e90474136ffdfc889db0314302c183bebbd37a91b56a6b7b06a1a4:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5YjZkYzE5MjQ3MTMyMDA0ZDA5YzdmYjA1NzU5YmRiYWU4OThkZDY1NjdiYzQ2NzRhNGMxYzFhMWQzYzc4NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMGZlYzkxY2U4ODA4ZDk5ODg3MjE3NGI5NmNmNDMyZmM2Mjc5OWNmODQ2ZTA5Y2I4MTBiZTRjODIxN2ZiYjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZDVlZTA2YmUxNDE4YzFhOTA4NTdiYTBhYjhjYzE5ZTQ2MDFjYWZkNWEzNDRmOWRkMDljMjRjZThmYjY5MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkOTRhN2UxMGY2NDIwY2Y2NmY0MTBmYmM4NDNkYTJkODdhNjAwZmIxMDNlNDAyNzg4M2QzZTlkNzZhNDc3ZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4aeeacc7a599490187a47815f7b4736e",
+      "statement": "The Makefile and CI workflow do not select tests by tag; CI runs LiveEndpointTests by name.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L96-L105",
+          "version": "repo-lines-v1:sha256:cc37ad3c252b55fde6f022f04c9b5c715b6e40750f6c5175ca736913c4379736:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiOTc3OWM5Yjk3NjJiZmY5NDEzMmZiNzMxNjJiMDU4YmZmNmNiZWY0YWYyNGEyNmE5ZmFlMWYxNzAxODVkZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlZmE4NGY3ZTFhYjM1MmRjMDdlYTc3MTVkMzRmMzZiMzUzMWUyMTRjM2Q3NzgwOWRlODllMWZiZWUwMWQxZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjYzhmOGZkYThiZWE4MzZiNjljZjJkYzIwYzJlY2YwZjA3ZWJlNjhmZGEwODIwNzA5NWQ0NzVhZmU2NzlhMTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkYTZkZWMzYjc4MDA4YTNlMWVjOTA5Nzc4Y2MzYmQ0YmEzMjkyMGY4ZjNkZGNkYmRhNDMxMmJiYTI2MDhhMzUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

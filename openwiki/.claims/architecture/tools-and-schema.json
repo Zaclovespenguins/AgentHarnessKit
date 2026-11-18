@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a1a014bc1a30608d68df9f62bc7e37eec2699ce909ba8dc39e5a2fcc46ae036c",
+  "claims": [
+    {
+      "id": "claim_d4235c6b5cdf4956a62c9285e45ed115",
+      "statement": "Tool<P, O, C> validates its parameter schema at construction via P.validateSchema(), so a schema that cannot be inferred fails when the tool is created rather than when the model calls it.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/SchemaProviding.swift#L23-L31",
+          "version": "repo-lines-v1:sha256:ca58c49cfceee81eaab4a7310b02cd5fecaba5de662e6f4b75afde648a840db6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzg0YWFlZTVhYWI0NTJmOWU5OTZkN2I1NDY2ZjgyNmUxMTI0MjIwNzYzMTQzOGMyNDZmZWU1YTQ5YWY1YjA0NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/Tool.swift#L35-L35",
+          "version": "repo-lines-v1:sha256:e93b15c9a4990929d8fc6f1f6e9a4663e533ce2c2278d92ff12d0e0885f89649:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkzYjE1YzlhNDk5MDkyOWQ4ZmM2ZjFmNmU5YTQ2NjNlNTMzY2UyYzIyNzhkOTJmZjEyZDBlMDg4NWY4OTY0OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkzYjE1YzlhNDk5MDkyOWQ4ZmM2ZjFmNmU5YTQ2NjNlNTMzY2UyYzIyNzhkOTJmZjEyZDBlMDg4NWY4OTY0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzc1ODUzMjUyMWVlNzcyMjU0NjRmZjRlOTQ4NDJhNzVkMzU2MzRiMDBiOTZjZDUyYTE4MGVkNWI0MWMwYzA1OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTBhZGRlN2Q3YzljNmViMGE2MzM2YjQ3YWRhZWQwODkxOTQ3MjlhYWVmNDYxNzA0MDI3OGE0ZGRiODA4ZDI2NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7915c071a3e248fb9df17add351c7bbd",
+      "statement": "Tool.execute decodes arguments with JSONDecoder, rethrows CancellationError and AgentError unchanged, wraps other executor failures as toolExecutionFailed, and encodes output deterministically, rejecting non-UTF-8 output as toolEncodingFailed.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/Tool.swift#L47-L74",
+          "version": "repo-lines-v1:sha256:cb64e70c68ceb687c3c29be16dced7816f342eb3866adcae7e093117e9918103:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzNTk3Mzc1NDg3ZDNhMzQ0NjIzYjZiNzRlMzYxZjFjOWM1ZTc5YWRiNzg2MTc4ZmU2OTQyODBkYThjNmY1ODUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWI3Y2EwOWRlMGFiZDRlN2FkOGE3NzllNjZiNzJkNDFjNzllY2I5OGIxNTkwNjRkZWQzOGE2ZTUzOTlmM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3d15065ae2b34f9aaf929d0128f9c9a0",
+      "statement": "SubAgentTool rejects a call with AgentError.maxDepthExceeded when the context's currentDepth has reached maxDepth, and runs the child agent under a descended context.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Context/SubAgentContext.swift#L15-L21",
+          "version": "repo-lines-v1:sha256:edb6fda0b2b7a392252c7dd5df01f3104135aa48d5788833af8cb4f33b5dc0d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTA3ZTE2MGY1NjQ0NmY2NzI4NDkwZDljYmYyNWM1MjYwNGUwNThhZDA5ZDcyNjlhMjRlYjhiOWU2ZmY4YjIxYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODVkZmE4NmE5MGQ2MmI4MjFlZjQzNzZhOTc3ZWE2Zjc4ZTcyZDFhOWM1MmI4Yzc5MWQ2OTYyNWQ1ODRmMjA3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjk5YmM1ZGI1ZWRlMWM4NTFjNDRmNGQ3ZmVlMGYzYjY0Y2Q0MDI1MjM4NmZlMDg2YWVmNmE4ZDFlYzBkMDlhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDUzYTc0ZTA5YWVmMTA5MjFmMTI3YWYzNzViN2E4YjEzNGFlMGVlNGNiMmRhMjE5ODNkNjJlYzA4MjFlYzBlYiJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/SubAgentTool.swift#L100-L101",
+          "version": "repo-lines-v1:sha256:202e4bbd9b57b4b52d51d19e100ef3c79eea7c4e7297fa93ce5fd65234734cb7:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2JjMmNmNTlmZDVhNjM1ZmQ5MGRhOGIxYmJjMTExMmEyMTYzZDE2ZTUzYzliMTJlMThhYjYzMzdjMWRkY2VkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTYzZDcwZWMzMjgzNzJhMDg2NzQyNjVkZmU4MjljNzk0NWE0NGI0ZDRmM2I4ZTA1OWI4MmQ0ZWJlNjUzZWU2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmU3NjQ4ZWI4ZjNlY2RlNDRmZGYyZjQ2NzI0MzdiNTQ3Njc3YTQwZTgwZDU0NjhlOTk5MTY0MGIyNDU1NjFiZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTc2MDA0ZjA4MWY1MDgwMDllMWMzOTBiZTBmMTg1MjY2MzQ0ODRlYmZiZmJlMGY1MDVhZDI2ZjM5MmRmODBjNCJ9"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/SubAgentTool.swift#L78-L79",
+          "version": "repo-lines-v1:sha256:202e4bbd9b57b4b52d51d19e100ef3c79eea7c4e7297fa93ce5fd65234734cb7:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2JjMmNmNTlmZDVhNjM1ZmQ5MGRhOGIxYmJjMTExMmEyMTYzZDE2ZTUzYzliMTJlMThhYjYzMzdjMWRkY2VkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTYzZDcwZWMzMjgzNzJhMDg2NzQyNjVkZmU4MjljNzk0NWE0NGI0ZDRmM2I4ZTA1OWI4MmQ0ZWJlNjUzZWU2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmU3NjQ4ZWI4ZjNlY2RlNDRmZGYyZjQ2NzI0MzdiNTQ3Njc3YTQwZTgwZDU0NjhlOTk5MTY0MGIyNDU1NjFiZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjFkNDJkNjRhMTkzMjE1ZTY0MTNkYzgwNGZiYjEyM2UwZjc1YzQxOWFhOTRkMTE0YzJhMzRkMWNjZDc1ZDQ5NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_85af514dc0a148bab6674648067a3880",
+      "statement": "The loop dispatches sub-agent tools through the internal SubAgentExecutableTool entry points executeSubAgent and executeSubAgentStreaming, not through execute, so it can forward approvals and wrap child events.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/SubAgentExecutableTool.swift#L8-L21",
+          "version": "repo-lines-v1:sha256:3c468590895c1e60bee9f04e29519918e3e660c42be4b7d5d0f101374b343b22:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MTRmZmMwMmFhZGExODAxMzcxMjNkODQwOWI3MWNiYTlkMTg1ZjY4ZTFmMWQyYTBhZThlZWYzZmZkNTI2NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2YTU2ODVhMTc0NTlmM2RlMGMwODVlZGMzZDc3NTFlZTE4YmI0YmI3MjFhMTM0MDc3MzA2MTczYTgzMGYxMDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a7be71d374304eb28bc0dacf23ace938",
+      "statement": "ToolResult carries content and an isError flag, and a tool failure reported through ToolResult.error reaches the model as a result rather than a thrown error.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Tools/ToolResult.swift#L3-L18",
+          "version": "repo-lines-v1:sha256:147e38438afdd364a531e4c3c531436f95ab67783c190f9b6bc5240b75c93222:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYzEwOGQxNWI3N2JmYWE2NTUzMjhiYWI1NzlhNzU0NDA1NmEyMDVmNTM5OTllNzc2NDlmMDM5NGU5NDZhOWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExOGJmY2MwNWRhNWVkOWI1NWRjNTcyNWE0ZmNkYWVjNWMyNTc1ZmRmNGNlMjJhMTk5MDliMWIzZjRkZTgxZmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

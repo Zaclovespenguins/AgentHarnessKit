@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5b81fb2d19d0ac313b6bfea7092884dbd5ca9d489078ef2cdd49682ccce212e0",
+  "claims": [
+    {
+      "id": "claim_392f0d27be6f4b718c3ba94527f24d20",
+      "statement": "Agent.resume validates a checkpoint in a fixed order: context state version, message history, terminal outcome replay, then MCP binding presence, before starting the live loop.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BResume.swift#L36-L50",
+          "version": "repo-lines-v1:sha256:c8b17ef3868fe9d5e943116e843b30627836c4d3c16df66aee69ba98f8ceebae:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjZTRjYmIyNGU4ZGFiZjU4ZTdlZDc2NjNhMzI0YWVjMDI0ZmNhZGUyZDJlM2I1NzFjNTgyMzNjYTE4ZmE2MzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyYTQ0NjYxN2MyMDU2Y2IyZDBmMmQ0ZThiNTk2ZWY2ZmEzYTNkZDViZmEwMTljNTBlNzhkZjgyNzg2NTg0OWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlMmE2ZTk4NWUxOTBkZGRkYzJiYzYwZTVkOWIyMDhjN2NlMGI5Njk0ZDUxMWQzNjNiY2RiZWZkNjUwZTUxNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5NDJkNGZhNTdkOTMyZTVlYmNmNDhlNjIyOGM1YTc1MTU2ZjgwMmJiZWVmMWI3OTQyMThiMDE2MzgwZWQxZWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2f52f236927a4ef3b1a3cf97ab3b18db",
+      "statement": "Resume ends the run without a model call when the checkpoint's cumulative token usage exceeds the resume tokenBudget or the checkpoint iteration reaches maxIterations.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BResume.swift#L133-L149",
+          "version": "repo-lines-v1:sha256:d04fd6f6b745b5e96f1ebd85127e5ee5cd0f7cb374dfdce286279819a5cad5b8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzOWJiZjkzYjZkNjg5ZDNjNzY5YTEyMjc1ODA0NDY5NzBkMTAxYTVmODYwMTVmMGY1ZDRmNGEyNTNkYmI4NWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_726020f18b2c455d92546a84ba9ea0d4",
+      "statement": "A checkpoint whose recorded contextStateVersion differs from the live context store state is rejected with contextStateMismatch.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BResume.swift#L36-L41",
+          "version": "repo-lines-v1:sha256:cdbc003af01885b3803a472dc33dedc6ac08d6ceb8b4229d8bba222c43c410d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2NlNGNiYjI0ZThkYWJmNThlN2VkNzY2M2EzMjRhZWMwMjRmY2FkZTJkMmUzYjU3MWM1ODIzM2NhMThmYTYzNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZiMDQ0OTE0Njk3MjJlODM2M2E5NGU0MDQ0NTM4ZTAxM2EyYTIxN2UzNmIxZTU2OGJhNjBhY2I3YjRjOGYyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmUyYTZlOTg1ZTE5MGRkZGRjMmJjNjBlNWQ5YjIwOGM3Y2UwYjk2OTRkNTExZDM2M2JjZGJlZmQ2NTBlNTE1YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWMzZWU2ZDk5MjVhMDk3ZTZiNzcxNDJlYTJjYjljNGJiNjhlYmM3OGNlNGViODRkM2VhYjJkOGNiZGM4MDFlZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f1925656e37446268eb44d04536547e2",
+      "statement": "Checkpoints referencing MCP tool bindings absent from the resuming agent throw mcpBindingMismatch with the missing bindings sorted by server and tool name.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BResume.swift#L98-L107",
+          "version": "repo-lines-v1:sha256:b4975568d76a553374e5d86b213bed35b706a39a4ad9b98aab9167959c8ec110:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyOTQ5MmIzYmU5MzhjMGYyMWY0ZmQyOTE4NDI5YmJjM2UwYTA0NTJhMmZiNmY5NjVlMTk1YmQ0MzI0ODgyNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxNDBiZDFjODI0ZjllZDM2Nzk1M2I4OWIzNjYzMWU1Yjc1NDAzZTI3YTI4MmUzODg2NGQwMTdkYmRjYWFhMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwNmE4ZDhlZThlZjA5NmVmNDRlZDk3ZjA4NDY4MmU1NWJhMjMzZDZlOTQ2MWQ4MjFhM2FhZDhlMDgyYjE2NzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_63a2ee5a063f47e5a619b19e9b17c736",
+      "statement": "FileCheckpointer writes each checkpoint atomically as one JSON file named by checkpoint UUID under a checkpoints subdirectory.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/FileCheckpointer.swift#L20-L29",
+          "version": "repo-lines-v1:sha256:9eab9246f82c9d512b8d734d412e297974f19cd29518542a1db593e1c3989a45:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllYTFlZTQwNGRmNWVmM2Q2NGJkNDU2MWZiYTRiODQxMzM1ZTE0M2Q2ODNiODhjYTBiZGIwNDg5Yzg3YzEzNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4YTM3MWI5YTIxYjJiMjk2ZDI1MDJkYzg0OWVkZmJlMjVmZjkzYWE3MzExNjRmYWQ2ZTNkOGY5ZTBkZjhiZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhMTU0MWVjNzMyZWQ2NjNmZjNhYmMwOTU3ZDI3Y2NmNWY4ZGY5NjdlMzYyODgzM2U2YzY5YzI2MDZmN2U5ZDUifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/FileCheckpointer.swift#L78-L80",
+          "version": "repo-lines-v1:sha256:c6861aba4a5800c119257d8a7cea54326b2c5c369e7709fa6c5c29d225ceece1:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2I2OTFlMWQ1MDFkZTIzNmM1YThiOTg2MDBkYTJlZDUzY2VkMzY5MDk1YjM0NzI5ZDk5NjY1YmU5YjY3ZjViZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_343b7c3c61ed4cdf91afe33c3ce14354",
+      "statement": "FileCheckpointer.list silently skips JSON files that fail to decode, so a corrupt checkpoint appears as absent rather than as an error.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/FileCheckpointer.swift#L44-L67",
+          "version": "repo-lines-v1:sha256:cbd49dcc582c3f029b66d392079cdc0757871983d611b4fe57e984fd516db026:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzNWY5MGRiODUwYmJmYzY4MzI1ODU1MjY4OTdlZjJjMDg2ZTJhMTVlZTFjMjYwOWZiODFiYTVjYjllNmY5OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1OWUxOGUxODU1NzBlMGFkNzAxYjVjZjIyNTA4YjllOGZiMjYzZTk3N2M1ODI5NGUzNzVkYmVkYjM1MDRkZGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a9f9ecf59202475482e29d7954629fb3",
+      "statement": "Agent checkpoints are written only when a checkpointer is configured and the event factory has both a session ID and a run ID.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BCheckpointing.swift#L5-L17",
+          "version": "repo-lines-v1:sha256:6a2214e262963dcaabfa6df35105f0e216ba2e8024e0e0bce10dd7bb1458920c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4NGE4YTE1ZGY3ZjZiZTZlZTNkYzZkY2I0Y2M0OGJkZTI1YTk5ZDM3Yzk4NzdlYTVkODZlMTEyOWI2N2Y4NjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhMjNkOWQ5NzIyZTUzNWFkZTI2ZGMzNWQ2MWRjNTRjOTUyNmEwMjczODE4MGZmODgyODJmMGM4M2FhNDcyZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjMDFiN2M1ZWM0ZWI4YzY4MWNiNzQzMWE0ZjYzMjNhMjQwOTY5NWU4ODhkYjQ1OTU5ZTgxZTYwOTRlMTczZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0ZTE5Y2ZlYzdhNGM0NWZhYjM3NTE0MTI4NjJkNDhlYTVjNDAzNWI1Y2VkNTI2YmRmYWM0ZjJiODk0ZjljZjIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.9.0",
+    "at": "2026-11-18T19:31:47.975Z"
+  }
+}

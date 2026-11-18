@@ -1,0 +1,6 @@
+# Files
+
+- [AnyLanguageModel Adapter](alm-adapter.md) - How the AgentHarnessKitALM module adapts AnyLanguageModel providers to the harness's stateless LLM client seam through HarnessModelClient, including transcript and response mapping, declared-only tool bridging, the stop-before-execution delegate, streaming deltas, error mapping, and provider-specific request options.
+- [Local Model Adapters](local-model-adapters.md) - The AgentHarnessKitFoundationModels and AgentHarnessKitMLX products, which are thin typealiases and initializers over HarnessModelClient for Apple's on-device system model and AnyLanguageModel's MLX backend, and how the MLX trait and platform availability decide whether each adapter compiles.
+- [MCP Integration](mcp.md) - How the AgentHarnessKitMCP module connects to Model Context Protocol servers over stdio or Streamable HTTP, performs the initialize handshake and paged tool discovery, exposes each discovered tool as an AnyTool, and scopes connections to a single closure with guaranteed shutdown.
+- [Testing Support Library](testing-support.md) - The AgentHarnessKitTesting product, whose TestLLMClient is a deterministic, schema-driven LLM stand-in that calls tools with generated arguments, plus the internal test helpers in Tests/AgentHarnessKitTests/Support that the suites use for gating, counting, and tagging.
