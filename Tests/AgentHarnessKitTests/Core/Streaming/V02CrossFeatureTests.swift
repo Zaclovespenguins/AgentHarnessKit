@@ -168,7 +168,9 @@
         let deadline = ContinuousClock.now.advanced(by: .seconds(10))
         while ContinuousClock.now < deadline {
             let pending = await queue.pending()
-            if pending.count >= count { return pending }
+            if pending.count >= count {
+                return pending
+            }
             try? await Task.sleep(for: .milliseconds(2))
         }
         return await queue.pending()
@@ -177,7 +179,9 @@
     private func waitForEmptyPending(_ queue: ToolApprovalQueue) async -> Bool {
         let deadline = ContinuousClock.now.advanced(by: .seconds(10))
         while ContinuousClock.now < deadline {
-            if await queue.pending().isEmpty { return true }
+            if await queue.pending().isEmpty {
+                return true
+            }
             try? await Task.sleep(for: .milliseconds(2))
         }
         return await queue.pending().isEmpty
@@ -186,7 +190,9 @@
     private func waitForSubscriberCount(_ queue: ToolApprovalQueue, _ count: Int) async -> Bool {
         let deadline = ContinuousClock.now.advanced(by: .seconds(10))
         while ContinuousClock.now < deadline {
-            if await queue.subscriberCount() == count { return true }
+            if await queue.subscriberCount() == count {
+                return true
+            }
             try? await Task.sleep(for: .milliseconds(2))
         }
         return await queue.subscriberCount() == count
@@ -194,14 +200,18 @@
 
     private func toolResults(_ messages: [ChatMessage]) -> [(id: String, content: String)] {
         messages.compactMap { message in
-            if case let .tool(id, _, content) = message { return (id: id, content: content) }
+            if case let .tool(id, _, content) = message {
+                return (id: id, content: content)
+            }
             return nil
         }
     }
 
     private func assistants(_ messages: [ChatMessage]) -> [AssistantMessage] {
         messages.compactMap { message in
-            if case let .assistant(assistant) = message { return assistant }
+            if case let .assistant(assistant) = message {
+                return assistant
+            }
             return nil
         }
     }

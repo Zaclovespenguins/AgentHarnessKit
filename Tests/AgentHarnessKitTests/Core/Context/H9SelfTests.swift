@@ -8,7 +8,13 @@ private struct H9ScriptedClient: LLMClient {
     let responses: [AssistantMessage]
 
     func turn(_ messages: [ChatMessage]) -> AssistantMessage {
-        let assistantTurns = messages.count { if case .assistant = $0 { true } else { false } }
+        let assistantTurns = messages.count {
+            if case .assistant = $0 {
+                true
+            } else {
+                false
+            }
+        }
         return responses[assistantTurns]
     }
 
@@ -155,7 +161,9 @@ struct H9SelfTests {
         #expect(await store.executed == ["context_status"])
         #expect(await probe.requests == 0)
         let toolMessages = result.history.compactMap { message -> String? in
-            if case let .tool(id, name, content) = message, id == "c1", name == "context_status" { return content }
+            if case let .tool(id, name, content) = message, id == "c1", name == "context_status" {
+                return content
+            }
             return nil
         }
         #expect(toolMessages == ["status ok"])
@@ -176,8 +184,20 @@ struct H9SelfTests {
         let events = try await collect(agent.stream(
             userMessage: "hi", context: EmptyContext(), sessionID: sid
         ))
-        let completed = events.first { if case .toolCallCompleted = $0.kind { true } else { false } }
-        let status = events.first { if case .contextStatus = $0.kind { true } else { false } }
+        let completed = events.first {
+            if case .toolCallCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
+        }
+        let status = events.first {
+            if case .contextStatus = $0.kind {
+                true
+            } else {
+                false
+            }
+        }
         #expect(completed?.kind == .toolCallCompleted(
             id: "c1", name: "context_status", result: ToolResult(content: "status ok")
         ))

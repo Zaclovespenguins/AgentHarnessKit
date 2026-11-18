@@ -41,7 +41,9 @@ struct OneShotClient: LLMClient, ToolCallSurfacingClient {
     ) -> AsyncThrowingStream<StreamDelta, Error> {
         AsyncThrowingStream { continuation in
             Task {
-                if await requests.next() > 1 { await onSecondRequest() }
+                if await requests.next() > 1 {
+                    await onSecondRequest()
+                }
                 continuation.yield(.toolCallStart(index: 0, id: "call_child", name: "echo", kind: .function))
                 continuation.yield(.toolCallDelta(index: 0, arguments: #"{"message": "from child"}"#))
                 continuation.yield(.finished(usage: TokenUsage(input: 10, output: 5)))

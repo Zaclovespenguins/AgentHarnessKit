@@ -67,7 +67,13 @@ struct SchemaDecoderAdvancedTests {
             return
         }
         #expect(options.contains(.null))
-        let objectOption = options.first { if case .object = $0 { true } else { false } }
+        let objectOption = options.first {
+            if case .object = $0 {
+                true
+            } else {
+                false
+            }
+        }
         #expect(objectOption != nil)
     }
 
@@ -87,7 +93,13 @@ struct SchemaDecoderAdvancedTests {
             return
         }
         #expect(options.contains(.null))
-        let arrayOption = options.first { if case .array = $0 { true } else { false } }
+        let arrayOption = options.first {
+            if case .array = $0 {
+                true
+            } else {
+                false
+            }
+        }
         #expect(arrayOption != nil)
     }
 

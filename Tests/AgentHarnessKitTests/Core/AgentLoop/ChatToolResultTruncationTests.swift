@@ -56,7 +56,11 @@ struct ChatToolResultTruncationTests {
         }
 
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "limited" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "limited"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted")
@@ -96,7 +100,11 @@ struct ChatToolResultTruncationTests {
         }
 
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "limited" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "limited"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted")
@@ -136,7 +144,11 @@ struct ChatToolResultTruncationTests {
         }
 
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "limited" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "limited"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted")
@@ -174,7 +186,11 @@ struct ChatToolResultTruncationTests {
         }
 
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "limited" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "limited"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted")

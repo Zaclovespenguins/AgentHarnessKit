@@ -71,7 +71,9 @@ private func watchUpdates(_ queue: ToolApprovalQueue) async -> (log: SnapshotLog
 /// Polls a condition for up to about two seconds.
 private func poll(_ condition: () async -> Bool) async -> Bool {
     for _ in 0 ..< 1000 {
-        if await condition() { return true }
+        if await condition() {
+            return true
+        }
         try? await Task.sleep(for: .milliseconds(2))
     }
     return await condition()

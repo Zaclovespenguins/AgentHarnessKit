@@ -74,7 +74,9 @@ private let finalizeCall = ToolCall(id: "call_finalize", name: "finalize", argum
 
 private func extractToolContent(_ messages: [ChatMessage]) -> String? {
     for message in messages {
-        if case let .tool(_, _, content) = message { return content }
+        if case let .tool(_, _, content) = message {
+            return content
+        }
     }
     return nil
 }

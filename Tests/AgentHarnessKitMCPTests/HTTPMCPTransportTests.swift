@@ -18,7 +18,9 @@ private func collect(_ transport: HTTPMCPTransport, count: Int) async throws -> 
             var out: [String] = []
             for try await message in transport.messages() {
                 out.append(String(decoding: message, as: UTF8.self))
-                if out.count == count { break }
+                if out.count == count {
+                    break
+                }
             }
             return out
         }
@@ -141,8 +143,12 @@ struct HTTPMCPTransportTests {
     @Test func acceptedAndEmptyResponsesYieldNothing() async throws {
         let server = MockHTTPServer { request in
             let marker = String(decoding: request.body, as: UTF8.self)
-            if marker == "202" { return (202, [:], Data()) }
-            if marker == "empty" { return (200, ["Content-Type": "application/json"], Data()) }
+            if marker == "202" {
+                return (202, [:], Data())
+            }
+            if marker == "empty" {
+                return (200, ["Content-Type": "application/json"], Data())
+            }
             return (200, ["Content-Type": "application/json"], Data("last".utf8))
         }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
@@ -268,7 +274,9 @@ struct HTTPMCPEndToEndTests {
                   let method = object["method"] as? String
             else { return (400, [:], Data()) }
             guard let id = object["id"] as? Int else { return (202, [:], Data()) }
-            if method != "initialize", request.header("Mcp-Session-Id") != "e2e" { return (400, [:], Data()) }
+            if method != "initialize", request.header("Mcp-Session-Id") != "e2e" {
+                return (400, [:], Data())
+            }
             func reply(_ result: JSONValue) throws -> Data {
                 try JSONEncoder().encode(JSONRPCResponse(id: .int(id), result: result, error: nil))
             }

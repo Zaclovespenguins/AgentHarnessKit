@@ -143,7 +143,9 @@ public actor HierarchicalContextStore: ContextStore { // swiftlint:disable:this 
         }
         let existing = state.messages.count
         state.messages += ContextPipeline.assignRefs(Array(messages.dropFirst(overlap)), existingCount: existing)
-        if let usage { state.lastInputTokens = usage.input }
+        if let usage {
+            state.lastInputTokens = usage.input
+        }
         try await persistence.save(sessionID: sessionID, state: state)
     }
 

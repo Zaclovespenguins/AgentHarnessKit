@@ -13,7 +13,11 @@ private func standardHandler(
 ) -> @Sendable (Data) async throws -> Data? {
     { data in
         guard let request = decodeRequest(data) else { return nil }
-        let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+        let idValue: Int = if case let .int(val) = request.id {
+            val
+        } else {
+            0
+        }
         switch request.method {
         case "initialize":
             return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -27,6 +31,7 @@ private func standardHandler(
     }
 }
 
+// swiftlint:disable:next type_body_length
 struct MCPClientTests {
     private func makeInitAndToolsResponses(
         tools: [MCPTestHelpers.MockTool] = []
@@ -59,7 +64,11 @@ struct MCPClientTests {
     func initializeVersionMismatch() async throws {
         let transport = DynamicMCPTransport { data in
             guard let request = decodeRequest(data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             return MCPTestHelpers.encodeResponse(
                 id: idValue,
                 result: MCPTestHelpers.initializeResult(protocolVersion: "1999-01-01")
@@ -104,7 +113,11 @@ struct MCPClientTests {
         let schema = MCPTestHelpers.toolSchema(properties: [:])
         let transport = DynamicMCPTransport { data in
             guard let request = decodeRequest(data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -201,7 +214,11 @@ struct MCPClientTests {
         let transport = DynamicMCPTransport { data in
             guard let request = decodeRequest(data) else { return nil }
             await idCollector.add(request.id)
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -222,7 +239,11 @@ struct MCPClientTests {
     @Test
     func concurrentCallsMatchById() async throws {
         let transport = DynamicMCPTransport(handler: standardHandler { request in
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             guard case let .object(params) = request.params,
                   case let .string(name) = params["name"]
             else { return nil }
@@ -278,7 +299,11 @@ struct MCPClientTests {
     @Test
     func notificationInterleaved() async throws {
         let transport = DynamicMCPTransport(handler: standardHandler { request in
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             return MCPTestHelpers.encodeResponse(
                 id: idValue,
                 result: MCPTestHelpers.callToolResult(text: "result")
@@ -369,7 +394,11 @@ struct MCPClientTests {
         let transport = DynamicMCPTransport { data in
             await dataCollector.add(data)
             guard let request = decodeRequest(data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -399,7 +428,11 @@ struct MCPClientTests {
         let transport = DynamicMCPTransport { data in
             await dataCollector.add(data)
             guard let request = decodeRequest(data) else { return nil }
-            let idValue: Int = if case let .int(value) = request.id { value } else { 0 }
+            let idValue: Int = if case let .int(value) = request.id {
+                value
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -507,7 +540,11 @@ struct MCPClientEdgeCaseTests {
     func malformedToolListMissingName() async throws {
         let transport = DynamicMCPTransport { data in
             guard let request = decodeRequest(data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())

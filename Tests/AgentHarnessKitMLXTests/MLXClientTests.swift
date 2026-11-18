@@ -51,8 +51,12 @@ import Testing
             var text = ""
             var finished = false
             for try await delta in client.stream(messages: history, tools: [], requestContext: nil) {
-                if case let .content(chunk) = delta { text += chunk }
-                if case .finished = delta { finished = true }
+                if case let .content(chunk) = delta {
+                    text += chunk
+                }
+                if case .finished = delta {
+                    finished = true
+                }
             }
             #expect(!text.isEmpty)
             #expect(finished)

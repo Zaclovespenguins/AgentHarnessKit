@@ -10,7 +10,11 @@ struct MCPToolTests {
     ) async throws -> MCPClient {
         let transport = DynamicMCPTransport { data in
             guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -22,7 +26,11 @@ struct MCPToolTests {
                 else { return nil }
                 if let handler = toolCallHandler {
                     let argsValue = params["arguments"]
-                    let argsData = if let argsValue { try JSONEncoder().encode(argsValue) } else { Data("{}".utf8) }
+                    let argsData = if let argsValue {
+                        try JSONEncoder().encode(argsValue)
+                    } else {
+                        Data("{}".utf8)
+                    }
                     let result = try await handler(name, argsData)
                     return MCPTestHelpers.encodeResponse(
                         id: idValue,
@@ -106,7 +114,11 @@ struct MCPToolTests {
     func mcpErrorWrappedAsAgentError() async throws {
         let transport = DynamicMCPTransport { data in
             guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -139,7 +151,11 @@ struct MCPToolTests {
     func cancellationPropagates() async throws {
         let transport = DynamicMCPTransport { data in
             guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -452,7 +468,9 @@ private func callResultToJSONValue(_ result: MCPCallResult) -> JSONValue {
             return .object(["type": .string("resource_link"), "uri": .string(uri), "name": .string(name)])
         case let .embeddedResource(uri, mimeType, content):
             var resource: [String: JSONValue] = ["uri": .string(uri)]
-            if let mimeType { resource["mimeType"] = .string(mimeType) }
+            if let mimeType {
+                resource["mimeType"] = .string(mimeType)
+            }
             switch content {
             case let .text(text): resource["text"] = .string(text)
             case let .blob(data): resource["blob"] = .string(data.base64EncodedString())

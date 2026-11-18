@@ -68,7 +68,9 @@ struct AgentCheckpointingIntegrationTests {
         #expect(ids.count == 1)
         let firstCheckpoint = try await backend.load(#require(ids.first))
         let hasToolMessage = firstCheckpoint.messages.contains { message in
-            if case .tool = message { return true }
+            if case .tool = message {
+                return true
+            }
             return false
         }
         #expect(hasToolMessage)

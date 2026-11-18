@@ -85,7 +85,9 @@ final class MockServer: @unchecked Sendable {
     private func acceptLoop() {
         while true {
             let client = accept(listenFD, nil, nil)
-            if client < 0 { return }
+            if client < 0 {
+                return
+            }
             Thread.detachNewThread { [self] in handle(client) }
         }
     }
@@ -97,7 +99,9 @@ final class MockServer: @unchecked Sendable {
         let sep = Data("\r\n\r\n".utf8)
         while !data.contains(sep) {
             let count = read(sock, &buf, buf.count)
-            if count <= 0 { return }
+            if count <= 0 {
+                return
+            }
             data.append(buf, count: count)
         }
         guard let split = data.range(of: sep) else { return }
@@ -108,7 +112,9 @@ final class MockServer: @unchecked Sendable {
             .flatMap { Int($0.drop { $0 == " " }.prefix { $0.isNumber }) } ?? 0
         while body.count < want {
             let count = read(sock, &buf, buf.count)
-            if count <= 0 { return }
+            if count <= 0 {
+                return
+            }
             body.append(buf, count: count)
         }
         let reply = lock.withLock {
@@ -126,7 +132,9 @@ final class MockServer: @unchecked Sendable {
         }
         guard put(sock, "HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nConnection: close\r\n\r\n")
         else { return }
-        if !stream(reply, to: sock) { lock.withLock { aborted += 1 } }
+        if !stream(reply, to: sock) {
+            lock.withLock { aborted += 1 }
+        }
     }
 
     private func http(_ status: Int, _ body: String) -> String {
@@ -157,13 +165,17 @@ final class MockServer: @unchecked Sendable {
             }
         }
         var message: [String: Any] = ["role": "assistant", "content": content]
-        if !calls.isEmpty { message["tool_calls"] = calls }
+        if !calls.isEmpty {
+            message["tool_calls"] = calls
+        }
         let finish = calls.isEmpty ? "stop" : "tool_calls"
         var object: [String: Any] = [
             "id": "mock-1", "object": "chat.completion", "created": 0, "model": "mock",
             "choices": [["index": 0, "message": message, "finish_reason": finish]],
         ]
-        if let usage { object["usage"] = usage }
+        if let usage {
+            object["usage"] = usage
+        }
         return jsonString(object)
     }
 
@@ -172,7 +184,9 @@ final class MockServer: @unchecked Sendable {
             "id": "mock-1", "object": "chat.completion.chunk", "created": 0, "model": "mock",
             "choices": usage == nil ? [["index": 0, "delta": delta, "finish_reason": finish as Any]] : [],
         ]
-        if let usage { object["usage"] = usage }
+        if let usage {
+            object["usage"] = usage
+        }
         return "data: \(jsonString(object))\n\n"
     }
 
@@ -197,7 +211,9 @@ final class MockServer: @unchecked Sendable {
             }
         }
         guard put(sock, chunk([:], finish: callIndex > 0 ? "tool_calls" : "stop")) else { return false }
-        if let usage, !put(sock, chunk([:], usage: usage)) { return false }
+        if let usage, !put(sock, chunk([:], usage: usage)) {
+            return false
+        }
         return put(sock, "data: [DONE]\n\n")
     }
 
@@ -210,7 +226,9 @@ final class MockServer: @unchecked Sendable {
                 // MSG_NOSIGNAL: a client that cancelled must not SIGPIPE the whole process.
                 let count = bytes.withUnsafeBytes { send(sock, $0.baseAddress!, $0.count, Int32(MSG_NOSIGNAL)) }
             #endif
-            if count <= 0 { return false }
+            if count <= 0 {
+                return false
+            }
             bytes = bytes.dropFirst(count)
         }
         return true

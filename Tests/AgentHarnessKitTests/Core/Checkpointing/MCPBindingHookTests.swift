@@ -85,7 +85,9 @@ struct MCPBindingHookTests {
         for try await event in try await agent.resume(
             from: checkpoint.checkpointID, checkpointer: backend, context: EmptyContext()
         ) {
-            if case .finished = event.kind { sawCompletion = true }
+            if case .finished = event.kind {
+                sawCompletion = true
+            }
         }
         #expect(sawCompletion)
     }

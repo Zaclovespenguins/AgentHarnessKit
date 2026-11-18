@@ -188,7 +188,9 @@ struct AgentResumeSubAgentTests {
         let task = Task {
             do {
                 for try await event in stream {
-                    if case .subAgentCompleted = event.kind { observedCompletion = true }
+                    if case .subAgentCompleted = event.kind {
+                        observedCompletion = true
+                    }
                 }
             } catch is CancellationError {
             } catch {

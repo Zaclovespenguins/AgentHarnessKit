@@ -144,7 +144,9 @@ struct AgentResumeTests {
         )
         let events = try await collect(stream)
         let replayed = events.filter { event in
-            if case .iterationCompleted = event.kind, case .replayed = event.origin { return true }
+            if case .iterationCompleted = event.kind, case .replayed = event.origin {
+                return true
+            }
             return false
         }
         #expect(replayed.count == 1)
@@ -252,7 +254,9 @@ struct AgentResumeTests {
         )
         let events = try await collect(stream)
         let finished = events.last { event in
-            if case .finished = event.kind { return true }
+            if case .finished = event.kind {
+                return true
+            }
             return false
         }
         guard case let .finished(_, _, reason, _) = finished?.kind else {
@@ -283,11 +287,15 @@ struct AgentResumeTests {
         )
         let events = try await collect(stream)
         let replayedIndex = events.firstIndex { event in
-            if case .replayed = event.origin, case .iterationCompleted = event.kind { return true }
+            if case .replayed = event.origin, case .iterationCompleted = event.kind {
+                return true
+            }
             return false
         }
         let finishedIndex = events.firstIndex { event in
-            if case .finished = event.kind { return true }
+            if case .finished = event.kind {
+                return true
+            }
             return false
         }
         #expect(replayedIndex != nil)
@@ -330,7 +338,9 @@ struct AgentResumeTests {
         )
         let events = try await collect(stream)
         let liveIteration = events.last { event in
-            if case .iterationCompleted = event.kind, case .live = event.origin { return true }
+            if case .iterationCompleted = event.kind, case .live = event.origin {
+                return true
+            }
             return false
         }
         guard case let .iterationCompleted(_, iterationNumber, _) = liveIteration?.kind else {

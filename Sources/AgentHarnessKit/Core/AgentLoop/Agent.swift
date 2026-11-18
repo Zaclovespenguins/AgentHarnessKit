@@ -361,7 +361,9 @@ extension Agent {
                 sessionID: sessionID,
                 iterationContext: iterationContext
             )
-            if isFinished { return }
+            if isFinished {
+                return
+            }
         }
 
         finishStreaming(

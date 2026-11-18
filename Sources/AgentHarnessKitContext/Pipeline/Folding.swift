@@ -76,7 +76,9 @@ public extension ContextPipeline {
                     result.append(item)
                     continue
                 }
-                if kept.isEmpty, assistant.content.isEmpty { continue }
+                if kept.isEmpty, assistant.content.isEmpty {
+                    continue
+                }
                 let rebuilt = AssistantMessage(
                     content: assistant.content,
                     toolCalls: kept,
@@ -91,7 +93,9 @@ public extension ContextPipeline {
                     tokens: stored.tokens
                 )))
             case let .tool(id, _, _):
-                if !consumed.contains(id) { result.append(item) }
+                if !consumed.contains(id) {
+                    result.append(item)
+                }
             default:
                 result.append(item)
             }

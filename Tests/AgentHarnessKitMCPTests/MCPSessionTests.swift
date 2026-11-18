@@ -9,7 +9,11 @@ private func makeStandardTransport(
 ) -> DynamicMCPTransport {
     DynamicMCPTransport { data in
         guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-        let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+        let idValue: Int = if case let .int(val) = request.id {
+            val
+        } else {
+            0
+        }
         switch request.method {
         case "initialize":
             return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())

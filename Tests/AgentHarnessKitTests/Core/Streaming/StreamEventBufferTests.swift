@@ -113,7 +113,9 @@ struct StreamEventBufferTests {
         let events = try await collect(buffer.replay(from: 2))
         #expect(events.count == 3)
         let texts = events.compactMap { event -> String? in
-            if case let .delta(text) = event.kind { return text }
+            if case let .delta(text) = event.kind {
+                return text
+            }
             return nil
         }
         #expect(texts == ["event-2", "event-3", "event-4"])
@@ -178,7 +180,9 @@ struct StreamEventBufferTests {
         let events = try await collect(stream)
         #expect(events.count == 3)
         let texts = events.compactMap { event -> String? in
-            if case let .delta(text) = event.kind { return text }
+            if case let .delta(text) = event.kind {
+                return text
+            }
             return nil
         }
         #expect(texts == ["event-0", "event-1", "event-2"])

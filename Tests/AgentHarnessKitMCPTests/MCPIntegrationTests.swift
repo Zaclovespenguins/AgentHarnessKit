@@ -10,7 +10,11 @@ private func makeStandardTransport(
 ) -> DynamicMCPTransport {
     DynamicMCPTransport { data in
         guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-        let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+        let idValue: Int = if case let .int(val) = request.id {
+            val
+        } else {
+            0
+        }
         switch request.method {
         case "initialize":
             return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -103,7 +107,11 @@ struct MCPIntegrationTests {
         let session = MCPSession(configurations: [config]) { _ in
             DynamicMCPTransport { data in
                 guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-                let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+                let idValue: Int = if case let .int(val) = request.id {
+                    val
+                } else {
+                    0
+                }
                 switch request.method {
                 case "initialize":
                     return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -142,7 +150,9 @@ struct MCPIntegrationTests {
 
             let messages = await llm.capturedMessages
             let toolMessage = messages.first { msg in
-                if case .tool = msg { return true }
+                if case .tool = msg {
+                    return true
+                }
                 return false
             }
             guard case let .tool(_, _, content) = toolMessage else {
@@ -232,7 +242,11 @@ struct MCPIntegrationTests {
         let session = MCPSession(configurations: [config]) { _ in
             DynamicMCPTransport { data in
                 guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-                let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+                let idValue: Int = if case let .int(val) = request.id {
+                    val
+                } else {
+                    0
+                }
                 switch request.method {
                 case "initialize":
                     return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
@@ -272,7 +286,11 @@ struct MCPIntegrationTests {
     func invalidJsonFromServer() async throws {
         let transport = DynamicMCPTransport { data in
             guard let request = try? JSONDecoder().decode(JSONRPCRequest.self, from: data) else { return nil }
-            let idValue: Int = if case let .int(val) = request.id { val } else { 0 }
+            let idValue: Int = if case let .int(val) = request.id {
+                val
+            } else {
+                0
+            }
             switch request.method {
             case "initialize":
                 return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())

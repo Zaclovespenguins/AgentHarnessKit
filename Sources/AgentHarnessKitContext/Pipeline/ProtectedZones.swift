@@ -18,7 +18,9 @@ public extension ContextPipeline {
             case .system:
                 protected.insert(stored.ref)
             case let .tool(_, name, _):
-                if ContextToolName.all.contains(name) { protected.insert(stored.ref) }
+                if ContextToolName.all.contains(name) {
+                    protected.insert(stored.ref)
+                }
             case let .assistant(assistant):
                 if assistant.toolCalls.contains(where: { ContextToolName.all.contains($0.name) }) {
                     protected.insert(stored.ref)
@@ -29,8 +31,12 @@ public extension ContextPipeline {
         }
 
         let userRefs = messages.filter { isUser($0.message) }.map(\.ref)
-        if let first = userRefs.first { protected.insert(first) }
-        if let last = userRefs.last { protected.insert(last) }
+        if let first = userRefs.first {
+            protected.insert(first)
+        }
+        if let last = userRefs.last {
+            protected.insert(last)
+        }
 
         var start = messages.count - recentCount(messages, configuration: configuration)
         while start > 0, start < messages.count, isTool(messages[start].message) {
@@ -116,11 +122,15 @@ private func isUser(_ message: ChatMessage) -> Bool {
 }
 
 private func isTool(_ message: ChatMessage) -> Bool {
-    if case .tool = message { return true }
+    if case .tool = message {
+        return true
+    }
     return false
 }
 
 private func hasToolCalls(_ message: ChatMessage) -> Bool {
-    if case let .assistant(assistant) = message { return !assistant.toolCalls.isEmpty }
+    if case let .assistant(assistant) = message {
+        return !assistant.toolCalls.isEmpty
+    }
     return false
 }

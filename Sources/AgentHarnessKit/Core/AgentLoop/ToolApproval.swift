@@ -9,7 +9,9 @@ public enum ToolApprovalPolicy: Sendable, Equatable {
 
 extension ToolApprovalPolicy {
     func requiresApproval(toolName: String, allowlist: Set<String>) -> Bool {
-        if allowlist.contains(toolName) { return false }
+        if allowlist.contains(toolName) {
+            return false
+        }
         switch self {
         case .none: return false
         case .allTools: return true

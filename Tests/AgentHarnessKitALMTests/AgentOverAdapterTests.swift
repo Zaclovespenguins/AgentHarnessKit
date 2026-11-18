@@ -34,7 +34,9 @@ private func awaitPending(_ queue: ToolApprovalQueue, count: Int) async -> [Tool
     let deadline = ContinuousClock.now.advanced(by: .seconds(10))
     while ContinuousClock.now < deadline {
         let pending = await queue.pending()
-        if pending.count == count { return pending }
+        if pending.count == count {
+            return pending
+        }
         try? await Task.sleep(for: .milliseconds(2))
     }
     return await queue.pending()

@@ -44,7 +44,9 @@ final class MockURLProtocol: URLProtocol {
                 headerFields: headers
             )!
             client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-            if !body.isEmpty { client?.urlProtocol(self, didLoad: body) }
+            if !body.isEmpty {
+                client?.urlProtocol(self, didLoad: body)
+            }
             client?.urlProtocolDidFinishLoading(self)
         } catch {
             client?.urlProtocol(self, didFailWithError: error)
@@ -55,7 +57,9 @@ final class MockURLProtocol: URLProtocol {
 
     /// URLSession moves `httpBody` into `httpBodyStream` before a protocol sees it.
     private static func body(of request: URLRequest) -> Data {
-        if let body = request.httpBody { return body }
+        if let body = request.httpBody {
+            return body
+        }
         guard let stream = request.httpBodyStream else { return Data() }
         stream.open(); defer { stream.close() }
         var data = Data()

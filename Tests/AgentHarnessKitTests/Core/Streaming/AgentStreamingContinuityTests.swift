@@ -36,7 +36,9 @@ struct StreamingContinuityTests {
         }
 
         let assistantMessages = finalHistory.compactMap { message -> AssistantMessage? in
-            if case let .assistant(assistant) = message { return assistant }
+            if case let .assistant(assistant) = message {
+                return assistant
+            }
             return nil
         }
 

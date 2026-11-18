@@ -234,8 +234,7 @@ public actor MCPClient {
 
         switch message {
         case let .response(response):
-            guard let responseId = response.id else { return }
-            guard case let .int(id) = responseId else { return }
+            guard let responseId = response.id, case let .int(id) = responseId else { return }
             if let continuation = pendingRequests.removeValue(forKey: id) {
                 timeoutTasks.removeValue(forKey: id)?.cancel()
                 continuation.resume(returning: response)
@@ -278,7 +277,9 @@ public actor MCPClient {
 
         repeat {
             var params: [String: JSONValue] = [:]
-            if let cursor { params["cursor"] = .string(cursor) }
+            if let cursor {
+                params["cursor"] = .string(cursor)
+            }
 
             let response = try await sendRequest(
                 method: "tools/list",

@@ -51,7 +51,9 @@ struct ChatApprovalTests {
         #expect(count == 0)
 
         let requestedApproval = events.contains { event in
-            if case .toolApprovalRequested = event.kind { return true }
+            if case .toolApprovalRequested = event.kind {
+                return true
+            }
             return false
         }
         #expect(!requestedApproval)

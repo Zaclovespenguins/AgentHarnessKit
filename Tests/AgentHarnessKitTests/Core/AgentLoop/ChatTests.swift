@@ -327,7 +327,9 @@ struct ChatTests {
         #expect(events.contains { $0.kind == .delta("Here is my answer.") })
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
         #expect(assistantMessage?.reasoning?.content == "Let me think... Yes, I see.")
@@ -515,13 +517,21 @@ struct ChatStreamingEdgeTests {
         }
 
         let deltaEvents = events.filter {
-            if case .delta = $0.kind { true } else { false }
+            if case .delta = $0.kind {
+                true
+            } else {
+                false
+            }
         }
         #expect(deltaEvents.count == 1)
         #expect(deltaEvents.first?.kind == .delta("Hello world"))
 
         let toolCompletedEvents = events.filter {
-            if case .toolCallCompleted = $0.kind { true } else { false }
+            if case .toolCallCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
         }
         #expect(toolCompletedEvents.isEmpty)
 
@@ -718,7 +728,9 @@ struct ChatAudioStreamingTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
         #expect(assistantMessage?.content == "Spoken response")
@@ -742,7 +754,9 @@ struct ChatAudioStreamingTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
         #expect(assistantMessage?.content == "Text content")
@@ -809,7 +823,13 @@ struct ChatUsageAccountingTests {
         #expect(reason == nil)
         #expect(history.count == 6)
         #expect(history.last == .assistant(AssistantMessage(content: "done", tokenUsage: usages[2])))
-        #expect(events.count(where: { if case .toolCallCompleted = $0.kind { true } else { false } }) == 2)
+        #expect(events.count(where: {
+            if case .toolCallCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
+        }) == 2)
         #expect(await client.allCapturedTools.count == 3)
     }
 }

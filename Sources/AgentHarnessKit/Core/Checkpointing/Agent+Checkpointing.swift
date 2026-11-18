@@ -37,9 +37,9 @@ extension Agent {
     func mcpToolBindings(in messages: [ChatMessage]) -> Set<MCPToolBinding> {
         let participatingNames = Set(messages.flatMap { message -> [String] in
             switch message {
-            case let .assistant(assistant): return assistant.toolCalls.map(\.name)
-            case let .tool(_, name, _): return [name]
-            default: return []
+            case let .assistant(assistant): assistant.toolCalls.map(\.name)
+            case let .tool(_, name, _): [name]
+            default: []
             }
         })
         return Set(tools.compactMap { tool in

@@ -136,7 +136,13 @@ struct PartialTurnRecorderTests {
         let snapshot = recorder.snapshot()
         try snapshot.validateForLLMRequest()
         #expect(snapshot == [.user("Go"), .assistant(AssistantMessage(content: "done"))])
-        #expect(!snapshot.contains { if case .tool = $0 { true } else { false } })
+        #expect(!snapshot.contains {
+            if case .tool = $0 {
+                true
+            } else {
+                false
+            }
+        })
     }
 
     @Test
@@ -154,7 +160,13 @@ struct PartialTurnRecorderTests {
         ]
         let expected = try committed.sanitizedTerminalHistory()
         #expect(snapshot == expected)
-        #expect(!snapshot.contains { if case .tool = $0 { true } else { false } })
+        #expect(!snapshot.contains {
+            if case .tool = $0 {
+                true
+            } else {
+                false
+            }
+        })
     }
 
     @Test

@@ -10,7 +10,9 @@ import Testing
     /// True only on an OS 26+ device with Apple Intelligence enabled and the model downloaded.
     private let onDeviceModelAvailable: Bool = {
         guard #available(macOS 26.0, iOS 26.0, visionOS 26.0, *) else { return false }
-        if case .available = SystemLanguageModel().availability { return true }
+        if case .available = SystemLanguageModel().availability {
+            return true
+        }
         return false
     }()
 

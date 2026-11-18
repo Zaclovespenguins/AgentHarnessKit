@@ -18,7 +18,7 @@ private struct NoopParams: Codable, SchemaProviding {
 private struct NoopOutput: Codable {}
 
 struct SubAgentStreamingLifecycleTests {
-    @Test
+    @Test // swiftlint:disable:next function_body_length
     func emitsLifecycleEvents() async throws {
         let childDeltas: [StreamDelta] = [
             .content("child thinking..."),
@@ -64,10 +64,8 @@ struct SubAgentStreamingLifecycleTests {
         #expect(started)
 
         let hasChildDelta = events.contains { event in
-            if case let .subAgentEvent(id, name, inner) = event.kind {
-                if case .delta("child thinking...") = inner.kind {
-                    return id == "call_sub" && name == "research"
-                }
+            if case let .subAgentEvent(id, name, inner) = event.kind, case .delta("child thinking...") = inner.kind {
+                return id == "call_sub" && name == "research"
             }
             return false
         }
@@ -91,9 +89,21 @@ struct SubAgentStreamingLifecycleTests {
         }
         #expect(toolCompleted)
 
-        let startedIdx = events.firstIndex { if case .subAgentStarted = $0.kind { return true }; return false }
-        let completedIdx = events.firstIndex { if case .subAgentCompleted = $0.kind { return true }; return false }
-        let toolCompletedIdx = events.firstIndex { if case .toolCallCompleted = $0.kind { return true }; return false }
+        let startedIdx = events.firstIndex {
+            if case .subAgentStarted = $0.kind {
+                return true
+            }; return false
+        }
+        let completedIdx = events.firstIndex {
+            if case .subAgentCompleted = $0.kind {
+                return true
+            }; return false
+        }
+        let toolCompletedIdx = events.firstIndex {
+            if case .toolCallCompleted = $0.kind {
+                return true
+            }; return false
+        }
         #expect(try #require(startedIdx) < #require(completedIdx))
         #expect(try #require(completedIdx) < #require(toolCompletedIdx))
     }
@@ -138,7 +148,9 @@ struct SubAgentStreamingLifecycleTests {
         let endedAt = Date()
 
         #expect(events.contains {
-            if case .subAgentEvent = $0.kind { return true }
+            if case .subAgentEvent = $0.kind {
+                return true
+            }
             return false
         })
         StreamEventInvariantAssertions.assertStage1RuntimeInvariants(
@@ -240,7 +252,9 @@ struct SubAgentStreamingLifecycleTests {
         }
 
         let completedCount = events.count(where: { event in
-            if case let .subAgentCompleted(_, _, result) = event.kind { return result.isError }
+            if case let .subAgentCompleted(_, _, result) = event.kind {
+                return result.isError
+            }
             return false
         })
         #expect(completedCount == 1)
@@ -553,16 +567,18 @@ struct SubAgentNestingTests {
         }
 
         let outerStarted = events.contains { event in
-            if case let .subAgentStarted(_, name) = event.kind { return name == "outer" }
+            if case let .subAgentStarted(_, name) = event.kind {
+                return name == "outer"
+            }
             return false
         }
         #expect(outerStarted)
 
         let innerNestedInOuter = events.contains { event in
-            if case let .subAgentEvent(_, outerName, innerEvent) = event.kind, outerName == "outer" {
-                if case let .subAgentEvent(_, innerName, deepEvent) = innerEvent.kind, innerName == "inner" {
-                    if case .delta("inner working") = deepEvent.kind { return true }
-                }
+            if case let .subAgentEvent(_, outerName, innerEvent) = event.kind, outerName == "outer",
+               case let .subAgentEvent(_, innerName, deepEvent) = innerEvent.kind, innerName == "inner",
+               case .delta("inner working") = deepEvent.kind {
+                return true
             }
             return false
         }
@@ -689,10 +705,14 @@ struct SubAgentCancellationTests {
 
         for _ in 0 ..< 50 {
             let started = await collector.events.contains { event in
-                if case .subAgentStarted = event.kind { return true }
+                if case .subAgentStarted = event.kind {
+                    return true
+                }
                 return false
             }
-            if started { break }
+            if started {
+                break
+            }
             try await Task.sleep(for: .milliseconds(50))
         }
 
@@ -701,7 +721,9 @@ struct SubAgentCancellationTests {
 
         let events = await collector.events
         #expect(!events.contains { event in
-            if case .finished = event.kind { return true }
+            if case .finished = event.kind {
+                return true
+            }
             return false
         })
 
@@ -712,7 +734,11 @@ struct SubAgentCancellationTests {
             return false
         })
 
-        #expect(!events.contains { if case .subAgentCompleted = $0.kind { return true }; return false })
+        #expect(!events.contains {
+            if case .subAgentCompleted = $0.kind {
+                return true
+            }; return false
+        })
     }
 }
 

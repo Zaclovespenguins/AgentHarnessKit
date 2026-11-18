@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 @testable import AgentHarnessKit
 import Foundation
 import Testing
@@ -269,10 +270,8 @@ struct AgentStreamingTests {
 
         var foundErrorResult = false
         for try await event in agent.stream(userMessage: "Fail", context: EmptyContext()) {
-            if case let .toolCallCompleted(_, name, result) = event.kind {
-                if name == "failing", result.isError {
-                    foundErrorResult = true
-                }
+            if case let .toolCallCompleted(_, name, result) = event.kind, name == "failing", result.isError {
+                foundErrorResult = true
             }
         }
 
@@ -532,11 +531,15 @@ struct StreamingReasoningTests {
         }
 
         let reasoningEvents = events.compactMap { event -> String? in
-            if case let .reasoningDelta(text) = event.kind { return text }
+            if case let .reasoningDelta(text) = event.kind {
+                return text
+            }
             return nil
         }
         let contentEvents = events.compactMap { event -> String? in
-            if case let .delta(text) = event.kind { return text }
+            if case let .delta(text) = event.kind {
+                return text
+            }
             return nil
         }
 
@@ -565,7 +568,9 @@ struct StreamingReasoningTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
 
@@ -595,7 +600,9 @@ struct StreamingReasoningTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
 
@@ -644,7 +651,9 @@ struct StreamingReasoningTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
 
@@ -685,7 +694,9 @@ struct StreamingReasoningTests {
         let secondCallMessages = allCalls[1]
 
         let assistantInHistory = secondCallMessages.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
 
@@ -807,7 +818,11 @@ struct AgentIterationCompletedTests {
         }
 
         let iterationEvents = events.filter {
-            if case .iterationCompleted = $0.kind { true } else { false }
+            if case .iterationCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
         }
         #expect(iterationEvents.count == 1)
         #expect(iterationEvents.first?.origin == .live)
@@ -992,7 +1007,9 @@ struct AgentAudioStreamingTests {
         }
 
         let assistantMessage = finalHistory.compactMap { msg -> AssistantMessage? in
-            if case let .assistant(assistant) = msg { return assistant }
+            if case let .assistant(assistant) = msg {
+                return assistant
+            }
             return nil
         }.first
         #expect(assistantMessage?.content == "Response\n\nDone")

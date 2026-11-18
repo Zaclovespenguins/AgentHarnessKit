@@ -15,7 +15,9 @@
         ]
         for directory in candidates {
             let url = directory.appending(path: "CheckpointResumeProbe")
-            if FileManager.default.isExecutableFile(atPath: url.path) { return url }
+            if FileManager.default.isExecutableFile(atPath: url.path) {
+                return url
+            }
         }
         Issue.record("CheckpointResumeProbe not found next to the test bundle: \(candidates.map(\.path))")
         throw CancellationError()
