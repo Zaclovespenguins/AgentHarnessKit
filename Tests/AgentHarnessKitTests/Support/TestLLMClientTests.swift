@@ -226,6 +226,7 @@ struct JSONSchemaWalkerTests {
 
 // MARK: - Client Behavior Tests
 
+// swiftlint:disable:next type_body_length
 struct TestLLMClientTests {
     @Test
     func firstCallInvokesAllTools() async throws {
@@ -607,7 +608,9 @@ struct TestLLMClientTests {
             events.append(event)
         }
         let finished = events.compactMap { event -> TokenUsageTotals? in
-            if case let .finished(usage, _, _, _) = event.kind { return usage }
+            if case let .finished(usage, _, _, _) = event.kind {
+                return usage
+            }
             return nil
         }
         #expect(!finished.isEmpty)
@@ -637,7 +640,9 @@ struct TestLLMClientTests {
         }
         #expect(toolCompleted != nil)
         let finished = events.compactMap { event -> TokenUsageTotals? in
-            if case let .finished(usage, _, _, _) = event.kind { return usage }
+            if case let .finished(usage, _, _, _) = event.kind {
+                return usage
+            }
             return nil
         }
         #expect(!finished.isEmpty)

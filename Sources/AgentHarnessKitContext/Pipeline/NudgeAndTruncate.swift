@@ -60,7 +60,9 @@ public extension ContextPipeline {
 
         var result = items
         for index in result.indices {
-            if total(result) <= limit { return result }
+            if total(result) <= limit {
+                return result
+            }
             guard case let .message(stored) = result[index], !protected.contains(stored.ref),
                   case let .tool(id, name, _) = stored.message, stored.tokens > 64 else { continue }
             let text = "[Output truncated to fit the context window: \(stored.tokens) tokens. "
@@ -72,7 +74,9 @@ public extension ContextPipeline {
                 tokens: ContextTokens.estimate(text)
             ))
         }
-        if total(result) <= limit { return result }
+        if total(result) <= limit {
+            return result
+        }
 
         let firstUser = result.firstIndex { item in
             guard case let .message(stored) = item else { return false }
@@ -80,7 +84,9 @@ public extension ContextPipeline {
         }
         func droppable(_ index: Int) -> Bool {
             guard case let .message(stored) = result[index] else { return false }
-            if case .system = stored.message { return false }
+            if case .system = stored.message {
+                return false
+            }
             return !protected.contains(stored.ref) && index != firstUser
         }
 

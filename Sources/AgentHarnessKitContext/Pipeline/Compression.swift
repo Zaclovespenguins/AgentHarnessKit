@@ -120,13 +120,13 @@ public extension ContextPipeline {
             let splitCall = messages.filter { span.contains($0.ref.ordinal) }.lazy.compactMap { stored -> String? in
                 switch stored.message {
                 case let .assistant(assistant):
-                    return assistant.toolCalls.map(\.id).first { id in
+                    assistant.toolCalls.map(\.id).first { id in
                         resultOwner[id].map { !span.contains($0.ordinal) } ?? false
                     }
                 case let .tool(id, _, _):
-                    return callOwner[id].map { !span.contains($0.ordinal) } == true ? id : nil
+                    callOwner[id].map { !span.contains($0.ordinal) } == true ? id : nil
                 default:
-                    return nil
+                    nil
                 }
             }.first
             if let splitCall {

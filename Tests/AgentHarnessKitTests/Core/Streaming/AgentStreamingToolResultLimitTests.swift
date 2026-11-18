@@ -70,7 +70,11 @@ struct AgentStreamingToolResultLimitTests {
             maxCharacters: 50
         )
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "echo" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "echo"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted event")
@@ -121,7 +125,11 @@ struct AgentStreamingToolResultLimitTests {
 
         let expected = try encodedEchoOutput(longOutput)
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "echo" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "echo"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted event")
@@ -164,7 +172,11 @@ struct AgentStreamingToolResultLimitTests {
 
         let expected = try encodedEchoOutput(longOutput)
         guard case let .toolCallCompleted(_, _, result) = events.first(where: { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "finalize" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "finalize"
+            } else {
+                false
+            }
         })?.kind else {
             Issue.record("Expected toolCallCompleted event")
             return
@@ -202,7 +214,11 @@ struct AgentStreamingToolResultLimitTests {
             RejectingCompletionTool.rejection, maxCharacters: 50
         )
         guard case let .toolCallCompleted(_, _, result) = events.first(where: { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "finalize" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "finalize"
+            } else {
+                false
+            }
         })?.kind else {
             Issue.record("Expected toolCallCompleted event")
             return

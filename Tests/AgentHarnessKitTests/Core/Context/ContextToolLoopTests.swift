@@ -112,7 +112,9 @@ struct ContextToolLoopTests {
         let executed = await store.executed
         #expect(executed.map(\.call.id) == ["k1", "k2"])
         let toolMessages = result.history.compactMap { message -> String? in
-            if case let .tool(id, name, content) = message { return "\(id) \(name) \(content)" }
+            if case let .tool(id, name, content) = message {
+                return "\(id) \(name) \(content)"
+            }
             return nil
         }
         #expect(toolMessages == ["k1 compress folded b0", "k2 context_status bad range"])
@@ -130,7 +132,9 @@ struct ContextToolLoopTests {
         let result = try await agent.run(userMessage: "Go", context: EmptyContext())
         #expect(await client.toolNames.first == ["finish"])
         let toolContent = result.history.compactMap { message -> String? in
-            if case let .tool(_, _, content) = message { return content }
+            if case let .tool(_, _, content) = message {
+                return content
+            }
             return nil
         }
         #expect(toolContent.count == 1)

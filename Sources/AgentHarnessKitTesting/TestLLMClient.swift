@@ -127,7 +127,9 @@ private extension TestLLMClient {
 
     func turnIndex(_ messages: [ChatMessage]) -> Int {
         messages.count {
-            if case .assistant = $0 { return true }
+            if case .assistant = $0 {
+                return true
+            }
             return false
         }
     }
@@ -165,13 +167,19 @@ private extension TestLLMClient {
     }
 
     func isUserMessage(_ message: ChatMessage) -> Bool {
-        if case .user = message { return true }
-        if case .userMultimodal = message { return true }
+        if case .user = message {
+            return true
+        }
+        if case .userMultimodal = message {
+            return true
+        }
         return false
     }
 
     func isToolResult(_ message: ChatMessage) -> Bool {
-        if case .tool = message { return true }
+        if case .tool = message {
+            return true
+        }
         return false
     }
 
@@ -217,7 +225,9 @@ private enum SchemaWalker {
             return .object(object)
         case let .anyOf(schemas):
             let nonNullSchemas = schemas.filter {
-                if case .null = $0 { return false }
+                if case .null = $0 {
+                    return false
+                }
                 return true
             }
             guard !nonNullSchemas.isEmpty else { return .null }

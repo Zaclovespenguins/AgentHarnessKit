@@ -25,10 +25,10 @@ jobs:
       # and the tools on every run. Keep these tags in sync with Mintfile.
       - name: SwiftFormat
         run: |
-          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/nicklockwood/swiftformat:0.60.1 --lint .
+          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/nicklockwood/swiftformat:0.64.7 --lint .
       - name: SwiftLint
         run: |
-          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/realm/swiftlint:0.63.0 lint --strict
+          docker run --rm -v "$PWD":/work:ro -w /work ghcr.io/realm/swiftlint:0.65.1 lint --strict
       - name: Release acceptance checks
         run: python3 scripts/phase8_acceptance.py
 

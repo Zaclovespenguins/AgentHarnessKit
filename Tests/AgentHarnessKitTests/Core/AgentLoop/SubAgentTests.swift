@@ -699,7 +699,11 @@ struct SubAgentInheritParentMessagesTests {
             return
         }
         #expect(taskMsg == "task")
-        let toolMessages = captured.filter { if case .tool = $0 { return true }; return false }
+        let toolMessages = captured.filter {
+            if case .tool = $0 {
+                return true
+            }; return false
+        }
         #expect(toolMessages.count == 2)
     }
 

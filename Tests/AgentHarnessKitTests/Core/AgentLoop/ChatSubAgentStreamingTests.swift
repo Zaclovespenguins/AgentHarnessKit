@@ -122,8 +122,16 @@ struct ChatSubAgentStreamingLifecycleTests {
         }
         let endedAt = Date()
 
-        #expect(events.contains { if case .subAgentStarted = $0.kind { return true }; return false })
-        #expect(events.contains { if case .subAgentCompleted = $0.kind { return true }; return false })
+        #expect(events.contains {
+            if case .subAgentStarted = $0.kind {
+                return true
+            }; return false
+        })
+        #expect(events.contains {
+            if case .subAgentCompleted = $0.kind {
+                return true
+            }; return false
+        })
         StreamEventInvariantAssertions.assertStage1RuntimeInvariants(
             events,
             startedAt: startedAt,
@@ -256,9 +264,21 @@ struct ChatSubAgentApprovalStreamingTests {
             events.append(event)
         }
 
-        #expect(!events.contains { if case .subAgentStarted = $0.kind { return true }; return false })
-        #expect(!events.contains { if case .subAgentEvent = $0.kind { return true }; return false })
-        #expect(!events.contains { if case .subAgentCompleted = $0.kind { return true }; return false })
+        #expect(!events.contains {
+            if case .subAgentStarted = $0.kind {
+                return true
+            }; return false
+        })
+        #expect(!events.contains {
+            if case .subAgentEvent = $0.kind {
+                return true
+            }; return false
+        })
+        #expect(!events.contains {
+            if case .subAgentCompleted = $0.kind {
+                return true
+            }; return false
+        })
 
         let deniedResult = events.contains { event in
             if case let .toolCallCompleted(id, name, result) = event.kind {
@@ -355,10 +375,14 @@ struct ChatSubAgentFailureTests {
 
         for _ in 0 ..< 50 {
             let started = await collector.events.contains { event in
-                if case .subAgentStarted = event.kind { return true }
+                if case .subAgentStarted = event.kind {
+                    return true
+                }
                 return false
             }
-            if started { break }
+            if started {
+                break
+            }
             try await Task.sleep(for: .milliseconds(50))
         }
 
@@ -372,8 +396,16 @@ struct ChatSubAgentFailureTests {
             }
             return false
         })
-        #expect(!events.contains { if case .subAgentCompleted = $0.kind { return true }; return false })
-        #expect(!events.contains { if case .finished = $0.kind { return true }; return false })
+        #expect(!events.contains {
+            if case .subAgentCompleted = $0.kind {
+                return true
+            }; return false
+        })
+        #expect(!events.contains {
+            if case .finished = $0.kind {
+                return true
+            }; return false
+        })
     }
 
     @Test

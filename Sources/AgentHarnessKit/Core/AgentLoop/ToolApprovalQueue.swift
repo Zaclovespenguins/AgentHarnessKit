@@ -149,7 +149,9 @@ private actor ToolApprovalQueueStore {
     }
 
     func addSubscriber(_ id: UUID, _ continuation: AsyncStream<[ToolApprovalRequest]>.Continuation) {
-        if case .terminated = continuation.yield(snapshot()) { return }
+        if case .terminated = continuation.yield(snapshot()) {
+            return
+        }
         subscribers[id] = continuation
     }
 

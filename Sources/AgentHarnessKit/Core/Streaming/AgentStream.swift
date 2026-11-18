@@ -121,11 +121,15 @@ public struct ToolCallInfo: Sendable, Identifiable {
             generation: UInt64,
             stream: AsyncThrowingStream<StreamEvent, Error>
         ) async {
-            if let buffer { await buffer.clear() }
+            if let buffer {
+                await buffer.clear()
+            }
             do {
                 for try await event in stream {
                     guard generation == sendGeneration else { continue }
-                    if let buffer { await buffer.record(event) }
+                    if let buffer {
+                        await buffer.record(event)
+                    }
                     guard generation == sendGeneration else { continue }
                     handle(event)
                 }

@@ -15,7 +15,11 @@ private func collect(_ stream: AsyncThrowingStream<StreamDelta, Error>) async th
 }
 
 private func contentText(_ deltas: [StreamDelta]) -> String {
-    deltas.reduce(into: "") { if case let .content(text) = $1 { $0 += text } }
+    deltas.reduce(into: "") {
+        if case let .content(text) = $1 {
+            $0 += text
+        }
+    }
 }
 
 private func roles(_ body: [String: Any]) -> [String] {
@@ -188,9 +192,21 @@ private func roles(_ body: [String: Any]) -> [String] {
                        .usage(input: 12, output: 11), delayMs: 20)
         let deltas = try await collect(mockClient(server).stream(messages: history, tools: []))
         #expect(contentText(deltas) == words.joined())
-        #expect(deltas.count(where: { if case .content = $0 { true } else { false } }) > 2)
+        #expect(deltas.count(where: {
+            if case .content = $0 {
+                true
+            } else {
+                false
+            }
+        }) > 2)
         #expect(deltas.last == .finished(usage: TokenUsage(input: 12, output: 11)))
-        #expect(deltas.count(where: { if case .finished = $0 { true } else { false } }) == 1)
+        #expect(deltas.count(where: {
+            if case .finished = $0 {
+                true
+            } else {
+                false
+            }
+        }) == 1)
         #expect(server.requestCount == 1)
         #expect(server.requestJSON(0)["stream"] as? Bool == true)
     }
@@ -203,7 +219,13 @@ private func roles(_ body: [String: Any]) -> [String] {
             .usage(input: 20, output: 5)
         )
         let deltas = try await collect(mockClient(server).stream(messages: history, tools: [addTool]))
-        let starts = deltas.filter { if case .toolCallStart = $0 { true } else { false } }
+        let starts = deltas.filter {
+            if case .toolCallStart = $0 {
+                true
+            } else {
+                false
+            }
+        }
         #expect(starts == [
             .toolCallStart(index: 0, id: "call_1", name: "add", kind: .function),
             .toolCallStart(index: 1, id: "call_2", name: "add", kind: .function),
@@ -260,7 +282,9 @@ private func roles(_ body: [String: Any]) -> [String] {
         task.cancel()
         let result = await task.result
         #expect(ContinuousClock.now - start < .milliseconds(500))
-        if case let .success(count) = result { #expect(count < 30) }
+        if case let .success(count) = result {
+            #expect(count < 30)
+        }
         // The mock notices on its next write (100ms tick).
         try await Task.sleep(for: .milliseconds(500))
         #expect(server.abortedStreams == 1)
@@ -283,7 +307,13 @@ private func roles(_ body: [String: Any]) -> [String] {
             Issue.record("expected finished last")
             return
         }
-        #expect(!elements.contains { if case .finalizedContinuity = $0 { true } else { false } })
+        #expect(!elements.contains {
+            if case .finalizedContinuity = $0 {
+                true
+            } else {
+                false
+            }
+        })
     }
 }
 

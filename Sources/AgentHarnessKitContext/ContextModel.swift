@@ -244,7 +244,9 @@ public enum ContextTokens {
         switch message {
         case let .userMultimodal(parts):
             parts.reduce(0) { total, part in
-                if case let .text(text) = part { return total + estimate(text) }
+                if case let .text(text) = part {
+                    return total + estimate(text)
+                }
                 return total + 256
             }
         default:
@@ -258,7 +260,13 @@ public enum ContextTokens {
         case let .system(text), let .user(text):
             text
         case let .userMultimodal(parts):
-            parts.compactMap { if case let .text(text) = $0 { text } else { nil } }.joined(separator: "\n")
+            parts.compactMap {
+                if case let .text(text) = $0 {
+                    text
+                } else {
+                    nil
+                }
+            }.joined(separator: "\n")
         case let .assistant(assistant):
             ([assistant.content] + assistant.toolCalls.map { "\($0.name) \($0.arguments)" })
                 .filter { !$0.isEmpty }.joined(separator: "\n")

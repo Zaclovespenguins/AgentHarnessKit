@@ -247,11 +247,15 @@ struct AgentStreamResumeObserverTests {
 
         let events = try await collect(stream.replay(from: 0))
         let replayedIndex = events.firstIndex { event in
-            if case .replayed = event.origin, case .iterationCompleted = event.kind { return true }
+            if case .replayed = event.origin, case .iterationCompleted = event.kind {
+                return true
+            }
             return false
         }
         let liveFinishedIndex = events.firstIndex { event in
-            if case .finished = event.kind, event.origin == .live { return true }
+            if case .finished = event.kind, event.origin == .live {
+                return true
+            }
             return false
         }
         #expect(replayedIndex != nil)
@@ -300,7 +304,9 @@ struct AgentStreamResumeObserverTests {
             Issue.record("Expected first buffered event to be replayed iterationCompleted")
         }
         #expect(events.contains { event in
-            if case .finished = event.kind, event.origin == .live { return true }
+            if case .finished = event.kind, event.origin == .live {
+                return true
+            }
             return false
         })
     }

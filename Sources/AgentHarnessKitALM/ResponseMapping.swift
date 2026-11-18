@@ -27,8 +27,13 @@ enum ResponseMapping {
         entries: [Transcript.Entry],
         substrate: ReplaySubstrate?
     ) throws -> AssistantContinuity? {
-        guard let substrate else { return nil }
-        guard entries.contains(where: { if case .reasoning = $0 { true } else { false } }) else {
+        guard let substrate, entries.contains(where: {
+            if case .reasoning = $0 {
+                true
+            } else {
+                false
+            }
+        }) else {
             return nil
         }
         let data: Data

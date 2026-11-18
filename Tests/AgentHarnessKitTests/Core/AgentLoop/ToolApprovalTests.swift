@@ -143,7 +143,9 @@ struct ToolApprovalAgentTests {
         #expect(try requireContent(result) == "denied")
         let capturedMessages = await client.capturedMessages
         let toolMessages = capturedMessages.filter {
-            if case .tool = $0 { return true }
+            if case .tool = $0 {
+                return true
+            }
             return false
         }
         #expect(toolMessages.count == 1)
@@ -174,7 +176,9 @@ struct ToolApprovalAgentTests {
         )
         let capturedMessages = await client.capturedMessages
         let toolMessages = capturedMessages.filter {
-            if case .tool = $0 { return true }
+            if case .tool = $0 {
+                return true
+            }
             return false
         }
         #expect(toolMessages.count == 1)
@@ -237,7 +241,9 @@ struct ToolApprovalAgentTests {
         )
         let capturedMessages = await client.capturedMessages
         let toolMessages = capturedMessages.filter {
-            if case .tool = $0 { return true }
+            if case .tool = $0 {
+                return true
+            }
             return false
         }
         #expect(toolMessages.count == 1)
@@ -352,7 +358,9 @@ struct ToolApprovalAgentTests {
         let count = await counter.requestCount
         #expect(count == 0)
         let toolMessages = await client.capturedMessages.filter {
-            if case .tool = $0 { return true }
+            if case .tool = $0 {
+                return true
+            }
             return false
         }
         #expect(toolMessages.count == 1)
@@ -455,11 +463,15 @@ struct ToolApprovalStreamingTests {
         }
 
         let approvalRequested = events.contains {
-            if case .toolApprovalRequested = $0.kind { return true }
+            if case .toolApprovalRequested = $0.kind {
+                return true
+            }
             return false
         }
         let approvalResolved = events.contains {
-            if case .toolApprovalResolved = $0.kind { return true }
+            if case .toolApprovalResolved = $0.kind {
+                return true
+            }
             return false
         }
         #expect(approvalRequested)
@@ -527,7 +539,11 @@ struct ToolApprovalStreamingTests {
 
         let expected = ToolResultTruncation.truncateToolResult(denialReason, maxCharacters: 50)
         let toolCompleted = events.first { event in
-            if case let .toolCallCompleted(_, name, _) = event.kind { name == "echo" } else { false }
+            if case let .toolCallCompleted(_, name, _) = event.kind {
+                name == "echo"
+            } else {
+                false
+            }
         }
         guard case let .toolCallCompleted(_, _, result) = toolCompleted?.kind else {
             Issue.record("Expected toolCallCompleted event")
@@ -611,7 +627,9 @@ struct ToolApprovalOrderingTests {
         )
         let capturedMessages = await client.capturedMessages
         let toolMessages = capturedMessages.compactMap { msg -> (String, String)? in
-            if case let .tool(_, name, content) = msg { return (name, content) }
+            if case let .tool(_, name, content) = msg {
+                return (name, content)
+            }
             return nil
         }
         #expect(toolMessages.count == 2)

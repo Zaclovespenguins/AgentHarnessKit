@@ -71,7 +71,9 @@ struct AgentContentOnlyRunTests {
 
         let secondTurnMessages = await client.capturedGenerateMessages[1]
         let hasNoopResult = secondTurnMessages.contains { message in
-            if case let .tool(id, name, _) = message { return id == "call_1" && name == "noop" }
+            if case let .tool(id, name, _) = message {
+                return id == "call_1" && name == "noop"
+            }
             return false
         }
         #expect(hasNoopResult)
@@ -165,7 +167,13 @@ struct AgentContentOnlyStreamTests {
         }
         #expect(content == "The answer is 42.")
         #expect(reason == .completed)
-        #expect(events.count { if case .iterationCompleted = $0.kind { true } else { false } } == 1)
+        #expect(events.count {
+            if case .iterationCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
+        } == 1)
     }
 
     @Test

@@ -115,9 +115,13 @@ import Foundation
 
             try? stdinPipe?.fileHandleForWriting.close()
 
-            if await Self.waitForExit(process, within: .seconds(2)) { return }
+            if await Self.waitForExit(process, within: .seconds(2)) {
+                return
+            }
             process.terminate()
-            if await Self.waitForExit(process, within: .seconds(3)) { return }
+            if await Self.waitForExit(process, within: .seconds(3)) {
+                return
+            }
             kill(process.processIdentifier, SIGKILL)
             // Poll rather than waitUntilExit(), which would block a cooperative-pool thread.
             _ = await Self.waitForExit(process, within: nil)
@@ -127,7 +131,9 @@ import Foundation
         private static func waitForExit(_ process: Process, within limit: Duration?) async -> Bool {
             let deadline = limit.map { ContinuousClock.now.advanced(by: $0) }
             while process.isRunning {
-                if let deadline, ContinuousClock.now >= deadline { return false }
+                if let deadline, ContinuousClock.now >= deadline {
+                    return false
+                }
                 try? await Task.sleep(for: .milliseconds(10))
             }
             return true

@@ -21,7 +21,9 @@ public actor InMemoryCheckpointer: AgentCheckpointer {
         storage.values
             .filter { $0.sessionID == session }
             .sorted { lhs, rhs in
-                if lhs.iteration != rhs.iteration { return lhs.iteration < rhs.iteration }
+                if lhs.iteration != rhs.iteration {
+                    return lhs.iteration < rhs.iteration
+                }
                 return lhs.timestamp < rhs.timestamp
             }
             .map(\.checkpointID)

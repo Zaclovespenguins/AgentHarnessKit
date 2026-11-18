@@ -43,7 +43,9 @@ private func fakeServer(
         guard let id = message.id, let method = message.method else { return nil }
         switch method {
         case "initialize":
-            if failInitialize { throw MCPError.connectionFailed("boom") }
+            if failInitialize {
+                throw MCPError.connectionFailed("boom")
+            }
             return MCPTestHelpers.encodeResponse(
                 id: id, result: MCPTestHelpers.initializeResult(protocolVersion: version)
             )

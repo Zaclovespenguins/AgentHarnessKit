@@ -60,11 +60,19 @@ struct SubAgentRunIdentityTests {
         var nestedRunIDs = Set<RunID>()
         var parentRunIDs = Set<RunID>()
         for try await event in parentAgent.stream(userMessage: "Go", context: ctx) {
-            if let parentSession = event.sessionID { parentSessionIDs.insert(parentSession) }
-            if let parentRun = event.runID { parentRunIDs.insert(parentRun) }
+            if let parentSession = event.sessionID {
+                parentSessionIDs.insert(parentSession)
+            }
+            if let parentRun = event.runID {
+                parentRunIDs.insert(parentRun)
+            }
             if case let .subAgentEvent(_, _, nested) = event.kind {
-                if let nestedSession = nested.sessionID { nestedSessionIDs.insert(nestedSession) }
-                if let nestedRun = nested.runID { nestedRunIDs.insert(nestedRun) }
+                if let nestedSession = nested.sessionID {
+                    nestedSessionIDs.insert(nestedSession)
+                }
+                if let nestedRun = nested.runID {
+                    nestedRunIDs.insert(nestedRun)
+                }
             }
         }
 
@@ -89,9 +97,11 @@ struct SubAgentRunIdentityTests {
         var topLevelRunIDs = Set<RunID>()
         for try await event in parentAgent.stream(userMessage: "Go", context: ctx) {
             if case .subAgentEvent = event.kind {
-                if let runID = event.runID { wrapperRunIDs.insert(runID) }
-            } else if case .iterationCompleted = event.kind {
-                if let runID = event.runID { topLevelRunIDs.insert(runID) }
+                if let runID = event.runID {
+                    wrapperRunIDs.insert(runID)
+                }
+            } else if case .iterationCompleted = event.kind, let runID = event.runID {
+                topLevelRunIDs.insert(runID)
             }
         }
 

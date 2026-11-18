@@ -338,12 +338,8 @@ extension StreamEvent: Codable {
               bytes[13] == UInt8(ascii: ":"),
               bytes[16] == UInt8(ascii: ":"),
               bytes[19] == UInt8(ascii: "."),
-              bytes[23] == UInt8(ascii: "Z")
-        else {
-            return nil
-        }
-
-        guard let year = parseInteger(bytes, in: 0 ..< 4),
+              bytes[23] == UInt8(ascii: "Z"),
+              let year = parseInteger(bytes, in: 0 ..< 4),
               let month = parseInteger(bytes, in: 5 ..< 7),
               let day = parseInteger(bytes, in: 8 ..< 10),
               let hour = parseInteger(bytes, in: 11 ..< 13),

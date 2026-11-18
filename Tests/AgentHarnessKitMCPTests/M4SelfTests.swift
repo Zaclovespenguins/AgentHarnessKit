@@ -133,7 +133,9 @@ struct M4SelfTests {
     /// Point 3: a 404 clears the stored session id, so the next request starts without it.
     @Test func notFoundClearsSessionID() async throws {
         let server = MockHTTPServer { request in
-            if request.body == payload("expire") { return (404, [:], Data()) }
+            if request.body == payload("expire") {
+                return (404, [:], Data())
+            }
             return (200, ["Mcp-Session-Id": "abc"], payload("{}"))
         }
         let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)

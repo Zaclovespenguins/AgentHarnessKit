@@ -19,7 +19,9 @@ private func makeRequest(_ id: String, tool: String = "shell") -> ToolApprovalRe
 private func waitForPending(_ queue: ToolApprovalQueue, count: Int) async -> [ToolApprovalRequest] {
     for _ in 0 ..< 500 {
         let pending = await queue.pending()
-        if pending.count >= count { return pending }
+        if pending.count >= count {
+            return pending
+        }
         try? await Task.sleep(for: .milliseconds(2))
     }
     return await queue.pending()
@@ -28,7 +30,9 @@ private func waitForPending(_ queue: ToolApprovalQueue, count: Int) async -> [To
 /// Polls `pending()` until it is empty, bounded to about one second.
 private func waitForEmptyPending(_ queue: ToolApprovalQueue) async -> Bool {
     for _ in 0 ..< 500 {
-        if await queue.pending().isEmpty { return true }
+        if await queue.pending().isEmpty {
+            return true
+        }
         try? await Task.sleep(for: .milliseconds(2))
     }
     return await queue.pending().isEmpty

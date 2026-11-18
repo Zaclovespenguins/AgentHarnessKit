@@ -17,7 +17,9 @@ private func waitForBufferedCursor(
 ) async {
     let deadline = ContinuousClock().now + timeout
     while ContinuousClock().now < deadline {
-        if let value = await stream.bufferedCursor, value >= threshold { return }
+        if let value = await stream.bufferedCursor, value >= threshold {
+            return
+        }
         await Task.yield()
     }
 }
@@ -83,13 +85,17 @@ struct AgentStreamReplayTests {
         _ = try await collectReplay(stream.replay(from: 0))
         #expect(stream.tokenUsage == originalTotals)
         let deltaEvent = events.first { event in
-            if case .delta("first") = event.kind { return true }
+            if case .delta("first") = event.kind {
+                return true
+            }
             return false
         }
         #expect(deltaEvent != nil)
 
         guard let finishedEvent = events.last(where: { event in
-            if case .finished = event.kind { return true }
+            if case .finished = event.kind {
+                return true
+            }
             return false
         }), case let .finished(totalUsage, content, _, _) = finishedEvent.kind else {
             Issue.record("Expected .finished event in replay")
@@ -102,7 +108,11 @@ struct AgentStreamReplayTests {
         #expect(totalUsage.cacheReadCoverage == .unavailable)
         #expect(stream.tokenUsage == totalUsage)
         let iterations = events.filter {
-            if case .iterationCompleted = $0.kind { true } else { false }
+            if case .iterationCompleted = $0.kind {
+                true
+            } else {
+                false
+            }
         }
         #expect(iterations.count == 1)
         guard case let .iterationCompleted(replayedUsage, iteration, history) = iterations.first?.kind else {
@@ -146,7 +156,9 @@ struct AgentStreamReplayTests {
 
         let events = try await collectReplay(stream.replay(from: 0))
         guard let finishEvent = events.last(where: { event in
-            if case .finished = event.kind { return true }
+            if case .finished = event.kind {
+                return true
+            }
             return false
         }), case let .finished(_, finishContent, _, _) = finishEvent.kind else {
             Issue.record("Expected finished event in replay")
@@ -175,7 +187,9 @@ struct AgentStreamReplayTests {
 
         let events = try await collectReplay(stream.replay(from: 0))
         let deltaTexts = events.compactMap { event -> String? in
-            if case let .delta(text) = event.kind { return text }
+            if case let .delta(text) = event.kind {
+                return text
+            }
             return nil
         }
         #expect(!deltaTexts.contains("first"))
@@ -249,7 +263,9 @@ struct AgentStreamReplayTests {
 
         for _ in 0 ..< 200 {
             await Task.yield()
-            if weakStream == nil { break }
+            if weakStream == nil {
+                break
+            }
         }
         #expect(weakStream == nil)
     }

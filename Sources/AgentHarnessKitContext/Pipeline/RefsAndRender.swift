@@ -19,8 +19,12 @@ public extension ContextPipeline {
     /// Token label used in tags: below 1000 the integer (`"999"`); below 10000 one decimal, truncated, then `K`
     /// (`1234 -> "1.2K"`, `9999 -> "9.9K"`, `1000 -> "1.0K"`); otherwise whole thousands, truncated (`12345 -> "12K"`).
     static func tokenLabel(_ tokens: Int) -> String {
-        if tokens < 1000 { return String(tokens) }
-        if tokens < 10000 { return "\(tokens / 1000).\(tokens % 1000 / 100)K" }
+        if tokens < 1000 {
+            return String(tokens)
+        }
+        if tokens < 10000 {
+            return "\(tokens / 1000).\(tokens % 1000 / 100)K"
+        }
         return "\(tokens / 1000)K"
     }
 

@@ -56,18 +56,24 @@ public actor FileCheckpointer: AgentCheckpointer {
             guard let data = try? Data(contentsOf: url),
                   let checkpoint = try? decoder.decode(AgentCheckpoint.self, from: data)
             else { continue }
-            if checkpoint.sessionID == session { matched.append(checkpoint) }
+            if checkpoint.sessionID == session {
+                matched.append(checkpoint)
+            }
         }
         return matched
             .sorted { lhs, rhs in
-                if lhs.iteration != rhs.iteration { return lhs.iteration < rhs.iteration }
+                if lhs.iteration != rhs.iteration {
+                    return lhs.iteration < rhs.iteration
+                }
                 return lhs.timestamp < rhs.timestamp
             }
             .map(\.checkpointID)
     }
 
     private func ensureBaseDirectory() throws {
-        if fileManager.fileExists(atPath: baseDirectory.path) { return }
+        if fileManager.fileExists(atPath: baseDirectory.path) {
+            return
+        }
         do {
             try fileManager.createDirectory(at: baseDirectory, withIntermediateDirectories: true)
         } catch {

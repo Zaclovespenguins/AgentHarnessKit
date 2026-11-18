@@ -69,7 +69,9 @@ private func completedToolResults(_ events: [StreamEvent], name: String) -> [Too
 }
 
 private func isFinished(_ event: StreamEvent) -> Bool {
-    if case .finished = event.kind { return true }
+    if case .finished = event.kind {
+        return true
+    }
     return false
 }
 
@@ -256,7 +258,9 @@ struct CustomCompletionStreamTests {
         ))
 
         #expect(events.contains { event in
-            if case let .toolApprovalRequested(request) = event.kind { return request.toolName == "finalize" }
+            if case let .toolApprovalRequested(request) = event.kind {
+                return request.toolName == "finalize"
+            }
             return false
         })
         #expect(events.contains { event in

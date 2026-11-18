@@ -30,8 +30,12 @@ public struct TokenUsage: Sendable, Equatable, Codable {
         precondition(input >= 0, "input must be non-negative")
         precondition(output >= 0, "output must be non-negative")
         precondition(reasoning >= 0, "reasoning must be non-negative")
-        if let cacheRead { precondition(cacheRead >= 0, "cacheRead must be non-negative") }
-        if let cacheWrite { precondition(cacheWrite >= 0, "cacheWrite must be non-negative") }
+        if let cacheRead {
+            precondition(cacheRead >= 0, "cacheRead must be non-negative")
+        }
+        if let cacheWrite {
+            precondition(cacheWrite >= 0, "cacheWrite must be non-negative")
+        }
         self.input = input
         self.output = output
         self.reasoning = reasoning

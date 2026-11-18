@@ -44,7 +44,9 @@ public actor HTTPMCPTransport: MCPTransport {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json, text/event-stream", forHTTPHeaderField: "Accept")
         request.setValue("2025-06-18", forHTTPHeaderField: "MCP-Protocol-Version")
-        if let sessionID { request.setValue(sessionID, forHTTPHeaderField: "Mcp-Session-Id") }
+        if let sessionID {
+            request.setValue(sessionID, forHTTPHeaderField: "Mcp-Session-Id")
+        }
 
         let result: (Data, URLResponse)
         do {
@@ -60,14 +62,20 @@ public actor HTTPMCPTransport: MCPTransport {
         }
 
         let priorSession = sessionID
-        if let id = Self.header("Mcp-Session-Id", in: http) { sessionID = id }
+        if let id = Self.header("Mcp-Session-Id", in: http) {
+            sessionID = id
+        }
         let status = http.statusCode
         guard (200 ..< 300).contains(status) else {
             // The server expired the session we were using; the next request must start a new one.
-            if status == 404, let priorSession, sessionID == priorSession { sessionID = nil }
+            if status == 404, let priorSession, sessionID == priorSession {
+                sessionID = nil
+            }
             throw MCPError.connectionFailed("HTTP \(status)")
         }
-        if status == 202 || body.isEmpty { return }
+        if status == 202 || body.isEmpty {
+            return
+        }
 
         let contentType = Self.header("Content-Type", in: http)?.lowercased() ?? ""
         if contentType.hasPrefix("text/event-stream") {
@@ -99,12 +107,16 @@ public actor HTTPMCPTransport: MCPTransport {
         }
 
         for var line in body.split(separator: 0x0A, omittingEmptySubsequences: false) {
-            if line.last == 0x0D { line = line.dropLast() }
+            if line.last == 0x0D {
+                line = line.dropLast()
+            }
             if line.isEmpty {
                 dispatch()
                 continue
             }
-            if line.first == 0x3A { continue } // comment line
+            if line.first == 0x3A {
+                continue
+            } // comment line
 
             let text = String(decoding: line, as: UTF8.self)
             let field: Substring
@@ -112,7 +124,9 @@ public actor HTTPMCPTransport: MCPTransport {
             if let colon = text.firstIndex(of: ":") {
                 field = text[..<colon]
                 value = text[text.index(after: colon)...]
-                if value.first == " " { value = value.dropFirst() }
+                if value.first == " " {
+                    value = value.dropFirst()
+                }
             } else {
                 field = text[...]
                 value = ""

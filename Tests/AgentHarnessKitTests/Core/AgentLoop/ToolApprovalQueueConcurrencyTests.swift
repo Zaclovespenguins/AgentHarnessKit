@@ -42,7 +42,9 @@ private func awaitPending(
     let deadline = ContinuousClock.now.advanced(by: timeout)
     while true {
         let snapshot = await queue.pending()
-        if condition(snapshot) || ContinuousClock.now >= deadline { return snapshot }
+        if condition(snapshot) || ContinuousClock.now >= deadline {
+            return snapshot
+        }
         try? await Task.sleep(for: .milliseconds(5))
     }
 }
