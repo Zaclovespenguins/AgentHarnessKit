@@ -5,7 +5,7 @@ description: How the agent loop persists per-iteration AgentCheckpoint snapshots
 tags: [checkpointing, resume, agent-loop, persistence, swift]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-a863199a4a97b4179ed36360
     resource: repo://Sources/AgentHarnessKit/Core/Checkpointing/Agent%2BCheckpointing.swift

@@ -5,7 +5,7 @@ description: How the AgentHarnessKitALM module adapts AnyLanguageModel providers
 tags: [anylanguagemodel, adapter, llm-client, transcript, streaming, tools, errors, provider-options]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-35400b9748f800bf925028aa
     resource: repo://Sources/AgentHarnessKitALM/ErrorMapping.swift
@@ -13,11 +13,13 @@ sources:
     resource: repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift
   - id: openwiki-source-1d362dd74ab3b15522bad34c
     resource: repo://Sources/AgentHarnessKitALM/ResponseMapping.swift
+  - id: openwiki-source-96771c0cb7ae5147137d1dfb
+    resource: repo://Sources/AgentHarnessKitALM/StreamDeltaMapper.swift
   - id: openwiki-source-e75f17a0fafd03f86c62b86b
     resource: repo://Sources/AgentHarnessKitALM/ToolBridging.swift
   - id: openwiki-source-b97e36a080d044bce71dd656
     resource: repo://Sources/AgentHarnessKitALM/TranscriptMapping.swift
-generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
+generated: { by: "claude-code", at: "2026-11-18T22:07:55.531Z" }
 ---
 
 # AnyLanguageModel Adapter
@@ -56,6 +58,8 @@ Any other error goes through `ErrorMapping.agentError`.
 1. Tool-call deltas are yielded from the final transcript entries (`StreamDeltaMapper.toolCallDeltas`).
 2. If the turn has replay state, a `.finalizedContinuity` element is yielded before the terminal delta.
 3. A `.finished(usage:)` delta is yielded last.
+
+Tool-call arguments are therefore never streamed incrementally. AnyLanguageModel collects a round's tool calls privately and adds them to its snapshots only after the round ends, so the adapter emits each call once, complete, just before `.finished` (a documented `shortcut:` in `StreamDeltaMapper.swift`). This is why the agent's built-in `finish` tool is opt-in: a final answer passed as `finish` arguments reaches `Agent.stream` consumers all at once, while a plain-text answer streams as content deltas.
 
 `stream` keeps only `.delta` elements, so callers that need continuity use `streamForRun` directly (`RunStreamElement`). A cancelled task finishes with `CancellationError`, and any other error becomes an `AgentError` through the same mapping.
 

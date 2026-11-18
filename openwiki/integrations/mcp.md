@@ -5,7 +5,7 @@ description: How the AgentHarnessKitMCP module connects to Model Context Protoco
 tags: [mcp, json-rpc, stdio, http, tools, transport, session, timeouts]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-6fc53b1b2f3d457c0d12a5b4
     resource: repo://Sources/AgentHarnessKitMCP/MCPClient.swift

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:d1a95036f4df34204856dbec44cb7d67d12d88fb45b27377f8868a2d48e9ef0b",
+  "pageVersion": "sha256:7f686678add436d78ee74d68947a5bcb0a6b93c9aedadbcd2c1f4ac6c9e332c9",
   "claims": [
     {
       "id": "claim_92eef44e798148039ddafceb81e4710b",
@@ -18,11 +18,11 @@
     },
     {
       "id": "claim_de360698dd1e48298d4ecc3e14327938",
-      "statement": "The lint job runs SwiftFormat 0.60.1 in lint mode and SwiftLint 0.63.0 in strict mode in pinned Docker images, followed by scripts/phase8_acceptance.py.",
+      "statement": "The lint job runs SwiftFormat 0.64.7 in lint mode and SwiftLint 0.65.1 in strict mode in pinned Docker images, followed by scripts/phase8_acceptance.py.",
       "evidence": [
         {
-          "resource": "repo://.github/workflows/ci.yml#L26-L33",
-          "version": "repo-lines-v1:sha256:429d6c04bb88cba0d6fde53b4a33279431343986c6bf5fdbc93dc006cf4501d7:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2QxMGQ5MGRjM2FmNmVhZDZkYjIyMTM3MTI0MTYwMzZiZjFhMTU0OGI4ZGJlODA4NjgzNDQ3MGZmMWFhNDM1MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRhYjdjMmFiYzAyMDQwNjVlNzQwZWYyZjY0NDEzMzAxN2NlNDZmOWY2MWE5ZmE4NDczOWE2Zjc0ZTc1YWRiZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDUyNzdjNDFiNDAwZjU1NzJhNWU3YTQ0YWIyNmViNDdhMTMzNTNkNjI1MWFmNTk2ZDE1ODY4MTc3NGNmOWRjNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTkxOTQ4MjU3MDY1ZDA5M2JkMTkwYjFlODgzYTc3YmNhODMwMzUwNWE0NDQ1NjMyZGEzYjdiNjRmMjlkNWJlNyJ9"
+          "resource": "repo://.github/workflows/ci.yml#L24-L33",
+          "version": "repo-lines-v1:sha256:ebcac371719dbfb703a8f08ff21f01f61e5b6427e2d51aba369971e1ff182d3f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzMjRhMjNjNDVlZmQ0OGQzZTBjZDIyMTZjYTVjM2Q4MWM2ZDBjYzJlMWZhNGY4MzM3ZjE0NTcwZWQ3MGMxMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYWI3YzJhYmMwMjA0MDY1ZTc0MGVmMmY2NDQxMzMwMTdjZTQ2ZjlmNjFhOWZhODQ3MzlhNmY3NGU3NWFkYmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwYzg3OTY5MzBjZTg0MmMyZjQ3Y2I4ZTczZGM3MzJjMDQ4OWE1MTE2NTMyMDU4ZTRlMjVkZTY3YTZjY2VjNDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5MTk0ODI1NzA2NWQwOTNiZDE5MGIxZTg4M2E3N2JjYTgzMDM1MDVhNDQ0NTYzMmRhM2I3YjY0ZjI5ZDViZTcifQ"
         }
       ]
     },
@@ -67,6 +67,6 @@
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }

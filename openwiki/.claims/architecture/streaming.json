@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8b5ee2bb63ef69fdf1fca3a37fab14c7b4c8a5b75014ae16c85e459255819622",
+  "pageVersion": "sha256:2dd6b11a983015e17635c30da4ee807e08063cd0ce1103177831f423c7376bf3",
   "claims": [
     {
       "id": "claim_7fecde4b01f54a3da2f4d37ec88ff6d6",
@@ -25,8 +25,8 @@
       "statement": "AgentStream records each event into its buffer and ignores events from a superseded send generation; starting a send clears the buffer first.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L105-L115",
-          "version": "repo-lines-v1:sha256:e13fdb13566cb4b6042671b527ed2007e40ed1ac98af2332a8f3558b34ce0bb9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNTA3NmFhY2ZhZTkxZTEyNDMzNmM3MTY0ZGI0ZGQwNmNmZTNhZTY5OTI1MzkyMDQ3MDg1MWI4NDYwNmU5ZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzYTgwYjg0MDIxMTU2YmQwNDFhMzJmMmRlMjg3ZDU3Yzk5ODg5OGJkN2RhMzYwZjJiNzM4YmM1Zjk5MWNhZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3NWY1NWQ3Nzg3NzcwNDVjYWFmNDA1NDkyNjIxZGY0ZTE3YjEyMjIxYTEzZjAxNTU2Yzk3OGQ1YzBiMzdhNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlYWFhZTk3YmRlNTFmNjk1MGVkNDcwZTkwMDVjMmVkZjI5NDk3OGE3MGZhZWY0ODZlYTg3NGQxYmFhZjFiNjcifQ"
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L120-L135",
+          "version": "repo-lines-v1:sha256:204dd27f4d3542e0764b062709dd76565b0b8e1b3003345186b463444a67a47b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmNTA3NmFhY2ZhZTkxZTEyNDMzNmM3MTY0ZGI0ZGQwNmNmZTNhZTY5OTI1MzkyMDQ3MDg1MWI4NDYwNmU5ZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNjQ3OWNjMjMwNDQwZmQ0MWU4MjI0MjE4Njc5Njk4NTU5ZDI4OTNiZDY3YjQzODBhZmFiODExYjM4YTU1YWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3NWY1NWQ3Nzg3NzcwNDVjYWFmNDA1NDkyNjIxZGY0ZTE3YjEyMjIxYTEzZjAxNTU2Yzk3OGQ1YzBiMzdhNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjYTllY2Q5NDllM2Y5MzMwYjVlZWZiZTIxZmU3MzQyZDQ2ODYyMGNhMzZjYjNlOWE0NjZhMGE2MGNmYzU3MWIifQ"
         }
       ]
     },
@@ -35,11 +35,11 @@
       "statement": "AgentStream.replay fails with bufferDisabled when the stream was created without a bufferCapacity.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L183-L188",
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L202-L207",
           "version": "repo-lines-v1:sha256:94e724320a0bad78c529a50fb9ff3666edabe9ec1a926b833879180b62dce29c:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWQ5YzkyNDllOWUxOTAzMzg1ODZkYjFlMTY2NmYwNmZlNjAxMGJhNzQ5ODJhYjU0YjE3MDVmNTIxZjg3NjUwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUyMmM0MmNkMTljNmQwM2Q4MDhjNDUyNzIwNTUyODI1YjdlYTFjNWI0OTFiMjE4NTExY2FjNzQxNWNmOWQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGFjN2Q2YzNhYWMyZjc3NGE5NGYzZGNjOTZlYTM3ZGU0M2FjOTdlMTI3NDRiY2I2ZjNkYjQ1YTZmODViNjI4NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1ZGFkMWRjZDJiYzNiN2FlNmRhODRlNjI0OThiZTk4NTNhMDU4NTc3MzU5NzM4Yzk1N2NkZDNlZmViOGE5YyJ9"
         },
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L50-L52",
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L57-L59",
           "version": "repo-lines-v1:sha256:4c1e52b5207c2ebb62f90bc457bb2f7fa575130307e44e088fe45a20c855a303:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzZWZkOGI3ZTkyZmQ3MmU2ODY0NmZkMGMyYjJjYTZkZTQyMjQyYTcwYWFmZjBmNTY1MTNkMGU0MDA1NWIzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWM1MWIyYzZmMmZhZThjY2NkODVlYWJhNWVmOGQyMjdjMGU1YmI1MDQxMDExNThlY2UwYjYwYzMwMGFlY2MwMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2YwYzhmZDkwNDRkNGIzYWY0NjFmMWVkNmJmOWJkM2JiZjVlNTg4ZDYzOWI0NGMyNTYyMjViMjQ1NTllZTYwZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmNhZDg5MjBlYjA4NDg0NmZmMDUzMmQ1MzVmMjdlY2M0MWQxN2FlODAxMTIwNzIxZjQ3NGI1NTZhMjViMGFkYyJ9"
         }
       ]
@@ -73,7 +73,7 @@
       "statement": "A replayed event carries origin replayed(from: CheckpointID), and AgentStream sets currentCheckpoint from that origin.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L264-L270",
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift#L283-L289",
           "version": "repo-lines-v1:sha256:300076af2e634f16fd2bdc353b424df04fe578d36adb1dff46d8683bb8cc08af:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2M3OTFjZDQ5NWI0MzllYWMyYjI4NjI2OGE5NmJjOTA2N2E5NDRkMzI5ZTY2YmNjZjRmZDViYjQwYTFhOGRkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTUyMmM0MmNkMTljNmQwM2Q4MDhjNDUyNzIwNTUyODI1YjdlYTFjNWI0OTFiMjE4NTExY2FjNzQxNWNmOWQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjVlZWUxOTczNGRhOTVlYWRkNDM4ZWM2MjY5YmQwYzkyOTZjMTJkN2Q1NmYxMGI4OTVhODdkMjU2ODRjMWQ5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTY2OTc3N2FmZWQxMWU3YjhkMjQ4ODlmMWRmYzhhMzlhMThlNGM4ZGI0ZDdjZDI4NDkxNmQwODZiMmIwODIzMyJ9"
         },
         {
@@ -81,10 +81,24 @@
           "version": "repo-lines-v1:sha256:5491e75033d7f14f369c451b0c9891f6b8380c7ca81e6511b1192c96cf145736:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2JkZjM3YjczNTdjM2NiZGE3NTNiMDdkNWY5ODJjYWY4MDM1ZDQzN2E1NTE0MGZkYTgzNmM1YWRiZWNkNDFkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjY3YTAyNjA5YzAwMjBiZGQwZjI4MzVjMmZhMGVlM2E3NjJlZTE4Y2YwNTYwMjg1ODJmYmM0NmE5YWRlZWY5ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWFlZmFiZjkyYTZiNTMwZjQ4OWU4NjY4NmY4ODFlZGRkODZjOTJlY2VmZjUzOTU0MGExOTA0YWJiMDAyNzIzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmRhNDAzZjY4OWYzNTAxNzQxZTY4Y2IwYTEwNGEyZTg5MGU4NjIzZmU5ZTQ5ZDVlZTFiMTAwMjVhNGVlYzNhMSJ9"
         }
       ]
+    },
+    {
+      "id": "claim_b77d9fe58e59405ab7491a84f4c79990",
+      "statement": "In a streamed agent turn only content deltas are surfaced as .delta events; tool-call arguments are accumulated without events, so a final answer passed through the finish tool reaches consumers only in the .finished event.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKit/Core/Streaming/StreamProcessor.swift#L126-L245",
+          "version": "repo-lines-v1:sha256:53fab397199ecb32803878091feef18560cdeecd553fbdddb4173725a198dba1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjMDBiNzI4YWI0ODU3NTM3ZGY2MjdhNzZiZTJlZDdmMmMzN2M4MDZjZDRjY2NjOWFkYmY2ZjM3MjkwYWM4NDIzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0ODkzZjQwZTM3ODFlYjg5NmM4MmQwNDZhMDgwNjdhMTFlMzVjZGYyZjFkZmFmMjZmZWE5MGI4ZGI2Njc2NDEzIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmNjVkOWM1NjBjMjVhNGNmZGNiMzQ1YjFjZjliN2EwNjBiODdiMGZlYWViZWQ2ZjMxZTJmYjYzMmM3YzJjN2Y2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxM2IyYTY5N2Q4N2RiMjY1OTMzZDYxZjE4MTQyNjJmYTNkYzlkNzg0YWZiYzA0MmFhZWFhMjc3YzliNTIyNTcyIn0"
+        },
+        {
+          "resource": "repo://Tests/AgentHarnessKitALMTests/AgentOverAdapterTests.swift#L130-L151",
+          "version": "repo-lines-v1:sha256:f2e4231ce5fd84324b129a98e7c57fe705cafd7011cf3bf2db196cedfd0d34fc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlNTQyN2E1ZDJhYTViYTE2YjYxMTliYzdhNDdlNGVjMzM3MWM5YWJjOTgyNGMwNWIwNTAyODdiNTY1ZTkyYTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NTlmZDVkMzNjODkxODJiYjQ0YTA0ZDExMTM0YjU4M2ZkMTViOThlODIzYzQxMTRlY2RlMTBjYzIxNmUwNjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwZDNjNmNkMjk2ZGFiZWE2ZWFlNmRjZDAwNmI1MGEzMjc2MDcwYWZhNjRhYjVjZWQ0MWJmNTlkZjVlYjY3ODcifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }

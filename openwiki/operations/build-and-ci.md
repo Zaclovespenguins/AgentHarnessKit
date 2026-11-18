@@ -5,13 +5,13 @@ description: The local Make targets for build, test, lint, format, and acceptanc
 tags: [ci, github-actions, make, swiftformat, swiftlint, warnings-as-errors, docker, ios-simulator]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-164e2da859b5277df81c7d94
     resource: repo://.github/workflows/ci.yml
   - id: openwiki-source-012f2c78e3b1446dfc35803f
     resource: repo://Makefile
-generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
+generated: { by: "claude-code", at: "2026-11-18T22:07:55.531Z" }
 ---
 
 # Build, Lint and CI
@@ -42,7 +42,7 @@ Build and check commands are defined in the `Makefile`. The same checks run in `
 
 `ci.yml` runs on `push` to `main` and on `pull_request`. Concurrent runs for the same ref are cancelled. The workflow token has read-only `contents` permission. Every checkout step uses a pinned commit SHA and does not persist credentials.
 
-- **Lint** (`ubuntu-latest`, 10 minutes). It runs `swiftformat --lint .` in the `ghcr.io/nicklockwood/swiftformat:0.60.1` image, `swiftlint lint --strict` in the `ghcr.io/realm/swiftlint:0.63.0` image, and then `python3 scripts/phase8_acceptance.py`. The repository is mounted read-only. The comment in the workflow says these image tags must be kept in sync with the Mintfile.
+- **Lint** (`ubuntu-latest`, 10 minutes). It runs `swiftformat --lint .` in the `ghcr.io/nicklockwood/swiftformat:0.64.7` image, `swiftlint lint --strict` in the `ghcr.io/realm/swiftlint:0.65.1` image, and then `python3 scripts/phase8_acceptance.py`. The repository is mounted read-only. The comment in the workflow says these image tags must be kept in sync with the Mintfile.
 - **macOS** (`macos-26`, 30 minutes). It runs `swift build -Xswiftc -warnings-as-errors` and `swift test --parallel -Xswiftc -warnings-as-errors`.
 - **Linux (Swift 6.3)** (`ubuntu-latest`, 30 minutes). The `swift:6.3` image has no Node.js, so the job cannot run `actions/checkout` inside it. Instead it runs the image with `docker run`, copies the source into `/work`, installs `libsqlite3-dev`, and runs the same build and test commands with warnings as errors.
 - **Live provider** (matrix: macOS, Linux, iOS Simulator). Each leg runs only when the `AHK_LIVE_BASE_URL` secret is set. Without it, every live step is skipped, so forks and pull requests without secrets still pass. The macOS leg runs `swift test --filter LiveEndpointTests`. The Linux leg runs the same filter in Docker, passing secrets with bare `-e` names so their values never appear in the script. The iOS leg runs `xcodebuild test` on `LiveEndpointTests` in `AgentHarnessKitALMTests`, with the secrets mapped to `TEST_RUNNER_`-prefixed variables.

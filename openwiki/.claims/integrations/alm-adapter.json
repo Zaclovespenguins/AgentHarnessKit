@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "pageVersion": "sha256:8eb043c42a1ee646777bf12cf0ec2ece56cc4cb25d2360175b0ab838fd43222e",
+  "pageVersion": "sha256:7136ce9dd27c274ae81a3029c7dc64323289fa4d91e7fefebda91e1e335a8e11",
   "claims": [
     {
       "id": "claim_16e3aa74af6b4ee0ab449a4cab7c5398",
@@ -41,8 +41,8 @@
       "statement": "A turn whose continuity substrate matches the client's replay substrate and whose payload contains the almEntries key is replayed verbatim from the stored transcript entries; otherwise it is rebuilt from semantic fields.",
       "evidence": [
         {
-          "resource": "repo://Sources/AgentHarnessKitALM/ResponseMapping.swift#L25-L44",
-          "version": "repo-lines-v1:sha256:dec69881749785537ce551244b51e479b089162758fc3ef7b76082e81c2e814c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMDQ2NTkyOGE4NGFlZTllZGJjZTYyNzk5ZDYyMjFiNmVjMWVlZDVmNWZkOWY2ODFlNTk0MTRjMzczOGY4NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiMmZlNWNhZWRjYzQ0YTE2Y2ZlNWYzZmIyN2U3ZGE2NmU3MWQwMTUxYjc3MjYyNmZkZTFmMmZlM2E2ODY4ZjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkNGU2MjA2NDBiOTJmNDU0NDFlYzJlMDM4NDc3MTJiYWJhZWE4ODUzMmE2MzQxNjM2OWUzZTVkYjFlNWM3NzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkifQ"
+          "resource": "repo://Sources/AgentHarnessKitALM/ResponseMapping.swift#L24-L51",
+          "version": "repo-lines-v1:sha256:5411c54623cca27d817a55204065b9c6350571215cc048a02225e6e4820990c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiMWY1MjliOTM3YmNmZDZlNmNkZTBjMjEwMTIwNzRjYjU5ZGI2MDE2Y2ExYjIxODdkNThhMTI5NjZkZWFkYzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmMGQ3NTk1MGRmMGZmOWEzZWU5NjYzOWRjYzhmZjVlYWVkYjQwZDY4MmJlYTkyNjIyYjUyMGRkODg3ZDkzZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzNWE5ZDRkYzc2OTVjYmM0MTZhODZmYmYxMzMzODdhMDVjOTA0MzI1MTlkYzlkMzFlMDliYjIzNDE4YWVkMDEifQ"
         },
         {
           "resource": "repo://Sources/AgentHarnessKitALM/TranscriptMapping.swift#L60-L66",
@@ -77,10 +77,24 @@
           "version": "repo-lines-v1:sha256:28d88eacf1bea63ec86a2f34071df2e2528a431b88d3fc9fd50a09af51279b71:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEwOGZkNWM4MzhiOTM5MmJlYzNiNmUwOTc2ZDcwOTRmYWZiMTA1MDA4YTU4NjE2Yzg0NjMyOGY0NDRmMjc1ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZGY5ZWJiNDU0YzkxNTAyNjYwOWNkOWI5MTFmMjM2ZWMzZjFjYTNhYjhhN2Y4ZjA1ZjdkYzM5NjI2OGRmOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
         }
       ]
+    },
+    {
+      "id": "claim_fccbe91f33644315a2f4ea8ca11284e8",
+      "statement": "HarnessModelClient streams content and reasoning incrementally but emits tool-call start and argument deltas only once, complete, after the model's stream ends.",
+      "evidence": [
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/HarnessModelClient.swift#L127-L157",
+          "version": "repo-lines-v1:sha256:281f5fd06e12212e90c00cfbd5027a37c656698f50d4d1ba244908ccaf1d7e57:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFmM2RkZTI4NGIzODljYWIyYzU3M2U1ZTY0ZjIzMWQ3MDg4M2JlMjM2NDBiMGE1ODM3ZGZlMmM3ZDkxMWFmMTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlNjQ1YzI0MGI5ZmY2YWQ0ODE0MGE2ZTUzMTBlN2ZkNzQxNzQ2ZThkNjZmZWFhMDAwMDQ4NjgzNThiZDJmMmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlMzY1Njk4NGE3ZDZjOTNkYjM1MzZlNmRiYWE1NGZiZDc0YzA0MWU1ODEzZGY0MmRlZDVlZTY0ODEzOGM1YWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlNmUzZDk5MjNiMzUzMjdiMWQxYmY5NDhlYTdhNTdiZjcwZDFkNjkzMjA2Mjc5MGNjNjRiYjVhYTU2MWU4ZTIifQ"
+        },
+        {
+          "resource": "repo://Sources/AgentHarnessKitALM/StreamDeltaMapper.swift#L44-L60",
+          "version": "repo-lines-v1:sha256:595bf59dbc929921831a43e8adfdb889ad6b7191b5d6a3d5fc9ae4b29070cf13:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyMmY0MzRkZmNjMDdjZmM5MWJhNGRiMTc0NGM5ODg0NzhlMzMwMGNkNjlmNDY3NWUwMTY3ZGNkODE5YjcwZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
     }
   ],
   "verification": {
     "by": "openwiki/0.9.0",
-    "at": "2026-11-18T19:31:47.975Z"
+    "at": "2026-11-18T22:07:55.531Z"
   }
 }

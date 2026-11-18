@@ -5,7 +5,7 @@ description: How the agent loop emits StreamEvent values, how StreamProcessor an
 tags: [streaming, stream-events, replay, tool-calls, observable-state, swift]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-8f16d723bc0ce721d7997c9b
     resource: repo://Sources/AgentHarnessKit/Core/Streaming/AgentStream.swift
@@ -17,7 +17,9 @@ sources:
     resource: repo://Sources/AgentHarnessKit/Core/Streaming/StreamEventJSONCodec.swift
   - id: openwiki-source-ae022ffacc812e1de156889a
     resource: repo://Sources/AgentHarnessKit/Core/Streaming/StreamProcessor.swift
-generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
+  - id: openwiki-source-8d9af8b38f14fce98e79c339
+    resource: repo://Tests/AgentHarnessKitALMTests/AgentOverAdapterTests.swift
+generated: { by: "claude-code", at: "2026-11-18T22:07:55.531Z" }
 ---
 
 # Streaming Pipeline
@@ -42,6 +44,8 @@ The stream policy decides when an iteration ends (`StreamProcessor.swift:3-44`).
 - Under `.executableTool(name:)`, the named tool is terminal and its start event is emitted.
 
 `shouldTerminateAfterIteration(toolCalls:)` returns true when the terminal tool appears in the batch. The chat policy, `StreamPolicy.chat`, also terminates when an iteration has no tool calls. The completion rules are described in [Agent loop](agent-loop.md).
+
+Only `content` deltas become `.delta` events. Tool-call arguments are accumulated, never surfaced as events, so how the agent ends decides how its final answer streams. A default agent ends on a plain-text reply with no tool calls, and that answer arrives as `.delta` events followed by `.finished` with the same text. An agent with `AgentConfiguration(offersFinishTool: true)` can end through `finish`, and that answer arrives only in the `.finished` event's `content`.
 
 ## Observable state in AgentStream
 

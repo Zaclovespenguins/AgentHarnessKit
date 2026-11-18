@@ -1,11 +1,11 @@
 ---
 type: architecture
 title: Agent Loop
-description: How the Agent run loop iterates model calls, classifies completion, executes tools in approval-gated concurrency waves, and terminates with an AgentResult.
+description: How the Agent run loop iterates model calls, classifies completion (plain-text answers by default, an opt-in built-in finish tool, or a custom completion tool), executes tools in approval-gated concurrency waves, and terminates with an AgentResult.
 tags: [agent, loop, tools, approval, completion]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-26d1376d6a0db56292077f3f
     resource: repo://Sources/AgentHarnessKit/Core/AgentLoop/Agent.swift
@@ -17,7 +17,7 @@ sources:
     resource: repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentCompletionPolicy.swift
   - id: openwiki-source-6ea3ae96710e960b9f9810aa
     resource: repo://Sources/AgentHarnessKit/Core/AgentLoop/AgentConfiguration.swift
-generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
+generated: { by: "claude-code", at: "2026-11-18T22:07:55.531Z" }
 ---
 
 # Agent Loop
@@ -26,10 +26,11 @@ generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
 
 ## Construction and reserved names
 
-- The convenience initializer takes an `LLMClient` and finishes through the built-in `finish` tool. A second initializer takes a `ToolCallSurfacingClient` plus an explicit `completionTool`.
+- The convenience initializer takes an `LLMClient`. By default the agent finishes when the model replies with plain text and no tool calls; it finishes through the built-in `finish` tool only when `AgentConfiguration.offersFinishTool` is `true` (default `false`). A second initializer takes a `ToolCallSurfacingClient` plus an explicit `completionTool`.
 - The private designated initializer appends the completion tool, then enforces preconditions: tool names are non-empty and unique, and none collide with `finish`, `compress`, `decompress`, `search_context`, `context_status`.
 - Context-store tool names from `configuration.contextStore` must be a subset of `compress`, `decompress`, `search_context`, `context_status`.
-- The built-in finish definition is advertised to the model only when no custom completion tool is supplied.
+- The built-in finish definition is advertised to the model only when no custom completion tool is supplied and `configuration.offersFinishTool` is `true` (`Agent.swift:62-65`). Both of those agents use the `builtInFinish` completion policy; `offersFinishTool` changes only what the model is offered.
+- The default is off because tool-call arguments are not streamed: a final answer passed through `finish` reaches `stream(...)` consumers only in the `.finished` event, while a plain-text answer streams as `.delta` events.
 
 ## Run loop
 
@@ -48,7 +49,8 @@ If no terminal result is produced, the loop continues. Exhausting the loop retur
 
 - The reserved finish call must be the only call in its assistant message. Mixing it with other calls throws `AgentError.malformedHistory(.finishMustBeExclusive)`.
 - With a custom completion tool, that tool must be the only call. Otherwise the result is `exclusivityViolation`, and feedback goes back to the model instead of ending the run.
-- Content-only termination (no tool calls, non-empty content) is allowed only under `builtInFinish`. Custom completion policies never end on content alone.
+- Content-only termination (no tool calls, non-empty content) is allowed only under `builtInFinish`, and it is the default way a run ends. Custom completion policies never end on content alone.
+- A reserved `finish` call is classified as `builtInFinish` by name even when the tool was not offered, so histories and checkpoints recorded with the finish tool keep resolving.
 
 ## Tool execution
 

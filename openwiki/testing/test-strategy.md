@@ -5,19 +5,23 @@ description: How the package's test targets are organized, which fixtures, scrip
 tags: [testing, swift-testing, test-targets, fixtures, mock-server, self-tests, ci]
 verified:
   - by: openwiki/0.9.0
-    at: 2026-11-18T19:31:47.975Z
+    at: 2026-11-18T22:07:55.531Z
 sources:
   - id: openwiki-source-012f2c78e3b1446dfc35803f
     resource: repo://Makefile
   - id: openwiki-source-16a6a536c0a5303df5e05c6c
     resource: repo://Package.swift
+  - id: openwiki-source-8d9af8b38f14fce98e79c339
+    resource: repo://Tests/AgentHarnessKitALMTests/AgentOverAdapterTests.swift
+  - id: openwiki-source-9c4f258ee4c028a2d4d6b02f
+    resource: repo://Tests/AgentHarnessKitALMTests/HarnessModelClientTests.swift
   - id: openwiki-source-e6b2ac8a99b82b01de5a99db
     resource: repo://Tests/AgentHarnessKitMCPTests/MCPClientTests.swift
   - id: openwiki-source-6805237b319080a229868595
     resource: repo://Tests/AgentHarnessKitMCPTests/MCPToolTests.swift
   - id: openwiki-source-05ede9942b6a56b8dbe3f5d6
     resource: repo://Tests/AgentHarnessKitMCPTests/SupportSmokeTests.swift
-generated: { by: "claude-code", at: "2026-11-18T19:31:47.975Z" }
+generated: { by: "claude-code", at: "2026-11-18T22:07:55.531Z" }
 ---
 
 # Test Strategy
@@ -69,6 +73,8 @@ Local commands are in the `Makefile`:
 - `make check` runs the format check, lint, and `test-ci`.
 
 CI runs the macOS and Linux suites with `--parallel` and warnings as errors. The iOS Simulator job runs only `AgentHarnessKitTests` and `AgentHarnessKitALMTests`. The live job runs only `LiveEndpointTests` by name, and only when `AHK_LIVE_BASE_URL` is set. See [Build and CI](../operations/build-and-ci.md) for the full job matrix.
+
+`LiveEndpointTests` (`Tests/AgentHarnessKitALMTests/HarnessModelClientTests.swift`) points `HarnessModelClient` at any OpenAI-compatible endpoint. `AHK_LIVE_BASE_URL` turns it on, and `AHK_LIVE_MODEL` and `AHK_LIVE_API_KEY` are optional. It covers a generate and a streamed tool loop at the client level, plus `agentStreamsTheFinalAnswer`, which runs a default `Agent.stream` turn and checks that the answer arrives as more than one `.delta` event, spread over at least 100 ms, matching the `.finished` content. Its offline counterpart is `plainTextFinalAnswerStreamsAsDeltas` in `AgentOverAdapterTests`, which checks the same ordering against the mock server.
 
 To run one target or suite, use the standard Swift filter, for example `swift test --filter LiveEndpointTests`.
 
