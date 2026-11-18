@@ -72,7 +72,7 @@ let result = try await agent.run(userMessage: "What is 2 + 3?", context: EmptyCo
 print(result.content ?? "")
 ```
 
-`Agent` executes the tool, sends the result back, and finishes through the built-in `finish` tool. `run` returns an `AgentResult` with `content`, `finishReason`, `iterations` and `totalTokenUsage`. Use `agent.stream(...)` for incremental events.
+`Agent` executes the tool, sends the result back, and finishes when the model replies with plain text and no tool calls. `run` returns an `AgentResult` with `content`, `finishReason`, `iterations` and `totalTokenUsage`. Use `agent.stream(...)` for incremental events; the final answer streams as `.delta` events. To have the model end through a built-in `finish` tool instead, pass `AgentConfiguration(offersFinishTool: true)`; a `finish` answer arrives only in `.finished`, because tool-call arguments are not streamed.
 
 ## Tool approval
 

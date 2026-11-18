@@ -95,7 +95,7 @@ struct AgentOverAdapterTests {
         #expect(server.requestCount == 2)
         let first = server.requestJSON(0)["tools"] as? [[String: Any]] ?? []
         let names = first.compactMap { ($0["function"] as? [String: Any])?["name"] as? String }
-        #expect(Set(names) == ["add", "finish"])
+        #expect(Set(names) == ["add"])
         let sent = server.requestJSON(1)["messages"] as? [[String: Any]] ?? []
         #expect(sent.last?["role"] as? String == "tool")
         #expect(jsonObject(sent.last?["content"] as? String ?? "") == ["sum": 5])
@@ -125,6 +125,29 @@ struct AgentOverAdapterTests {
         #expect(jsonObject(toolResult ?? "") == ["sum": 5])
         #expect(finishedContent == "The sum is 5.")
         #expect(server.requestCount == 2)
+    }
+
+    /// A plain-text final answer streams as `.delta` events and ends the run without a `finish` call.
+    @Test func plainTextFinalAnswerStreamsAsDeltas() async throws {
+        let server = try MockServer()
+        server.enqueue(.text("The sum "), .text("is 5."), .usage(input: 20, output: 4))
+        var deltas: [String] = []
+        var finishedContent: String?
+        for try await event in try makeAgent(server).stream(userMessage: "What is 2 + 3?", context: EmptyContext()) {
+            switch event.kind {
+            case let .delta(text):
+                #expect(finishedContent == nil)
+                deltas.append(text)
+            case let .finished(_, content, reason, _):
+                finishedContent = content
+                #expect(reason == .completed)
+            default: break
+            }
+        }
+
+        #expect(deltas == ["The sum ", "is 5."])
+        #expect(finishedContent == "The sum is 5.")
+        #expect(server.requestCount == 1)
     }
 
     @Test func followUpRequestBodyHoldsTheFinishAnswerOnce() async throws {
