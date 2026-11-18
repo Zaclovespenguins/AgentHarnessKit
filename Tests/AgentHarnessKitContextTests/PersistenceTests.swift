@@ -117,6 +117,44 @@ struct PersistenceTests {
         _ = try await store.search(sessionID: session, query: #"(zebra" OR"#, limit: 10)
     }
 
+    @Test(arguments: PersistenceKind.allCases)
+    func deleteRemovesOnlyThatSession(kind: PersistenceKind) async throws {
+        let store = try kind.make()
+        let other = SessionID()
+        let otherState = ContextSessionState(messages: stored([.user("unrelated giraffe")]), version: 1)
+        try await store.save(sessionID: session, state: sampleState)
+        try await store.save(sessionID: other, state: otherState)
+        try await store.delete(sessionID: session)
+
+        #expect(try await store.load(sessionID: session) == ContextSessionState())
+        // Message and block-summary words: proves the FTS rows went with their base rows.
+        #expect(try await store.search(sessionID: session, query: "zebra", limit: 10).isEmpty)
+        #expect(try await store.search(sessionID: session, query: "summary", limit: 10).isEmpty)
+        #expect(try await store.load(sessionID: other) == otherState)
+        #expect(try await store.search(sessionID: other, query: "giraffe", limit: 10).map(\.source)
+            == [.message(ref(1))])
+    }
+
+    @Test(arguments: PersistenceKind.allCases)
+    func deletingAnUnknownSessionDoesNothing(kind: PersistenceKind) async throws {
+        let store = try kind.make()
+        try await store.save(sessionID: session, state: sampleState)
+        try await store.delete(sessionID: SessionID())
+        #expect(try await store.load(sessionID: session) == sampleState)
+    }
+
+    @Test(arguments: PersistenceKind.allCases)
+    func deletedSessionIDCanBeReused(kind: PersistenceKind) async throws {
+        let store = try kind.make()
+        try await store.save(sessionID: session, state: sampleState)
+        try await store.delete(sessionID: session)
+        let fresh = ContextSessionState(messages: stored([.user("a new zebra")]))
+        try await store.save(sessionID: session, state: fresh)
+        #expect(try await store.load(sessionID: session) == fresh)
+        #expect(try await store.search(sessionID: session, query: "zebra", limit: 10).map(\.source)
+            == [.message(ref(1))])
+    }
+
     @Test func fileDatabaseIsReopenedByASecondInstance() async throws {
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("context-persistence-\(UUID().uuidString)", isDirectory: true)

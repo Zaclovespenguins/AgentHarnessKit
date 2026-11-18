@@ -355,3 +355,149 @@ struct LongSessionTests {
         #expect(state.blocks.map(\.tier).max() == 3)
     }
 }
+
+/// `compressibleRanges(sessionID:)` and `deleteSession(_:)`: the app-driven fold and chat delete.
+struct ContextStoreAppAPITests {
+    private let session = SessionID()
+    private let persistence = InMemoryContextPersistence()
+
+    private var contextStore: HierarchicalContextStore {
+        HierarchicalContextStore(persistence: persistence, configuration: quiet)
+    }
+
+    /// m1 system, m2 first user, tool turns, a context-tool call at m8–m9, then m15–m16 as the recent zone.
+    private let scripted: [ChatMessage] = [
+        .system("sys"),
+        .user("first task"),
+        .user("question 1"),
+        assistantCalling(call("c1", "bash", #"{"cmd":"ls"}"#)),
+        .tool(id: "c1", name: "bash", content: "file.txt"),
+        .assistant(AssistantMessage(content: "answer 1")),
+        .user("question 2"),
+        assistantCalling(call("s1", ContextToolName.contextStatus)),
+        .tool(id: "s1", name: ContextToolName.contextStatus, content: "status"),
+        .assistant(AssistantMessage(content: "answer 2")),
+        .user("question 3"),
+        assistantCalling(call("c2", "bash", #"{"cmd":"pwd"}"#)),
+        .tool(id: "c2", name: "bash", content: "/tmp"),
+        .assistant(AssistantMessage(content: "answer 3")),
+        .user("last question"),
+        .assistant(AssistantMessage(content: "final answer")),
+    ]
+
+    private func fold(_ ranges: [CompressibleRange], id: String) throws -> ToolCall {
+        try compressCall(
+            ranges.map { CompressRange(startRef: $0.startRef.description, endRef: $0.endRef.description,
+                                       summary: longSummary) },
+            id: id
+        )
+    }
+
+    @Test func emptySessionHasNoRanges() async throws {
+        #expect(try await contextStore.compressibleRanges(sessionID: session).isEmpty)
+    }
+
+    @Test func matchesThePipelineAndSkipsProtectedRefs() async throws {
+        let store = contextStore
+        _ = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        let ranges = try await store.compressibleRanges(sessionID: session)
+        #expect(ranges.map { $0.startRef ... $0.endRef } == [ref(3) ... ref(7), ref(10) ... ref(14)])
+
+        let state = try await persistence.load(sessionID: session)
+        let protected = ContextPipeline.protectedRefs(state.messages, configuration: quiet)
+        let expected = ContextPipeline.compressibleRanges(state.messages, blocks: state.blocks, protected: protected)
+            .map { range in
+                let covered = state.messages.filter { range.contains($0.ref) }
+                return CompressibleRange(
+                    startRef: range.lowerBound, endRef: range.upperBound,
+                    messages: covered.map(\.message), tokens: covered.reduce(0) { $0 + $1.tokens }
+                )
+            }
+        #expect(ranges == expected)
+        #expect(ranges[0].messages == Array(scripted[2 ... 6]))
+
+        let returned = Set(state.messages.map(\.ref).filter { ref in
+            ranges.contains { ($0.startRef ... $0.endRef).contains(ref) }
+        })
+        // System, first and last user, the context-tool call and result, and the recent zone.
+        #expect(returned.isDisjoint(with: [ref(1), ref(2), ref(8), ref(9), ref(15), ref(16)]))
+    }
+
+    @Test func isReadOnly() async throws {
+        let store = contextStore
+        _ = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        let firstRange = try #require(try await store.compressibleRanges(sessionID: session).first)
+        _ = try await store.executeTool(fold([firstRange], id: "k1"), sessionID: session)
+        let before = try await persistence.load(sessionID: session)
+        _ = try await store.compressibleRanges(sessionID: session)
+        _ = try await store.compressibleRanges(sessionID: session)
+        let after = try await persistence.load(sessionID: session)
+        #expect(after == before)
+        #expect(after.version == 1)
+        #expect(after.blocks.map(\.survivedCount) == before.blocks.map(\.survivedCount))
+    }
+
+    @Test func everyRangeRoundTripsThroughCompress() async throws {
+        let store = contextStore
+        _ = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        let ranges = try await store.compressibleRanges(sessionID: session)
+        let outcome = try await store.executeTool(fold(ranges, id: "app-fold-1"), sessionID: session)
+        #expect(!outcome.result.isError)
+        #expect(outcome.result.content.split(separator: "\n").allSatisfy { $0.hasPrefix("Created ") })
+        let state = try await persistence.load(sessionID: session)
+        #expect(state.blocks.count == ranges.count)
+        #expect(state.blocks.allSatisfy { $0.createdByCallID == "app-fold-1" })
+        // Folded refs are no longer offered.
+        #expect(try await store.compressibleRanges(sessionID: session).isEmpty)
+    }
+
+    @Test func appMadeCallIDRendersLikeAModelFold() async throws {
+        let modelSession = SessionID()
+        let store = contextStore
+        for id in [session, modelSession] {
+            _ = try await store.render(sessionID: id, messages: scripted, windowSize: 100_000)
+        }
+        let unfolded = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        let ranges = try await store.compressibleRanges(sessionID: session)
+        _ = try await store.executeTool(fold(ranges, id: "app-fold-2"), sessionID: session)
+        _ = try await store.executeTool(fold(ranges, id: "k1"), sessionID: modelSession)
+
+        let appRender = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        let modelRender = try await store.render(sessionID: modelSession, messages: scripted, windowSize: 100_000)
+        #expect(appRender == modelRender)
+        #expect(appRender.count == unfolded.count - 10 + 2)
+
+        // Once the block is inactive, hideCompressionCalls looks for the app id in history, finds nothing, and
+        // the next turn renders exactly as before the fold.
+        _ = try await store.executeTool(
+            ToolCall(id: "d1", name: ContextToolName.decompress, arguments: #"{"blockId":"b0"}"#),
+            sessionID: session
+        )
+        _ = try await store.executeTool(
+            ToolCall(id: "d2", name: ContextToolName.decompress, arguments: #"{"blockId":"b1"}"#),
+            sessionID: session
+        )
+        #expect(try await store.render(sessionID: session, messages: scripted, windowSize: 100_000) == unfolded)
+    }
+
+    @Test func deleteSessionLetsAFreshHistoryRender() async throws {
+        let store = contextStore
+        _ = try await store.render(sessionID: session, messages: scripted, windowSize: 100_000)
+        try await store.deleteSession(session)
+        #expect(try await persistence.load(sessionID: session) == ContextSessionState())
+
+        let fresh: [ChatMessage] = [.system("sys"), .user("a different chat")]
+        _ = try await store.render(sessionID: session, messages: fresh, windowSize: 100_000)
+        #expect(try await persistence.load(sessionID: session).messages.map(\.message) == fresh)
+
+        try await store.deleteSession(session)
+        let status = try await store.executeTool(
+            ToolCall(id: "s", name: ContextToolName.contextStatus, arguments: "{}"), sessionID: session
+        )
+        guard case let .contextStatus(snapshot) = status.events.first else {
+            Issue.record("expected contextStatus, got \(status.events)")
+            return
+        }
+        #expect(snapshot.windowSize == 0)
+    }
+}

@@ -225,6 +225,9 @@ public protocol ContextPersistence: Sendable {
     /// blocks. Order: blocks by ascending ordinal, then messages by ascending ref; at most `limit` hits.
     /// An empty query returns no hits.
     func search(sessionID: SessionID, query: String, limit: Int) async throws -> [ContextSearchHit]
+    /// Removes every message, block, block source, search index row and the meta row for `sessionID`.
+    /// Deleting an unknown session succeeds and does nothing.
+    func delete(sessionID: SessionID) async throws
 }
 
 public enum ContextPersistenceError: Error, Equatable {

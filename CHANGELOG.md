@@ -11,11 +11,15 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - `PartialTurnRecorder` is public, and `Agent.stream` and `Agent.resume` take an optional `partialTurnRecorder:`. Code that consumes the event stream directly, without `AgentStream` or Observation, can call `snapshot()` when it stops a turn and resend the result as `history:` (0.2.1 known gap 6.5). `Chat.stream` still does not record.
 
+- `HierarchicalContextStore.compressibleRanges(sessionID:)` returns the ranges a `compress` call would accept now, as `CompressibleRange` values with their messages and token estimate. It is read-only, so an app can write its own summaries and send them back through `executeTool` ("Compact now"). The doc comment states the compress contract for app-made calls.
+- `HierarchicalContextStore.deleteSession(_:)` deletes a session's persisted messages, blocks and search index rows, and forgets its cached window size.
+
 ### Changed
 
 - **Breaking:** `Agent` no longer offers the built-in `finish` tool by default. It ends when the model replies with plain text and no tool calls, so the final answer streams as `.delta` events instead of arriving all at once in `.finished`. Pass `AgentConfiguration(offersFinishTool: true)` to restore the old behavior. A `finish` call is still honored when the tool isn't offered, so existing histories and checkpoints keep working.
 - Documented that cancelling a turn while a sub-agent runs keeps only the synthetic cancelled result for the sub-agent call, not the sub-agent's own messages (0.2.1 known gap 6.6).
 - Doc comments for `AgentStream.init`, both `AgentStream.send` overloads and `PartialTurnRecorder`.
+- **Breaking:** `ContextPersistence` has a new requirement, `delete(sessionID:)`. `InMemoryContextPersistence` and `GRDBContextPersistence` implement it; outside conformers must add it.
 
 ## [0.2.1] - 2026-11-18
 

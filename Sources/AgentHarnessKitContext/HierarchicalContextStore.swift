@@ -1,8 +1,6 @@
 import AgentHarnessKit
 import Foundation
 
-// TASK H8. Stubs; replace the bodies, keep the public signatures.
-
 public enum ContextStoreError: Error, Equatable {
     /// The loop's history no longer extends what the store recorded for this session.
     case historyDiverged(at: MessageRef) // swiftlint:disable:this identifier_name
@@ -192,6 +190,42 @@ public actor HierarchicalContextStore: ContextStore { // swiftlint:disable:this 
     public func stateVersion(sessionID: SessionID) async throws -> String? {
         let state = try await persistence.load(sessionID: sessionID)
         return String(state.version)
+    }
+
+    /// Ranges the app can fold now, ascending. Read-only: it changes no state, no block generation and no
+    /// `version`. Uses the same inputs as a `compress` call, so a `compress` made right after accepts every
+    /// returned range. An unknown or empty session returns `[]`.
+    ///
+    /// Folding from the app: send `ToolCall(id: <unique>, name: ContextToolName.compress,
+    /// arguments: {"ranges":[{"startRef","endRef","topic"?,"summary"}]})` to `executeTool(_:sessionID:)`.
+    /// - The call id becomes `ContextBlock.createdByCallID`. An app-made id (for example `app-fold-<UUID>`)
+    ///   matches no call in history, so `hideCompressionCalls` has nothing to hide; render is otherwise the same
+    ///   as for a model-made fold.
+    /// - A summary shorter than `configuration.minSummaryLength`, and every other rejection, comes back as an
+    ///   error line in the result, never as a thrown error.
+    /// - History is append-only, so refs stay valid if a turn runs between this call and `compress`. A range
+    ///   the model folded in the meantime comes back as an error line.
+    public func compressibleRanges(sessionID: SessionID) async throws -> [CompressibleRange] {
+        let state = try await persistence.load(sessionID: sessionID)
+        let protected = ContextPipeline.protectedRefs(state.messages, configuration: configuration)
+        return ContextPipeline.compressibleRanges(state.messages, blocks: state.blocks, protected: protected)
+            .map { range in
+                // Refs are 1-based positions in `state.messages`.
+                let covered = state.messages[(range.lowerBound.ordinal - 1) ... (range.upperBound.ordinal - 1)]
+                return CompressibleRange(
+                    startRef: range.lowerBound,
+                    endRef: range.upperBound,
+                    messages: covered.map(\.message),
+                    tokens: covered.reduce(0) { $0 + $1.tokens }
+                )
+            }
+    }
+
+    /// Deletes the session's persisted state and forgets its cached window size. The id can be reused: the
+    /// next `render` or `record` starts from `m00001`.
+    public func deleteSession(_ sessionID: SessionID) async throws {
+        try await persistence.delete(sessionID: sessionID)
+        windowSizes[sessionID] = nil
     }
 
     // MARK: - Tools
