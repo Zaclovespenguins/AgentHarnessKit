@@ -7,8 +7,6 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ## [0.2.0] - 2026-11-18
 
-## [0.2.0] - 2026-11-17
-
 ### Added
 
 - `AgentStream.partialHistory`, the interrupted turn as valid history after `cancel()`. Pass it as `history:` to the next `send`. A parked approval cancelled this way gets the synthetic result `"Cancelled by user before this tool returned."`.
@@ -30,7 +28,7 @@ and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Notes
 
-- The v0.2 history summarizer (roadmap item 3) is closed as won't-do in favour of `HierarchicalContextStore` and `compress`.
+- The v0.2 history summarizer (roadmap item 3) is closed as won't-do in favor of `HierarchicalContextStore` and `compress`.
 
 ### Known gaps
 
