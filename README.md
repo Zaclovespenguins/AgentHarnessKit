@@ -76,7 +76,7 @@ print(result.content ?? "")
 
 ## Tool approval
 
-Set `approvalPolicy` in `AgentConfiguration` to choose which tools need a decision. `ToolApprovalQueue` is a ready-made approval handler: pass `queue.handler` to the stream, watch `queue.updates` for parked requests, and resolve each one from your UI. Requests resolve in any order, and `denyAll(reason:)` clears whatever is still waiting, so a Stop button should call it before cancelling the stream. A single run asks one approval at a time; several requests only pile up when runs share a queue.
+Set `approvalPolicy` in `AgentConfiguration` to choose which tools need a decision. `ToolApprovalQueue` is a ready-made approval handler: pass `queue.handler` to the stream, watch `queue.updates` for parked requests, and resolve each one from your UI. Requests resolve in any order, and `denyAll(reason:)` clears whatever is still waiting, so a Stop button should cancel the stream first and then call it (cancelling first keeps `partialHistory` deterministic). A single run asks one approval at a time; several requests only pile up when runs share a queue.
 
 ```swift
 let queue = ToolApprovalQueue()

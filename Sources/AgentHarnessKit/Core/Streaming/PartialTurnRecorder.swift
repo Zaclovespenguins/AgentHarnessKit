@@ -70,12 +70,23 @@ package final class PartialTurnRecorder: @unchecked Sendable {
     ///   `.response` that `.stop` leaves behind.
     /// - Tool calls of the most recent assistant message that have no `.tool` result get a synthetic result,
     ///   `cancelledToolResultContent`, in call order, placed directly after that assistant's existing results.
+    /// - A last assistant message whose only call is `finish` is restored as plain answer text with no tool
+    ///   result, the same restore a finished turn gets (`sanitizedTerminalHistory()`).
     /// - Uncommitted text is appended as an assistant message with no tool calls, after any synthetic results.
     package func snapshot() -> [ChatMessage] {
         lock.lock()
         defer { lock.unlock() }
 
         var result = committedMessages.filter { !Self.isEmptyAssistant($0) }
+
+        // The model already gave its answer through `finish`; present it as plain text, as a finished turn would,
+        // instead of as a cancelled tool call. A malformed batch (finish plus other calls) is left to the sealing
+        // below.
+        if let lastMessage = result.last, case let .assistant(assistant) = lastMessage,
+           assistant.toolCalls.count == 1, assistant.toolCalls[0].name == "finish",
+           let restored = try? result.sanitizedTerminalHistory() {
+            result = restored
+        }
 
         if let assistantIndex = result.lastIndex(where: Self.isAssistant) {
             var insertionIndex = assistantIndex + 1

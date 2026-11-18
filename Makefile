@@ -1,4 +1,4 @@
-.PHONY: acceptance build test test-ci lint format format-check check dev-check clean bootstrap
+.PHONY: acceptance build test test-ci lint format format-check check dev-check check-local clean bootstrap
 
 bootstrap:
 	brew install mint
@@ -25,6 +25,12 @@ format-check:
 dev-check: format lint test
 
 check: format-check lint test-ci
+
+# Same checks as `check`, calling swiftformat and swiftlint from PATH (no mint).
+check-local:
+	swiftformat --lint .
+	swiftlint --strict
+	swift test --parallel -Xswiftc -warnings-as-errors
 
 clean:
 	swift package clean

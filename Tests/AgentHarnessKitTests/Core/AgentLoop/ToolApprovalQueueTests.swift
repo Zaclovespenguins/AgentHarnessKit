@@ -94,6 +94,34 @@ struct ToolApprovalQueueTests {
         #expect(await queue.pending().isEmpty)
     }
 
+    /// 6.10: `denyAll` over three parked requests resumes all three with the deny, and subscribers see exactly one
+    /// empty snapshot for it.
+    @Test func denyAllWithThreeParkedPublishesOneEmptySnapshot() async {
+        let queue = ToolApprovalQueue()
+        var updates = queue.updates.makeAsyncIterator()
+        #expect(await updates.next() == [])
+
+        let first = await park(queue, makeRequest("a"), expecting: 1)
+        let second = await park(queue, makeRequest("b"), expecting: 2)
+        let third = await park(queue, makeRequest("c"), expecting: 3)
+        for expected in [["a"], ["a", "b"], ["a", "b", "c"]] {
+            #expect(await updates.next()?.map(\.toolCallId) == expected)
+        }
+
+        await queue.denyAll(reason: "Stopped")
+        #expect(await updates.next() == [])
+        #expect(await first.value == .deny(reason: "Stopped"))
+        #expect(await second.value == .deny(reason: "Stopped"))
+        #expect(await third.value == .deny(reason: "Stopped"))
+
+        // 6.18: nothing is parked now, so a second denyAll publishes nothing. The next emission is the next change.
+        await queue.denyAll(reason: "Again")
+        let next = await park(queue, makeRequest("d"), expecting: 1)
+        #expect(await updates.next()?.map(\.toolCallId) == ["d"])
+        _ = await queue.resolve(id: "d", decision: .approve)
+        _ = await next.value
+    }
+
     @Test func resolveUnknownIdReturnsFalse() async {
         let queue = ToolApprovalQueue()
         let parked = await park(queue, makeRequest("a"), expecting: 1)
