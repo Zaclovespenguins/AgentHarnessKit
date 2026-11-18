@@ -118,7 +118,7 @@ Agent code depends on protocols, never concrete adapters. Context, ALM, and MCP 
 
 ## 7. Platform status
 
-These are spike results, **not AgentHarnessKit acceptance results**. The spike used ALM 1.3.0, traits off; macOS used Swift 6.4.2 and Linux used Swift 6.3.3.
+Rows marked `v0.2` are AgentHarnessKit release results. The other rows are spike results, **not AgentHarnessKit acceptance results**. The spike used ALM 1.3.0, traits off; macOS used Swift 6.4.2 and Linux used Swift 6.3.3.
 
 | Capability | macOS | iOS Simulator | Linux |
 | --- | --- | --- | --- |
@@ -136,6 +136,12 @@ These are spike results, **not AgentHarnessKit acceptance results**. The spike u
 | Apple Foundation Models / MLX adapters | see Phase 7 below | see Phase 7 below | see Phase 7 below |
 | App sandbox and ATS | N/A | NOT RUN | N/A |
 | `xcodebuild` package build | N/A | PASS (skeleton, no `-skipMacroValidation`) | N/A |
+| v0.2 CI run 12 on `main` (commit `3042004`, [run](https://github.com/Zaclovespenguins/AgentHarnessKit/actions/runs/44185720070)): Lint job (SwiftFormat, SwiftLint, acceptance script) | N/A | N/A | PASS (`ubuntu-latest`) |
+| v0.2 CI run 12: macOS build and test | PASS | N/A | N/A |
+| v0.2 CI run 12: Linux (Swift 6.3) build and test | N/A | N/A | PASS |
+| v0.2 CI run 12: iOS Simulator build and test | N/A | PASS | N/A |
+| v0.2 CI run 12: live provider jobs (secret-gated) | SKIPPED | SKIPPED | SKIPPED |
+| v0.2 local: `swift test --parallel -Xswiftc -warnings-as-errors` (Swift 6.3.1) | N/A | N/A | PASS, 1116 tests in 191 suites |
 
 The iOS simulator pass used `simctl spawn`, not a host app. Android spike evidence is intentionally deferred with Android.
 
