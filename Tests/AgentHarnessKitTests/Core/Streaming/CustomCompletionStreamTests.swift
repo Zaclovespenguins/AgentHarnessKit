@@ -93,16 +93,14 @@ private func awaitCollected(
     _ collector: StreamingEventCollector,
     where predicate: @Sendable @escaping (StreamEvent) -> Bool
 ) async {
-    while await !collector.events.contains(where: predicate) {
-        await Task.yield()
+    await waitUntil("collected event matching predicate") {
+        await collector.events.contains(where: predicate)
     }
 }
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 private actor FailingSaveCheckpointer: AgentCheckpointer {

@@ -4,9 +4,7 @@ import Testing
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 @MainActor
@@ -15,12 +13,9 @@ private func waitForBufferedCursor(
     atLeast threshold: UInt64,
     timeout: Duration = .seconds(2)
 ) async {
-    let deadline = ContinuousClock().now + timeout
-    while ContinuousClock().now < deadline {
-        if let value = await stream.bufferedCursor, value >= threshold {
-            return
-        }
-        await Task.yield()
+    await waitUntil("buffered cursor >= \(threshold)", timeout: timeout) {
+        guard let value = await stream.bufferedCursor else { return false }
+        return value >= threshold
     }
 }
 
@@ -197,24 +192,22 @@ struct AgentStreamReplayTests {
     }
 
     @MainActor @Test
-    func cancelBumpsSendGenerationToInvalidateInFlightTask() {
-        let stream = makeBufferedStream()
+    func cancelBumpsSendGenerationToInvalidateInFlightTask() async {
+        let client = CancellationProbeLLMClient()
+        let agent = Agent<EmptyContext>(client: client, tools: [])
+        let stream = AgentStream(agent: agent, bufferCapacity: 32)
+
         stream.send("Hi", context: EmptyContext())
+        await waitUntil("producer to yield deltas") { await client.yieldedCount >= 2 }
         let generationAfterSend = stream.sendGeneration
         stream.cancel()
         #expect(stream.sendGeneration == generationAfterSend &+ 1)
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
     }
 
     @MainActor @Test
     func cancelPreventsFurtherObservableStateMutations() async {
-        let longSequence: [StreamDelta] = (0 ..< 50).flatMap { index -> [StreamDelta] in
-            [.content("event-\(index)")]
-        } + [
-            .toolCallStart(index: 0, id: "call", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content": "done"}"#),
-            .finished(usage: TokenUsage(input: 1, output: 1)),
-        ]
-        let client = StreamingMockLLMClient(streamSequences: [longSequence])
+        let client = CancellationProbeLLMClient()
         let agent = Agent<EmptyContext>(client: client, tools: [])
         let stream = AgentStream(agent: agent, bufferCapacity: 256)
 
@@ -222,13 +215,39 @@ struct AgentStreamReplayTests {
         await waitForBufferedCursor(stream, atLeast: 1)
         let contentSnapshot = stream.content
         stream.cancel()
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
 
-        for _ in 0 ..< 100 {
-            await Task.yield()
-        }
+        try? await Task.sleep(for: .milliseconds(50))
+        let cursorAfterCancel = await stream.bufferedCursor
+        try? await Task.sleep(for: .milliseconds(50))
 
         #expect(stream.content == contentSnapshot)
         #expect(stream.finishReason == nil)
+        #expect(await stream.bufferedCursor == cursorAfterCancel)
+    }
+
+    @MainActor @Test
+    func replayFromTrimmedAndFutureCursorsThrows() async throws {
+        let stream = makeBufferedStream(sequences: [firstSendDeltas], capacity: 2)
+        stream.send("Hi", context: EmptyContext())
+        await awaitStreamCompletion(stream)
+        let cursor = try #require(await stream.bufferedCursor)
+
+        do {
+            _ = try await collectReplay(stream.replay(from: 0))
+            Issue.record("Expected BufferReplayError.cursorTrimmed")
+        } catch BufferReplayError.cursorTrimmed {
+        } catch {
+            Issue.record("Expected BufferReplayError.cursorTrimmed, got \(error)")
+        }
+
+        do {
+            _ = try await collectReplay(stream.replay(from: cursor + 1))
+            Issue.record("Expected BufferReplayError.cursorInFuture")
+        } catch BufferReplayError.cursorInFuture(currentCursor: cursor) {
+        } catch {
+            Issue.record("Expected BufferReplayError.cursorInFuture, got \(error)")
+        }
     }
 
     @MainActor @Test
@@ -244,9 +263,13 @@ struct AgentStreamReplayTests {
         }
         #expect(firstReplayed != nil)
 
-        let events = try await collectReplay(stream.replay(from: 0))
-        #expect(events.count > 1)
-        #expect(events.first?.id == firstReplayed?.id)
+        let fullReplay = try await collectReplay(stream.replay(from: 0))
+        #expect(fullReplay.count > 1)
+        #expect(fullReplay.first?.id == firstReplayed?.id)
+
+        // The abandoned iteration must leave the buffer untouched: a full replay still matches.
+        let secondReplay = try await collectReplay(stream.replay(from: 0))
+        #expect(secondReplay.map(\.id) == fullReplay.map(\.id))
     }
 
     @MainActor @Test
@@ -261,12 +284,7 @@ struct AgentStreamReplayTests {
             stream.cancel()
         }
 
-        for _ in 0 ..< 200 {
-            await Task.yield()
-            if weakStream == nil {
-                break
-            }
-        }
+        await waitUntil("stream to deallocate") { weakStream == nil }
         #expect(weakStream == nil)
     }
 }

@@ -2,6 +2,7 @@
 import Foundation
 import Testing
 
+// swiftlint:disable:next type_body_length
 struct StreamEventWireFormatTests {
     private func fixedDate(millisecondsSince1970: Int64) -> Date {
         Date(timeIntervalSince1970: TimeInterval(millisecondsSince1970) / 1000)
@@ -289,5 +290,213 @@ struct StreamEventWireFormatTests {
         let decoded = try StreamEventJSONCodec.decode(data)
         #expect(decoded.origin == .live)
         #expect(decoded.kind == .delta("x"))
+    }
+
+    private func expectGoldenWireFormat(_ event: StreamEvent, _ expected: String) throws {
+        let data = try StreamEventJSONCodec.encode(event)
+        #expect(String(data: data, encoding: .utf8) == expected)
+
+        let decoded = try StreamEventJSONCodec.decode(Data(expected.utf8))
+        #expect(decoded.id == event.id)
+        #expect(decoded.timestamp == event.timestamp)
+        #expect(decoded.kind == event.kind)
+        #expect(try StreamEventJSONCodec.encode(decoded) == Data(expected.utf8))
+    }
+
+    @Test func toolCallStartedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000701")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .toolCallStarted(name: "search", id: "tc_001")
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000701","#,
+            #""kind":{"id":"tc_001","name":"search","type":"toolCallStarted"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func toolCallCompletedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000702")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .toolCallCompleted(id: "tc_001", name: "search", result: ToolResult(content: "42 results found"))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000702","#,
+            #""kind":{"id":"tc_001","name":"search","#,
+            #""result":{"content":"42 results found","isError":false},"#,
+            #""type":"toolCallCompleted"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func audioDataWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000703")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .audioData(Data([0xDE, 0xAD, 0xBE, 0xEF]))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000703","#,
+            #""kind":{"data":"3q2+7w==","type":"audioData"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func audioTranscriptWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000704")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .audioTranscript("Hello from audio")
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000704","#,
+            #""kind":{"text":"Hello from audio","type":"audioTranscript"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func audioFinishedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000705")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .audioFinished(id: "audio_001", expiresAt: 1_711_800_000, data: Data([0x01, 0x02, 0x03]))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000705","#,
+            #""kind":{"data":"AQID","expiresAt":1711800000,"id":"audio_001","type":"audioFinished"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func subAgentStartedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000706")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .subAgentStarted(toolCallId: "tc_sub", toolName: "research")
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000706","#,
+            #""kind":{"toolCallId":"tc_sub","toolName":"research","type":"subAgentStarted"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func subAgentCompletedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000707")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .subAgentCompleted(
+                toolCallId: "tc_sub",
+                toolName: "research",
+                result: ToolResult(content: "sub-agent result")
+            )
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000707","#,
+            #""kind":{"result":{"content":"sub-agent result","isError":false},"#,
+            #""toolCallId":"tc_sub","toolName":"research","type":"subAgentCompleted"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func contextFoldedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000708")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .contextFolded(ContextFold(blockIDs: [ContextBlockID("b1"), ContextBlockID("b2")], tokensSaved: 5000))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000708","#,
+            #""kind":{"context":{"blockIDs":["b1","b2"],"tokensSaved":5000},"type":"contextFolded"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func contextStatusWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000709")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .contextStatus(ContextStatus(windowSize: 8192, usedTokens: 5000, blockCount: 2))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000709","#,
+            #""kind":{"context":{"blockCount":2,"usedTokens":5000,"windowSize":8192},"type":"contextStatus"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func toolApprovalRequestedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000710")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .toolApprovalRequested(ToolApprovalRequest(
+                toolCallId: "tc_1",
+                toolName: "delete_file",
+                arguments: #"{"city":"Layton"}"#,
+                toolDescription: "Deletes a file"
+            ))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000710","#,
+            #""kind":{"request":{"arguments":"{\"city\":\"Layton\"}","toolCallId":"tc_1","#,
+            #""toolDescription":"Deletes a file","toolName":"delete_file"},"#,
+            #""type":"toolApprovalRequested"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func toolApprovalResolvedWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000711")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .toolApprovalResolved(toolCallId: "tc_1", decision: .deny(reason: "too risky"))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000711","#,
+            #""kind":{"decision":{"reason":"too risky","type":"deny"},"#,
+            #""toolCallId":"tc_1","type":"toolApprovalResolved"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func reasoningDeltaWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000712")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .reasoningDelta("Thinking out loud")
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000712","#,
+            #""kind":{"text":"Thinking out loud","type":"reasoningDelta"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func contextRestoredWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000713")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .contextRestored(ContextRestore(blockID: ContextBlockID("b1"), tokensRestored: 1200))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000713","#,
+            #""kind":{"context":{"blockID":"b1","tokensRestored":1200},"type":"contextRestored"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
     }
 }

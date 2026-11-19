@@ -244,8 +244,9 @@ struct AgentResumeTests {
         )
         try await backend.save(checkpoint)
 
+        let client = StreamingMockLLMClient(streamSequences: [])
         let agent = Agent<EmptyContext>(
-            client: StreamingMockLLMClient(streamSequences: []),
+            client: client,
             tools: [],
             configuration: AgentConfiguration(maxIterations: 5)
         )
@@ -264,6 +265,7 @@ struct AgentResumeTests {
             return
         }
         #expect(reason == .maxIterationsReached(limit: 5))
+        #expect(await client.allCapturedTools.isEmpty)
     }
 
     @Test
@@ -376,8 +378,9 @@ struct AgentResumeTests {
             iterationUsage: TokenUsage(input: 5, output: 5),
             sessionID: session, runID: RunID(), checkpointID: checkpointID
         ))
+        let client = CapturingStreamingMockLLMClient(streamSequences: [secondFinishDeltas])
         let agent = Agent<EmptyContext>(
-            client: StreamingMockLLMClient(streamSequences: [secondFinishDeltas]),
+            client: client,
             tools: [echoTool]
         )
         let stream = try await agent.resume(
@@ -386,6 +389,9 @@ struct AgentResumeTests {
         _ = try await collect(stream)
         let count = await toolInvocationCount.value
         #expect(count == 0)
+        let request = try #require(await client.allCapturedMessages.last)
+        #expect(request.contains(.user("Hi")))
+        #expect(request.contains(.tool(id: "call_echo", name: "echo", content: #"{"echoed":"hi"}"#)))
     }
 
     @Test

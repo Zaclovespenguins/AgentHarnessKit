@@ -1,5 +1,6 @@
 @testable import AgentHarnessKit
 import Foundation
+import Testing
 
 actor MockLLMClient: LLMClient, ToolCallSurfacingClient {
     nonisolated let providerIdentifier: ProviderIdentifier = .custom("MockLLMClient")
@@ -366,6 +367,84 @@ actor ControllableStreamingMockLLMClient: LLMClient {
                 }
             }
         }
+    }
+}
+
+/// First stream call yields content deltas until its producer is cancelled and records the stop. Later calls
+/// replay `followUp` and finish.
+actor CancellationProbeLLMClient: LLMClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("CancellationProbeLLMClient")
+    private let followUp: [StreamDelta]
+    private var streamCalls = 0
+    private(set) var yieldedCount = 0
+    private(set) var stoppedProducers = 0
+
+    init(followUp: [StreamDelta] = []) {
+        self.followUp = followUp
+    }
+
+    func generate(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        throw AgentError.llmError(.other("No more mock responses"))
+    }
+
+    private func beginStream() -> [StreamDelta]? {
+        streamCalls += 1
+        return streamCalls == 1 ? nil : followUp
+    }
+
+    private func recordYield() {
+        yieldedCount += 1
+    }
+
+    private func recordStop() {
+        stoppedProducers += 1
+    }
+
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                if let deltas = await self.beginStream() {
+                    for delta in deltas {
+                        continuation.yield(delta)
+                    }
+                } else {
+                    while !Task.isCancelled {
+                        continuation.yield(.content("x"))
+                        await self.recordYield()
+                        try? await Task.sleep(for: .milliseconds(1))
+                    }
+                    await self.recordStop()
+                }
+                continuation.finish()
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+}
+
+/// Polls `condition` every millisecond until it holds; records an Issue if `timeout` elapses first.
+@MainActor
+func waitUntil(
+    _ description: String,
+    timeout: Duration = .seconds(10),
+    _ condition: @MainActor () async -> Bool
+) async {
+    let deadline = ContinuousClock.now.advanced(by: timeout)
+    while await !condition() {
+        guard ContinuousClock.now < deadline else {
+            Issue.record("Timed out waiting for \(description)")
+            return
+        }
+        try? await Task.sleep(for: .milliseconds(1))
     }
 }
 

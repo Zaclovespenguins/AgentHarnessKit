@@ -4,18 +4,14 @@ import Testing
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 @MainActor
 private func awaitBufferedCursor(_ stream: AgentStream<some ToolContext>, atLeast cursor: UInt64) async {
-    for _ in 0 ..< 200 {
-        if let bufferedCursor = await stream.bufferedCursor, bufferedCursor >= cursor {
-            return
-        }
-        await Task.yield()
+    await waitUntil("buffered cursor >= \(cursor)") {
+        guard let bufferedCursor = await stream.bufferedCursor else { return false }
+        return bufferedCursor >= cursor
     }
 }
 
@@ -323,15 +319,9 @@ struct AgentStreamResumeObserverTests {
             iterationUsage: TokenUsage(input: 5, output: 5),
             sessionID: session, runID: RunID(), checkpointID: checkpointID
         ))
-        let longSequence: [StreamDelta] = (0 ..< 50).flatMap { index -> [StreamDelta] in
-            [.content("event-\(index)")]
-        } + [
-            .toolCallStart(index: 0, id: "call", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content":"done"}"#),
-            .finished(usage: TokenUsage(input: 1, output: 1)),
-        ]
+        let client = CancellationProbeLLMClient()
         let agent = Agent<EmptyContext>(
-            client: StreamingMockLLMClient(streamSequences: [longSequence]),
+            client: client,
             tools: []
         )
         let stream = AgentStream(agent: agent, bufferCapacity: 256)
@@ -340,12 +330,14 @@ struct AgentStreamResumeObserverTests {
         let contentBeforeCancel = stream.content
         let genBeforeCancel = stream.sendGeneration
         stream.cancel()
-        for _ in 0 ..< 50 {
-            await Task.yield()
-        }
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
+        try? await Task.sleep(for: .milliseconds(50))
+        let cursorAfterCancel = await stream.bufferedCursor
+        try? await Task.sleep(for: .milliseconds(50))
         #expect(stream.sendGeneration == genBeforeCancel &+ 1)
         #expect(stream.content == contentBeforeCancel)
         #expect(stream.finishReason == nil)
+        #expect(await stream.bufferedCursor == cursorAfterCancel)
     }
 
     @MainActor @Test
@@ -412,29 +404,19 @@ struct AgentStreamResumeObserverTests {
         ))
         let blocking = SlowCheckpointer(inner: backend)
         let priorSession = SessionID()
-        let agent = Agent<EmptyContext>(
-            client: StreamingMockLLMClient(streamSequences: [
-                (0 ..< 30).map { _ in StreamDelta.content("x") } + [
-                    .toolCallStart(index: 0, id: "call_a", name: "finish", kind: .function),
-                    .toolCallDelta(index: 0, arguments: #"{"content":"prior"}"#),
-                    .finished(usage: TokenUsage(input: 1, output: 1)),
-                ],
-                [
-                    .toolCallStart(index: 0, id: "call_b", name: "finish", kind: .function),
-                    .toolCallDelta(index: 0, arguments: #"{"content":"resumed"}"#),
-                    .finished(usage: TokenUsage(input: 1, output: 1)),
-                ],
-            ]),
-            tools: []
-        )
+        let client = CancellationProbeLLMClient(followUp: [
+            .toolCallStart(index: 0, id: "call_b", name: "finish", kind: .function),
+            .toolCallDelta(index: 0, arguments: #"{"content":"resumed"}"#),
+            .finished(usage: TokenUsage(input: 1, output: 1)),
+        ])
+        let agent = Agent<EmptyContext>(client: client, tools: [])
         let stream = AgentStream(agent: agent, bufferCapacity: 256)
         stream.send("Hi", context: EmptyContext(), sessionID: priorSession)
-        for _ in 0 ..< 5 {
-            await Task.yield()
-        }
+        await waitUntil("prior send to start streaming") { await client.yieldedCount >= 1 }
         let priorGen = stream.sendGeneration
         try await stream.resume(from: checkpointID, checkpointer: blocking, context: EmptyContext())
         await awaitStreamCompletion(stream)
+        await waitUntil("prior send's producer to be cancelled") { await client.stoppedProducers == 1 }
         #expect(stream.sendGeneration > priorGen)
         #expect(stream.sessionID == session)
     }

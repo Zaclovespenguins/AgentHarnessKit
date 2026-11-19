@@ -4,9 +4,7 @@ import Testing
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 private let finishOnceDeltas: [StreamDelta] = [
@@ -72,8 +70,8 @@ struct AgentStreamIdentityTests {
         let firstRunIDs = Set(firstReplay.compactMap(\.runID))
         let secondRunIDs = Set(secondReplay.compactMap(\.runID))
         #expect(stream.sessionID == explicit)
-        #expect(!firstRunIDs.isEmpty)
-        #expect(!secondRunIDs.isEmpty)
+        #expect(firstRunIDs.count == 1)
+        #expect(secondRunIDs.count == 1)
         #expect(firstRunIDs.isDisjoint(with: secondRunIDs))
     }
 }

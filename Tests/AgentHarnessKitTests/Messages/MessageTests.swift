@@ -182,6 +182,22 @@ struct CodableRoundTripTests {
     }
 
     @Test
+    func customToolCallRoundTrip() throws {
+        let original = ToolCall(id: "123", name: "test", arguments: "{\"key\": \"value\"}", kind: .custom)
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(ToolCall.self, from: data)
+        #expect(decoded == original)
+        #expect(decoded.kind == .custom)
+    }
+
+    @Test
+    func toolCallWithoutTypeDecodesAsFunction() throws {
+        let legacy = Data(#"{"id":"1","name":"test","arguments":"{}"}"#.utf8)
+        let decoded = try JSONDecoder().decode(ToolCall.self, from: legacy)
+        #expect(decoded.kind == .function)
+    }
+
+    @Test
     func assistantMessageRoundTrip() throws {
         let original = AssistantMessage(
             content: "Hello",

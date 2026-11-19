@@ -29,7 +29,14 @@
         process.arguments = [directory.path, session.rawValue.uuidString]
         let stdout = Pipe()
         process.standardOutput = stdout
+        let exited = DispatchSemaphore(value: 0)
+        process.terminationHandler = { _ in exited.signal() }
         try process.run()
+        guard exited.wait(timeout: .now() + 60) == .success else {
+            process.terminate()
+            Issue.record("CheckpointResumeProbe did not exit within 60s")
+            throw CancellationError()
+        }
         process.waitUntilExit()
         let output = String(bytes: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         #expect(process.terminationStatus == 0)

@@ -14,6 +14,11 @@ enum StreamEventInvariantAssertions {
         endedAt: Date,
         scope: StreamEventScope = .agent
     ) {
+        if case .agent = scope {
+            // A run stamps one session id and one run id on every event it emits.
+            #expect(Set(events.compactMap(\.sessionID)).count <= 1)
+            #expect(Set(events.compactMap(\.runID)).count <= 1)
+        }
         var ids = Set<EventID>()
         for event in events {
             assertStage1RuntimeInvariants(

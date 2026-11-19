@@ -23,16 +23,12 @@ private func makeAgentStreamWithTools(
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 @MainActor
 private func awaitStreamCondition(_ condition: @MainActor () -> Bool) async {
-    while !condition() {
-        await Task.yield()
-    }
+    await waitUntil("stream condition") { condition() }
 }
 
 struct AgentStreamTests {
@@ -244,20 +240,20 @@ struct AgentStreamTests {
 
     @MainActor @Test
     func cancelStopsStreaming() async {
-        let deltas: [StreamDelta] = [
-            .content("Hello"),
-            .toolCallStart(index: 0, id: "call_1", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content": "done"}"#),
-            .finished(usage: TokenUsage(input: 10, output: 5)),
-        ]
-        let stream = makeAgentStream(streamSequences: [deltas])
+        let client = CancellationProbeLLMClient()
+        let agent = Agent<EmptyContext>(client: client, tools: [])
+        let stream = AgentStream(agent: agent)
 
         stream.send("Hi", context: EmptyContext())
-        stream.cancel()
-        await awaitStreamCompletion(stream)
+        await waitUntil("producer to yield deltas") { await client.yieldedCount >= 2 }
 
+        stream.cancel()
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
+
+        let contentAfterCancel = stream.content
+        try? await Task.sleep(for: .milliseconds(20))
         #expect(!stream.isStreaming)
-        #expect(stream.content.isEmpty)
+        #expect(stream.content == contentAfterCancel)
     }
 
     @MainActor @Test

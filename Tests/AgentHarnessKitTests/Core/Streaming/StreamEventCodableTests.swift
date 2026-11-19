@@ -53,16 +53,6 @@ struct StreamEventKindCodableTests {
         #expect(try roundTrip(kind) == kind)
     }
 
-    @Test func finishedRoundTrips() throws {
-        let kind = StreamEvent.Kind.finished(
-            tokenUsage: makeTokenUsageTotals(TokenUsage(input: 100, output: 50)),
-            content: "Done.",
-            reason: .completed,
-            history: []
-        )
-        #expect(try roundTrip(kind) == kind)
-    }
-
     @Test func finishedWithMaxIterationsReasonRoundTrips() throws {
         let kind = StreamEvent.Kind.finished(
             tokenUsage: makeTokenUsageTotals(TokenUsage(input: 20, output: 10)),
@@ -85,12 +75,6 @@ struct StreamEventKindCodableTests {
 
     @Test func subAgentStartedRoundTrips() throws {
         let kind = StreamEvent.Kind.subAgentStarted(toolCallId: "tc_sub", toolName: "research")
-        #expect(try roundTrip(kind) == kind)
-    }
-
-    @Test func subAgentEventRoundTrips() throws {
-        let inner = StreamEvent(kind: .delta("inner content"))
-        let kind = StreamEvent.Kind.subAgentEvent(toolCallId: "tc_sub", toolName: "research", event: inner)
         #expect(try roundTrip(kind) == kind)
     }
 
@@ -149,8 +133,13 @@ struct StreamEventKindCodableTests {
     @Test func legacyCompactionEventTypesAreRejected() {
         for type in ["compacted", "budgetUpdated", "budgetAdvisory"] {
             let json = #"{"type":"\#(type)","totalTokens":1,"windowSize":2}"#
-            #expect(throws: DecodingError.self) {
-                try JSONDecoder().decode(StreamEvent.Kind.self, from: Data(json.utf8))
+            do {
+                _ = try JSONDecoder().decode(StreamEvent.Kind.self, from: Data(json.utf8))
+                Issue.record("Expected DecodingError.dataCorrupted for \(type)")
+            } catch let DecodingError.dataCorrupted(context) {
+                #expect(context.debugDescription.contains(type))
+            } catch {
+                Issue.record("Expected DecodingError.dataCorrupted for \(type), got \(error)")
             }
         }
     }
@@ -457,13 +446,6 @@ struct EventOriginCodableTests {
             try JSONDecoder().decode(EventOrigin.self, from: data)
         }
     }
-
-    @Test func liveOriginIsOmittedFromEnvelopeEncode() throws {
-        let event = StreamEvent(origin: .live, kind: .delta("x"))
-        let data = try JSONEncoder().encode(event)
-        let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
-        #expect(json["origin"] == nil)
-    }
 }
 
 struct StreamEventFinishedCodableTests {
@@ -552,22 +534,6 @@ struct StreamEventDiscriminatorTests {
         #expect(kindJSON["type"] as? String == "delta")
     }
 
-    @Test func unknownTypeDiscriminatorThrowsDecodingError() throws {
-        let json = """
-        {
-            "id": "00000000-0000-0000-0000-000000000001",
-            "timestamp": "2026-03-30T14:22:07.123Z",
-            "kind": {
-                "type": "unknownFutureEvent",
-                "data": "something"
-            }
-        }
-        """
-        #expect(throws: DecodingError.self) {
-            try JSONDecoder().decode(StreamEvent.self, from: Data(json.utf8))
-        }
-    }
-
     @Test(arguments: [
         "not-a-date",
         "2026-03-30T14:22:0/.123Z",
@@ -590,6 +556,50 @@ struct StreamEventDiscriminatorTests {
             _ = try JSONDecoder().decode(StreamEvent.self, from: Data(json.utf8))
             Issue.record("Expected DecodingError.dataCorrupted")
         } catch let DecodingError.dataCorrupted(context) {
+            #expect(context.codingPath.map(\.stringValue) == ["timestamp"])
+        }
+    }
+
+    @Test(arguments: [
+        "2026-02-30T14:22:07.123Z",
+        "2025-02-29T00:00:00.000Z",
+        "2026-04-31T00:00:00.000Z",
+        "2026-13-01T00:00:00.000Z",
+        "2026-03-30T24:00:00.000Z",
+        "2026-03-30T14:60:00.000Z",
+        "2026-03-30T14:22:60.000Z",
+    ])
+    func impossibleCalendarTimestampThrowsDecodingError(timestamp: String) throws {
+        let json = """
+        {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "timestamp": "\(timestamp)",
+            "kind": {
+                "type": "delta",
+                "text": "hello"
+            }
+        }
+        """
+        do {
+            _ = try JSONDecoder().decode(StreamEvent.self, from: Data(json.utf8))
+            Issue.record("Expected DecodingError.dataCorrupted")
+        } catch let DecodingError.dataCorrupted(context) {
+            #expect(context.codingPath.map(\.stringValue) == ["timestamp"])
+        }
+    }
+
+    @Test func timestampOutsideFourDigitYearThrowsEncodingError() throws {
+        // 10000-01-01T00:00:00Z fits in Int64 milliseconds, so only the four-digit-year guard can reject it.
+        let date = Date(timeIntervalSince1970: 253_402_300_800)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        #expect(calendar.component(.year, from: date) == 10000)
+
+        let event = StreamEvent(timestamp: date, kind: .delta("ts"))
+        do {
+            _ = try JSONEncoder().encode(event)
+            Issue.record("Expected EncodingError.invalidValue")
+        } catch let EncodingError.invalidValue(_, context) {
             #expect(context.codingPath.map(\.stringValue) == ["timestamp"])
         }
     }
