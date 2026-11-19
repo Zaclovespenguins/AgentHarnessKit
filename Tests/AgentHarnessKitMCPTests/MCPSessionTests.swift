@@ -105,11 +105,12 @@ struct MCPSessionTests {
             MCPServerConfiguration(name: "good", endpoint: testEndpoint),
             MCPServerConfiguration(name: "bad", endpoint: testEndpoint),
         ]
+        let good = makeStandardTransport()
         let session = MCPSession(configurations: configs) { config in
             if config.name == "bad" {
                 return FailingTransport()
             }
-            return makeStandardTransport()
+            return good
         }
 
         do {
@@ -121,13 +122,15 @@ struct MCPSessionTests {
                 return
             }
         }
+        #expect(await good.effectiveDisconnectCallCount() == 1)
     }
 
     @Test
     func bodyErrorTriggersShutdown() async throws {
         let config = MCPServerConfiguration(name: "server1", endpoint: testEndpoint)
+        let transport = makeStandardTransport()
         let session = MCPSession(configurations: [config]) { _ in
-            makeStandardTransport()
+            transport
         }
 
         do {
@@ -138,6 +141,7 @@ struct MCPSessionTests {
         } catch let error as TestSessionError {
             #expect(error == .bodyFailed)
         }
+        #expect(await transport.effectiveDisconnectCallCount() == 1)
     }
 
     @Test

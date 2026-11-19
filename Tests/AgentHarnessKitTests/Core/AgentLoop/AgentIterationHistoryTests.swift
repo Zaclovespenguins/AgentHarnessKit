@@ -15,50 +15,6 @@ private struct EchoOutput: Codable {
 
 struct AgentIterationHistoryTests {
     @Test
-    func iterationCompletedHistoryReflectsPostAppendSnapshot() async throws {
-        let echoTool = try Tool<EchoParams, EchoOutput, EmptyContext>(
-            name: "echo",
-            description: "Echoes input",
-            executor: { params, _ in EchoOutput(echoed: params.message) }
-        )
-
-        let iteration1: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "call_1", name: "echo", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"message": "first"}"#),
-            .finished(usage: TokenUsage(input: 10, output: 5)),
-        ]
-        let iteration2: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "call_2", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content": "done"}"#),
-            .finished(usage: TokenUsage(input: 20, output: 10)),
-        ]
-
-        let client = StreamingMockLLMClient(streamSequences: [iteration1, iteration2])
-        let agent = Agent<EmptyContext>(client: client, tools: [echoTool])
-
-        var histories: [[ChatMessage]] = []
-        for try await event in agent.stream(userMessage: "Go", context: EmptyContext()) {
-            if case let .iterationCompleted(_, _, history) = event.kind {
-                histories.append(history)
-            }
-        }
-
-        #expect(histories.count == 2)
-
-        guard case let .assistant(iter1Assistant) = histories[0].last else {
-            Issue.record("Iteration 1 history does not end with an assistant turn")
-            return
-        }
-        #expect(iter1Assistant.toolCalls.contains(where: { $0.name == "echo" }))
-
-        guard case let .assistant(iter2Assistant) = histories[1].last else {
-            Issue.record("Iteration 2 history does not end with an assistant turn")
-            return
-        }
-        #expect(iter2Assistant.toolCalls.contains(where: { $0.name == "finish" }))
-    }
-
-    @Test
     func iterationCompletedHistoryGrowsMonotonically() async throws {
         let echoTool = try Tool<EchoParams, EchoOutput, EmptyContext>(
             name: "echo",

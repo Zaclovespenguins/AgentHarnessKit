@@ -99,6 +99,24 @@ struct HierarchicalContextStoreTests {
         #expect(state.lastInputTokens == 42)
     }
 
+    @Test func compressReportsTokensSavedWhenTheSummaryIsShorter() async throws {
+        let contextStore = store()
+        let bulky = String(repeating: "verbose tool chatter ", count: 50)
+        let messages = [ChatMessage.system("sys"), .user("first task")] + (1 ... 6).flatMap { index -> [ChatMessage] in
+            [.user("question \(index)"), .assistant(AssistantMessage(content: "answer \(index) \(bulky)"))]
+        }
+        _ = try await contextStore.render(sessionID: session, messages: messages, windowSize: 100_000)
+        let outcome = try await contextStore.executeTool(
+            compressCall([CompressRange(startRef: "m00003", endRef: "m00006", summary: longSummary)]),
+            sessionID: session
+        )
+        guard case let .contextFolded(fold) = outcome.events.first else {
+            Issue.record("expected contextFolded, got \(outcome.events)")
+            return
+        }
+        #expect(fold.tokensSaved > 0)
+    }
+
     @Test func compressFoldsBumpsVersionAndEmitsEvent() async throws {
         let contextStore = store()
         let messages = history(pairs: 6)

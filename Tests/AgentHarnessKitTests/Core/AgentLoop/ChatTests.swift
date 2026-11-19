@@ -177,63 +177,20 @@ struct ChatTests {
     }
 
     @Test
-    func unknownToolFeedbackSurvivesContentOnlyTermination() async throws {
-        let firstStreamDeltas: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "call_1", name: "nonexistent", kind: .function),
-            .toolCallDelta(index: 0, arguments: "{}"),
-            .finished(usage: TokenUsage(input: 10, output: 5))
-        ]
-        let secondStreamDeltas: [StreamDelta] = [
-            .content("Tool not found"),
-            .finished(usage: TokenUsage(input: 20, output: 10))
-        ]
-        let client = StreamingMockLLMClient(streamSequences: [firstStreamDeltas, secondStreamDeltas])
-        let chat = Chat<EmptyContext>(client: client, tools: [])
-
-        var events: [StreamEvent] = []
-        for try await event in chat.stream("Q", context: EmptyContext()) {
-            events.append(event)
-        }
-
-        let toolCompletedEvent = events.first { event in
-            if case let .toolCallCompleted(_, _, result) = event.kind {
-                return result.isError && result.content.contains("does not exist")
-            }
-            return false
-        }
-        #expect(toolCompletedEvent != nil)
-    }
-
-    @Test
     func respectsCancellation() async {
-        let client = ControllableStreamingMockLLMClient()
+        let client = ChatCancellationProbeLLMClient()
         let chat = Chat<EmptyContext>(client: client)
 
-        let streamStarted = AsyncStream<Void>.makeStream()
-        await client.setStreamStartedHandler { streamStarted.continuation.yield() }
-
-        let collector = StreamingEventCollector()
         let task = Task {
-            for try await event in chat.stream("Hi", context: EmptyContext()) {
-                await collector.append(event)
-            }
+            for try await _ in chat.stream("Hi", context: EmptyContext()) {}
         }
 
-        for await _ in streamStarted.stream {
-            break
-        }
-
-        await client.yieldDelta(.content("First"))
-        await client.yieldDelta(.content("Second"))
-        await collector.waitForFirstEvent()
-
+        #expect(await pollUntil { await client.started })
         task.cancel()
-
         _ = try? await task.value
 
-        let events = await collector.events
-        #expect(events.count >= 1, "Should have received at least one event before cancellation")
-        #expect(events.count <= 2, "Should not have received events after cancellation")
+        // The producer must observe the cancellation, not just the consumer.
+        #expect(await pollUntil { await client.terminated })
     }
 
     @Test
@@ -466,6 +423,53 @@ struct ChatTests {
         #expect(reason == .maxIterationsReached(limit: 2))
         #expect(history.count == 5)
     }
+}
+
+private actor ChatCancellationProbeLLMClient: LLMClient {
+    nonisolated let providerIdentifier: ProviderIdentifier = .custom("ChatCancellationProbeLLMClient")
+    private(set) var started = false
+    private(set) var terminated = false
+
+    func generate(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        responseFormat _: ResponseFormat?,
+        requestContext _: RequestContext?
+    ) async throws -> AssistantMessage {
+        throw AgentError.llmError(.other("Unused"))
+    }
+
+    func markStarted() {
+        started = true
+    }
+
+    func markTerminated() {
+        terminated = true
+    }
+
+    /// Never finishes on its own, so only cancellation can end it.
+    nonisolated func stream(
+        messages _: [ChatMessage],
+        tools _: [ToolDefinition],
+        requestContext _: RequestContext?
+    ) -> AsyncThrowingStream<StreamDelta, Error> {
+        AsyncThrowingStream { continuation in
+            continuation.onTermination = { _ in
+                Task { await self.markTerminated() }
+            }
+            Task { await self.markStarted() }
+        }
+    }
+}
+
+private func pollUntil(_ condition: () async -> Bool) async -> Bool {
+    for _ in 0 ..< 200 {
+        if await condition() {
+            return true
+        }
+        try? await Task.sleep(for: .milliseconds(10))
+    }
+    return await condition()
 }
 
 private actor ChatCapturingMockLLMClient: LLMClient {

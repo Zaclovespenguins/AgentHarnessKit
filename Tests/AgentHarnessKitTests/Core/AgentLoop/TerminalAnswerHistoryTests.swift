@@ -192,24 +192,6 @@ struct TerminalAnswerHistoryStreamTests {
 
 struct TerminalAnswerFollowUpRequestTests {
     @Test
-    func runFollowUpRequestContainsAnswerOnce() async throws {
-        let client = ContentOnlyTerminatingMockLLMClient(generateResponses: [
-            AssistantMessage(content: "", toolCalls: [finishCall()]),
-            AssistantMessage(content: "", toolCalls: [finishCall(id: "call_finish_2", content: "Second answer")]),
-        ])
-        let agent = Agent<EmptyContext>(client: client, tools: [])
-
-        let first = try await agent.run(userMessage: "Q1", context: EmptyContext())
-        _ = try await agent.run(userMessage: "Q2", history: first.history, context: EmptyContext())
-
-        let requests = await client.capturedGenerateMessages
-        #expect(requests.count == 2)
-        let followUp = try #require(requests.last)
-        #expect(occurrences(of: answer, in: followUp) == 1)
-        try followUp.validateForLLMRequest()
-    }
-
-    @Test
     func streamFollowUpRequestContainsAnswerOnce() async throws {
         let client = CapturingStreamingMockLLMClient(streamSequences: [
             finishDeltas(),

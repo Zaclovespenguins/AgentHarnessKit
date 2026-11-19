@@ -311,18 +311,18 @@ struct AgentTests {
 
     @Test
     func perToolTimeoutWiderThanGlobalCompletes() async throws {
-        let quickTool = try Tool<NoopParams, NoopOutput, EmptyContext>(
+        let quickTool = try Tool<EchoParams, EchoOutput, EmptyContext>(
             name: "quick",
             description: "Tool with generous per-tool override",
             toolTimeout: .seconds(2),
-            executor: { _, _ in
+            executor: { params, _ in
                 try await Task.sleep(for: .milliseconds(100))
-                return NoopOutput()
+                return EchoOutput(echoed: "Echo: \(params.message)")
             }
         )
-        let toolCall = ToolCall(id: "call_1", name: "quick", arguments: "{}")
+        let toolCall = ToolCall(id: "call_1", name: "quick", arguments: #"{"message":"hi"}"#)
         let finishCall = ToolCall(id: "call_2", name: "finish", arguments: #"{"content": "done"}"#)
-        let client = MockLLMClient(responses: [
+        let client = CapturingMockLLMClient(responses: [
             AssistantMessage(content: "", toolCalls: [toolCall]),
             AssistantMessage(content: "", toolCalls: [finishCall]),
         ])
@@ -331,6 +331,13 @@ struct AgentTests {
 
         let result = try await agent.run(userMessage: "Go", context: EmptyContext())
         #expect(try requireContent(result) == "done")
+
+        let capturedMessages = await client.capturedMessages
+        let toolMessage = capturedMessages.compactMap { msg -> String? in
+            guard case let .tool(_, _, content) = msg else { return nil }
+            return content
+        }.last
+        #expect(toolMessage?.contains("Echo: hi") == true)
     }
 
     @Test
@@ -496,8 +503,8 @@ struct AgentTokenBudgetTests {
         let toolCall = ToolCall(id: "call_1", name: "noop", arguments: "{}")
         let finishCall = ToolCall(id: "call_2", name: "finish", arguments: #"{"content": "done"}"#)
         let client = MockLLMClient(responses: [
-            AssistantMessage(content: "", toolCalls: [toolCall], tokenUsage: TokenUsage(input: 25, output: 25)),
-            AssistantMessage(content: "", toolCalls: [finishCall], tokenUsage: TokenUsage(input: 25, output: 25))
+            AssistantMessage(content: "", toolCalls: [toolCall], tokenUsage: TokenUsage(input: 50, output: 50)),
+            AssistantMessage(content: "", toolCalls: [finishCall])
         ])
         let agent = Agent<EmptyContext>(client: client, tools: [noopTool])
 

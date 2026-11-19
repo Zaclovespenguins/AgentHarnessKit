@@ -111,7 +111,3 @@ struct ExecutableCompletionClassificationTests {
         #expect(try policy.classify([searchCall, pruneCall]) == TerminalCallDisposition.none)
     }
 }
-
-struct TerminalOutcomeIdentityTests {
-    private let outcome = AgentTerminalOutcome(content: #"{"summary":"shipped"}"#, toolName: "finalize")
-}

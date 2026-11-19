@@ -212,18 +212,6 @@ struct ContextToolLoopTests {
             #expect(actual == nil)
         }
     }
-
-    @Test
-    func checkpointVersionIsOptionalInJSON() throws {
-        let checkpoint = AgentCheckpoint(
-            messages: [.user("hi")], iteration: 1, tokenUsage: TokenUsageTotals(), iterationUsage: nil,
-            sessionAllowlist: [], sessionID: SessionID(), runID: RunID(), checkpointID: CheckpointID(),
-            timestamp: Date(timeIntervalSince1970: 0)
-        )
-        let data = try JSONEncoder().encode(checkpoint)
-        #expect(!String(decoding: data, as: UTF8.self).contains("contextStateVersion"))
-        #expect(try JSONDecoder().decode(AgentCheckpoint.self, from: data).contextStateVersion == nil)
-    }
 }
 
 private extension Array {

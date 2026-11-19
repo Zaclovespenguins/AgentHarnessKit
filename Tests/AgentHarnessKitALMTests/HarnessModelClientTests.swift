@@ -253,7 +253,16 @@ private func roles(_ body: [String: Any]) -> [String] {
         do {
             _ = try await collect(mockClient(server).stream(messages: history, tools: []))
             Issue.record("expected an error")
-        } catch AgentError.llmError {}
+        } catch AgentError.llmError(.httpError(statusCode: 500, body: _)) {}
+    }
+
+    @Test func streamRateLimitMapsToRateLimited() async throws {
+        let server = try MockServer()
+        server.enqueue(status: 429)
+        do {
+            _ = try await collect(mockClient(server).stream(messages: history, tools: []))
+            Issue.record("expected an error")
+        } catch AgentError.llmError(.rateLimited) {}
     }
 
     @Test func cancelStopsPromptlyAndReachesTheSocket() async throws {

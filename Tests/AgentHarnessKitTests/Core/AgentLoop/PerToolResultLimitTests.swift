@@ -269,6 +269,14 @@ struct PerToolResultLimitTests {
     }
 
     @Test
+    func truncateToolResultKeepsHeadThreeFifthsAndTail() {
+        // 30 - 21 (marker) = 9 content chars: 9 * 3 / 5 = 5 head, 4 tail.
+        let content = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        let truncated = ToolResultTruncation.truncateToolResult(content, maxCharacters: 30)
+        #expect(truncated == "ABCDE\n\n...[truncated]...\n\n6789")
+    }
+
+    @Test
     func truncateToolResultWithNonPositiveLimitReturnsEmptyString() {
         let content = String(repeating: "R", count: 200)
         #expect(ToolResultTruncation.truncateToolResult(content, maxCharacters: 0).isEmpty)

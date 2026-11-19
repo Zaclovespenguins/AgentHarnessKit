@@ -1,4 +1,3 @@
-// swiftlint:disable file_length
 @testable import AgentHarnessKit
 import Foundation
 import Testing
@@ -212,37 +211,19 @@ struct AgentStreamingTests {
 
     @Test
     func cancellationRespected() async throws {
-        let client = ControllableStreamingMockLLMClient()
+        let client = CancellationProbeLLMClient()
         let agent = Agent<EmptyContext>(client: client, tools: [])
-
-        let streamStarted = AsyncStream<Void>.makeStream()
-        await client.setStreamStartedHandler { streamStarted.continuation.yield() }
-
-        let collector = StreamingEventCollector()
         let task = Task {
-            for try await event in agent.stream(userMessage: "Hi", context: EmptyContext()) {
-                await collector.append(event)
-            }
+            for try await _ in agent.stream(userMessage: "Hi", context: EmptyContext()) {}
         }
 
-        for await _ in streamStarted.stream {
-            break
-        }
-
-        await client.yieldDelta(.content("First"))
-        await client.yieldDelta(.content("Second"))
-        await collector.waitForFirstEvent()
-
+        await waitUntil("producer to yield deltas") { await client.yieldedCount >= 2 }
         task.cancel()
 
         do {
             try await task.value
-        } catch is CancellationError {
-        } catch {}
-
-        let events = await collector.events
-        #expect(events.count >= 1, "Should have received at least one event before cancellation")
-        #expect(events.count <= 2, "Should not have received events after cancellation")
+        } catch is CancellationError {}
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
     }
 
     @Test

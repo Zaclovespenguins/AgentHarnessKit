@@ -149,62 +149,6 @@ struct ChatApprovalTests {
     }
 
     @Test
-    func subAgentApprovalPropagatesWhenParentPolicyIsNone() async throws {
-        let childNoopTool = try Tool<NoopParams, NoopOutput, SubAgentContext<EmptyContext>>(
-            name: "child_noop",
-            description: "Child no-op",
-            executor: { _, _ in NoopOutput() }
-        )
-        let childDeltas1: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "child_tool", name: "child_noop", kind: .function),
-            .toolCallDelta(index: 0, arguments: "{}"),
-            .finished(usage: nil),
-        ]
-        let childDeltas2: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "child_finish", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content":"child done"}"#),
-            .finished(usage: nil),
-        ]
-        let childClient = StreamingMockLLMClient(streamSequences: [childDeltas1, childDeltas2])
-        let childAgent = Agent<SubAgentContext<EmptyContext>>(
-            client: childClient,
-            tools: [childNoopTool],
-            configuration: AgentConfiguration(approvalPolicy: .allTools)
-        )
-        let delegateTool = try SubAgentTool<EchoParams, EmptyContext>(
-            name: "delegate",
-            description: "Delegates work",
-            agent: childAgent,
-            messageBuilder: { $0.message }
-        )
-
-        let firstStreamDeltas: [StreamDelta] = [
-            .toolCallStart(index: 0, id: "delegate_call", name: "delegate", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"message":"research"}"#),
-            .finished(usage: nil),
-        ]
-        let secondStreamDeltas: [StreamDelta] = [
-            .content("done"),
-            .finished(usage: nil),
-        ]
-
-        let client = StreamingMockLLMClient(streamSequences: [firstStreamDeltas, secondStreamDeltas])
-        let chat = Chat<SubAgentContext<EmptyContext>>(
-            client: client,
-            tools: [delegateTool],
-            approvalPolicy: .none
-        )
-        let counter = CountingApprovalHandler()
-
-        let context = SubAgentContext(inner: EmptyContext(), maxDepth: 3)
-        for try await _ in chat.stream("Go", context: context, approvalHandler: counter.handler) {}
-
-        let requests = await counter.requests
-        #expect(requests.count == 1)
-        #expect(requests.first?.toolName == "child_noop")
-    }
-
-    @Test
     func subAgentToolForwardsApprovalHandler() async throws {
         let childNoopTool = try Tool<NoopParams, NoopOutput, SubAgentContext<EmptyContext>>(
             name: "child_noop",

@@ -108,7 +108,7 @@ struct ToolApprovalAgentTests {
                 toolCalls: [ToolCall(id: "call_f", name: "finish", arguments: #"{"content":"done"}"#)]
             ),
         ]
-        let client = MockLLMClient(responses: responses)
+        let client = CapturingMockLLMClient(responses: responses)
         let config = AgentConfiguration(approvalPolicy: .allTools)
         let agent = Agent<EmptyContext>(client: client, tools: [echoTool], configuration: config)
         let counter = CountingApprovalHandler()
@@ -118,6 +118,12 @@ struct ToolApprovalAgentTests {
         #expect(try requireContent(result) == "done")
         let count = await counter.requestCount
         #expect(count == 1)
+        let capturedMessages = await client.capturedMessages
+        let toolMessage = capturedMessages.compactMap { msg -> String? in
+            guard case let .tool(_, _, content) = msg else { return nil }
+            return content
+        }.last
+        #expect(toolMessage?.contains("Echo: hello") == true)
     }
 
     @Test

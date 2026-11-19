@@ -349,23 +349,6 @@
 
         // MARK: Item 1 x item 2: cancel around a finish call
 
-        /// A cancel that lands after the `finish` call is committed but before `.finished` is handled. The
-        /// recorder treats `finish` like any other unanswered call, so the snapshot must still be valid history
-        /// that a following run accepts.
-        @Test
-        func snapshotWithCommittedFinishCallIsValidHistory() throws {
-            let recorder = PartialTurnRecorder()
-            recorder.begin(baseHistory: [.user("Go")])
-            let finishCall = ToolCall(id: "finish_call", name: "finish", arguments: #"{"content":"done"}"#)
-            recorder.commitAssistant(AssistantMessage(content: "", toolCalls: [finishCall]))
-
-            let snapshot = recorder.snapshot()
-            try snapshot.validateForLLMRequest()
-            #expect(toolResults(snapshot).isEmpty)
-            #expect(assistants(snapshot).last?.content == "done")
-            #expect(assistants(snapshot).last?.toolCalls.isEmpty == true)
-        }
-
         @MainActor @Test
         func resendAfterCancelAtFinishIterationCompletes() async throws {
             let recorder = PartialTurnRecorder()

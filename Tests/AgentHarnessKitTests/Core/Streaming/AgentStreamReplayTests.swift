@@ -4,9 +4,7 @@ import Testing
 
 @MainActor
 private func awaitStreamCompletion(_ stream: AgentStream<some ToolContext>) async {
-    while stream.isStreaming {
-        await Task.yield()
-    }
+    await waitUntil("stream to finish") { !stream.isStreaming }
 }
 
 @MainActor
@@ -15,12 +13,9 @@ private func waitForBufferedCursor(
     atLeast threshold: UInt64,
     timeout: Duration = .seconds(2)
 ) async {
-    let deadline = ContinuousClock().now + timeout
-    while ContinuousClock().now < deadline {
-        if let value = await stream.bufferedCursor, value >= threshold {
-            return
-        }
-        await Task.yield()
+    await waitUntil("buffered cursor >= \(threshold)", timeout: timeout) {
+        guard let value = await stream.bufferedCursor else { return false }
+        return value >= threshold
     }
 }
 
@@ -229,6 +224,30 @@ struct AgentStreamReplayTests {
 
         #expect(stream.content == contentSnapshot)
         #expect(stream.finishReason == nil)
+    }
+
+    @MainActor @Test
+    func replayFromTrimmedAndFutureCursorsThrows() async throws {
+        let stream = makeBufferedStream(sequences: [firstSendDeltas], capacity: 2)
+        stream.send("Hi", context: EmptyContext())
+        await awaitStreamCompletion(stream)
+        let cursor = try #require(await stream.bufferedCursor)
+
+        do {
+            _ = try await collectReplay(stream.replay(from: 0))
+            Issue.record("Expected BufferReplayError.cursorTrimmed")
+        } catch BufferReplayError.cursorTrimmed {
+        } catch {
+            Issue.record("Expected BufferReplayError.cursorTrimmed, got \(error)")
+        }
+
+        do {
+            _ = try await collectReplay(stream.replay(from: cursor + 1))
+            Issue.record("Expected BufferReplayError.cursorInFuture")
+        } catch BufferReplayError.cursorInFuture(currentCursor: cursor) {
+        } catch {
+            Issue.record("Expected BufferReplayError.cursorInFuture, got \(error)")
+        }
     }
 
     @MainActor @Test

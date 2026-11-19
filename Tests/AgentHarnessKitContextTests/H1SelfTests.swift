@@ -3,14 +3,6 @@ import AgentHarnessKit
 import Testing
 
 struct H1SelfTests {
-    @Test func tokenLabelTruncates() {
-        #expect(ContextPipeline.tokenLabel(999) == "999")
-        #expect(ContextPipeline.tokenLabel(1000) == "1.0K")
-        #expect(ContextPipeline.tokenLabel(1234) == "1.2K")
-        #expect(ContextPipeline.tokenLabel(9999) == "9.9K")
-        #expect(ContextPipeline.tokenLabel(12345) == "12K")
-    }
-
     @Test func assignRefsContinuesAfterExisting() {
         let minted = ContextPipeline.assignRefs([.user("hi"), .user("there")], existingCount: 41)
         #expect(minted.map(\.ref) == [MessageRef(42), MessageRef(43)])

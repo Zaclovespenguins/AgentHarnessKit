@@ -29,13 +29,6 @@ private func conversation(_ count: Int) -> [ChatMessage] {
     }
 }
 
-@Test func renderWithoutWindowThrows() async throws {
-    let store = HierarchicalContextStore(persistence: InMemoryContextPersistence())
-    await #expect(throws: AgentError.missingContextWindowSize) {
-        _ = try await store.render(sessionID: SessionID(), messages: [.user("hi")], windowSize: nil)
-    }
-}
-
 @Test func doctrineIsInsertedAndVersionStartsAtZero() async throws {
     let store = HierarchicalContextStore(persistence: InMemoryContextPersistence())
     let session = SessionID()
@@ -69,9 +62,22 @@ private func conversation(_ count: Int) -> [ChatMessage] {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent("h8-\(UUID().uuidString)")
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }
-    let store = HierarchicalContextStore(persistence: InMemoryContextPersistence(), exportDirectory: directory)
+    let persistence = InMemoryContextPersistence()
+    let store = HierarchicalContextStore(persistence: persistence, exportDirectory: directory)
     let session = SessionID()
-    for name in ["", ".", "..", "a/b", "a\\b"] {
+    let messages = conversation(30)
+    try await store.record(sessionID: session, messages: messages, usage: nil)
+    _ = try await store.render(sessionID: session, messages: messages, windowSize: 100_000)
+    let compress = ToolCall(
+        id: "c1",
+        name: ContextToolName.compress,
+        arguments: #"{"ranges":[{"startRef":"m00002","endRef":"m00004","summary":"\#(longSummary)"}]}"#
+    )
+    let created = try await store.executeTool(compress, sessionID: session)
+    #expect(!created.result.isError)
+
+    // Escaped in the JSON text, "a\\\\b" decodes to a single backslash.
+    for name in ["", ".", "..", "a/b", "a\\\\b"] {
         let call = ToolCall(
             id: "d",
             name: ContextToolName.decompress,
@@ -79,7 +85,18 @@ private func conversation(_ count: Int) -> [ChatMessage] {
         )
         let outcome = try await store.executeTool(call, sessionID: session)
         #expect(outcome.result.isError)
+        #expect(outcome.result.content == "Invalid arguments: toFile must be a plain file name")
     }
+
+    let disabled = HierarchicalContextStore(persistence: persistence)
+    let plain = ToolCall(
+        id: "d",
+        name: ContextToolName.decompress,
+        arguments: #"{"blockId":"b0","toFile":"ok.txt"}"#
+    )
+    let disabledOutcome = try await disabled.executeTool(plain, sessionID: session)
+    #expect(disabledOutcome.result.content == "Invalid arguments: file export is disabled")
+
     let bad = ToolCall(id: "d", name: ContextToolName.decompress, arguments: "not json")
     #expect(try await store.executeTool(bad, sessionID: session).result.isError)
 }

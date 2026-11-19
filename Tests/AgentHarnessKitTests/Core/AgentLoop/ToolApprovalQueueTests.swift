@@ -84,20 +84,6 @@ struct ToolApprovalQueueTests {
         #expect(await last.value == .approve)
     }
 
-    @Test func denyAllResumesEveryHandlerAndEmptiesQueue() async {
-        let queue = ToolApprovalQueue()
-        let first = await park(queue, makeRequest("a"), expecting: 1)
-        let second = await park(queue, makeRequest("b"), expecting: 2)
-        let third = await park(queue, makeRequest("c"), expecting: 3)
-
-        await queue.denyAll(reason: "Stopped")
-
-        #expect(await first.value == .deny(reason: "Stopped"))
-        #expect(await second.value == .deny(reason: "Stopped"))
-        #expect(await third.value == .deny(reason: "Stopped"))
-        #expect(await queue.pending().isEmpty)
-    }
-
     /// 6.10: `denyAll` over three parked requests resumes all three with the deny, and subscribers see exactly one
     /// empty snapshot for it.
     @Test func denyAllWithThreeParkedPublishesOneEmptySnapshot() async {
@@ -117,6 +103,7 @@ struct ToolApprovalQueueTests {
         #expect(await first.value == .deny(reason: "Stopped"))
         #expect(await second.value == .deny(reason: "Stopped"))
         #expect(await third.value == .deny(reason: "Stopped"))
+        #expect(await queue.pending().isEmpty)
 
         // 6.18: nothing is parked now, so a second denyAll publishes nothing. The next emission is the next change.
         await queue.denyAll(reason: "Again")

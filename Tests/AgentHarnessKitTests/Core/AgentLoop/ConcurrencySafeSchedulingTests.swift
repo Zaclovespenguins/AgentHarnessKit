@@ -189,33 +189,37 @@ struct ConcurrencySafeBlockingTests {
     @Test
     func unresolvedToolTreatedAsUnsafe() async throws {
         let detector = OverlapDetector()
-        let safeTool = try Tool<NoopParams, NoopOutput, EmptyContext>(
-            name: "safe",
-            description: "Safe tool",
-            isConcurrencySafe: true,
-            executor: { _, _ in
-                await detector.enter("safe")
-                try? await Task.sleep(for: .milliseconds(50))
-                await detector.exit("safe")
-                return NoopOutput()
-            }
-        )
+        func makeSafeTool(_ name: String) throws -> Tool<NoopParams, NoopOutput, EmptyContext> {
+            try Tool(
+                name: name,
+                description: name,
+                isConcurrencySafe: true,
+                executor: { _, _ in
+                    await detector.enter(name)
+                    try? await Task.sleep(for: .milliseconds(50))
+                    await detector.exit(name)
+                    return NoopOutput()
+                }
+            )
+        }
 
         let client = MockLLMClient(responses: [
             AssistantMessage(content: "", toolCalls: [
-                ToolCall(id: "c1", name: "safe", arguments: "{}"),
+                ToolCall(id: "c1", name: "safeA", arguments: "{}"),
                 ToolCall(id: "c2", name: "nonexistent", arguments: "{}"),
+                ToolCall(id: "c3", name: "safeB", arguments: "{}"),
             ]),
             AssistantMessage(content: "", toolCalls: [
                 ToolCall(id: "cf", name: "finish", arguments: #"{"content":"done"}"#),
             ]),
         ])
-        let agent = Agent<EmptyContext>(client: client, tools: [safeTool])
+        let agent = try Agent<EmptyContext>(client: client, tools: [makeSafeTool("safeA"), makeSafeTool("safeB")])
         let result = try await agent.run(userMessage: "Go", context: EmptyContext())
         #expect(try requireContent(result) == "done")
 
+        // The unresolved call is unsafe, so it splits the safe calls into separate waves.
         let overlaps = await detector.overlapPairs
-        #expect(overlaps.isEmpty)
+        #expect(!overlaps.contains("safeA+safeB"))
     }
 }
 
@@ -364,8 +368,6 @@ struct ConcurrencySafeStreamingTests {
     }
 }
 
-struct SubAgentConcurrencySafeTests {}
-
 struct ApprovalAboveWaveSchedulingTests {
     @Test
     func approvalPartitionPreventsOverlapOfSafeTools() async throws {
@@ -442,7 +444,9 @@ private struct NoopParams: Codable, SchemaProviding {
     static var jsonSchema: JSONSchema {
         .object(properties: [:], required: [])
     }
+}
 
+struct SiblingSubAgentOverlapTests {
     @Test
     func defaultUnsafeSiblingSubAgentsDoNotOverlap() async throws {
         let detector = OverlapDetector()

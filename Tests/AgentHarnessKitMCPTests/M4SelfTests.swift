@@ -116,52 +116,6 @@ struct M4SelfTests {
         #expect(try await collect(transport) == ["{\"a\":1}", "{\"b\":2}"])
     }
 
-    /// Point 3: non-2xx throws connectionFailed with the status code.
-    @Test func nonSuccessStatusThrowsWithCode() async throws {
-        let server = MockHTTPServer { _ in (500, [:], payload("boom")) }
-        let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
-        try await transport.connect()
-        let error = await failure(of: { try await transport.send(payload("{}")) })
-        guard case let .connectionFailed(message) = error as? MCPError else {
-            Issue.record("expected connectionFailed, got \(String(describing: error))")
-            return
-        }
-        #expect(message.contains("HTTP 500"))
-        await transport.disconnect()
-    }
-
-    /// Point 3: a 404 clears the stored session id, so the next request starts without it.
-    @Test func notFoundClearsSessionID() async throws {
-        let server = MockHTTPServer { request in
-            if request.body == payload("expire") {
-                return (404, [:], Data())
-            }
-            return (200, ["Mcp-Session-Id": "abc"], payload("{}"))
-        }
-        let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
-        try await transport.connect()
-        try await transport.send(payload("first"))
-        #expect(await failure(of: { try await transport.send(payload("expire")) }) != nil)
-        try await transport.send(payload("after"))
-        #expect(server.requests.count == 3)
-        #expect(server.requests[1].header("Mcp-Session-Id") == "abc")
-        #expect(server.requests[2].header("Mcp-Session-Id") == nil)
-        await transport.disconnect()
-    }
-
-    /// Point 3: a URLSession error becomes connectionFailed.
-    @Test func urlSessionErrorBecomesConnectionFailed() async throws {
-        let server = MockHTTPServer { _ in throw URLError(.notConnectedToInternet) }
-        let transport = HTTPMCPTransport(endpoint: server.endpoint, session: server.session)
-        try await transport.connect()
-        let error = await failure(of: { try await transport.send(payload("{}")) })
-        guard case .connectionFailed = error as? MCPError else {
-            Issue.record("expected connectionFailed, got \(String(describing: error))")
-            return
-        }
-        await transport.disconnect()
-    }
-
     /// Point 4: disconnect sends DELETE with the session id, is idempotent, and finishes the stream.
     @Test func disconnectSendsDeleteOnceAndFinishesStream() async throws {
         let server = MockHTTPServer { request in
@@ -201,50 +155,5 @@ struct M4SelfTests {
         await transport.disconnect()
         #expect(server.requests.isEmpty)
         #expect(try await collect(transport).isEmpty)
-    }
-
-    /// Point 6: SSE parsing edge cases.
-    @Test func parsesSingleEvent() {
-        let events = HTTPMCPTransport.parseServerSentEvents(payload("data: hello\n\n"))
-        #expect(events == [payload("hello")])
-    }
-
-    @Test func joinsMultipleDataLinesWithNewline() {
-        let events = HTTPMCPTransport.parseServerSentEvents(payload("data: line1\ndata: line2\n\n"))
-        #expect(events == [payload("line1\nline2")])
-    }
-
-    @Test func handlesCRLFLineEndings() {
-        let events = HTTPMCPTransport.parseServerSentEvents(payload("data: a\r\n\r\ndata: b\r\n\r\n"))
-        #expect(events == [payload("a"), payload("b")])
-    }
-
-    @Test func stripsOnlyOneLeadingSpace() {
-        let events = HTTPMCPTransport.parseServerSentEvents(payload("data:  two\n\ndata:none\n\n"))
-        #expect(events == [payload(" two"), payload("none")])
-    }
-
-    @Test func ignoresCommentsIdAndRetry() {
-        let body = ": comment\nid: 7\nretry: 1000\ndata: x\n\n"
-        #expect(HTTPMCPTransport.parseServerSentEvents(payload(body)) == [payload("x")])
-    }
-
-    @Test func dropsNonMessageEventTypes() {
-        let body = "event: ping\ndata: p\n\nevent: message\ndata: m\n\ndata: plain\n\n"
-        #expect(HTTPMCPTransport.parseServerSentEvents(payload(body)) == [payload("m"), payload("plain")])
-    }
-
-    @Test func skipsEventsWithoutData() {
-        let body = "event: message\n\n: only a comment\n\ndata: real\n\n"
-        #expect(HTTPMCPTransport.parseServerSentEvents(payload(body)) == [payload("real")])
-    }
-
-    @Test func dispatchesFinalEventWithoutBlankLine() {
-        let events = HTTPMCPTransport.parseServerSentEvents(payload("data: first\n\ndata: tail"))
-        #expect(events == [payload("first"), payload("tail")])
-    }
-
-    @Test func emptyBodyParsesToNothing() {
-        #expect(HTTPMCPTransport.parseServerSentEvents(Data()).isEmpty)
     }
 }

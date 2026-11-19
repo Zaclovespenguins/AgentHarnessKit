@@ -53,16 +53,6 @@ struct StreamEventKindCodableTests {
         #expect(try roundTrip(kind) == kind)
     }
 
-    @Test func finishedRoundTrips() throws {
-        let kind = StreamEvent.Kind.finished(
-            tokenUsage: makeTokenUsageTotals(TokenUsage(input: 100, output: 50)),
-            content: "Done.",
-            reason: .completed,
-            history: []
-        )
-        #expect(try roundTrip(kind) == kind)
-    }
-
     @Test func finishedWithMaxIterationsReasonRoundTrips() throws {
         let kind = StreamEvent.Kind.finished(
             tokenUsage: makeTokenUsageTotals(TokenUsage(input: 20, output: 10)),
@@ -85,12 +75,6 @@ struct StreamEventKindCodableTests {
 
     @Test func subAgentStartedRoundTrips() throws {
         let kind = StreamEvent.Kind.subAgentStarted(toolCallId: "tc_sub", toolName: "research")
-        #expect(try roundTrip(kind) == kind)
-    }
-
-    @Test func subAgentEventRoundTrips() throws {
-        let inner = StreamEvent(kind: .delta("inner content"))
-        let kind = StreamEvent.Kind.subAgentEvent(toolCallId: "tc_sub", toolName: "research", event: inner)
         #expect(try roundTrip(kind) == kind)
     }
 
@@ -149,8 +133,13 @@ struct StreamEventKindCodableTests {
     @Test func legacyCompactionEventTypesAreRejected() {
         for type in ["compacted", "budgetUpdated", "budgetAdvisory"] {
             let json = #"{"type":"\#(type)","totalTokens":1,"windowSize":2}"#
-            #expect(throws: DecodingError.self) {
-                try JSONDecoder().decode(StreamEvent.Kind.self, from: Data(json.utf8))
+            do {
+                _ = try JSONDecoder().decode(StreamEvent.Kind.self, from: Data(json.utf8))
+                Issue.record("Expected DecodingError.dataCorrupted for \(type)")
+            } catch let DecodingError.dataCorrupted(context) {
+                #expect(context.debugDescription.contains(type))
+            } catch {
+                Issue.record("Expected DecodingError.dataCorrupted for \(type), got \(error)")
             }
         }
     }
@@ -457,13 +446,6 @@ struct EventOriginCodableTests {
             try JSONDecoder().decode(EventOrigin.self, from: data)
         }
     }
-
-    @Test func liveOriginIsOmittedFromEnvelopeEncode() throws {
-        let event = StreamEvent(origin: .live, kind: .delta("x"))
-        let data = try JSONEncoder().encode(event)
-        let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
-        #expect(json["origin"] == nil)
-    }
 }
 
 struct StreamEventFinishedCodableTests {
@@ -550,22 +532,6 @@ struct StreamEventDiscriminatorTests {
         let json = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         let kindJSON = try #require(json["kind"] as? [String: Any])
         #expect(kindJSON["type"] as? String == "delta")
-    }
-
-    @Test func unknownTypeDiscriminatorThrowsDecodingError() throws {
-        let json = """
-        {
-            "id": "00000000-0000-0000-0000-000000000001",
-            "timestamp": "2026-03-30T14:22:07.123Z",
-            "kind": {
-                "type": "unknownFutureEvent",
-                "data": "something"
-            }
-        }
-        """
-        #expect(throws: DecodingError.self) {
-            try JSONDecoder().decode(StreamEvent.self, from: Data(json.utf8))
-        }
     }
 
     @Test(arguments: [

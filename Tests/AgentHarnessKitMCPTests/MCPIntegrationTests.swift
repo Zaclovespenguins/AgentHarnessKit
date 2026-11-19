@@ -90,13 +90,14 @@ struct MCPIntegrationTests {
                 name: "finish",
                 arguments: #"{"content": "Done with remote"}"#
             )
-            let llm = IntegrationMockLLMClient(responses: [
+            let llm = IntegrationCapturingMockLLMClient(responses: [
                 AssistantMessage(content: "", toolCalls: [toolCall]),
                 AssistantMessage(content: "", toolCalls: [finishCall]),
             ])
             let agent = Agent<EmptyContext>(client: llm, tools: mcpTools)
             let result = try await agent.run(userMessage: "Use the tool", context: EmptyContext())
             #expect(result.content == "Done with remote")
+            #expect(await toolContents(llm.capturedMessages) == ["remote result"])
         }
     }
 
@@ -190,13 +191,17 @@ struct MCPIntegrationTests {
                 name: "finish",
                 arguments: #"{"content": "Both done"}"#
             )
-            let llm = IntegrationMockLLMClient(responses: [
+            let llm = IntegrationCapturingMockLLMClient(responses: [
                 AssistantMessage(content: "", toolCalls: [addCall, fetchCall]),
                 AssistantMessage(content: "", toolCalls: [finishCall]),
             ])
             let agent = Agent<EmptyContext>(client: llm, tools: allTools)
             let result = try await agent.run(userMessage: "Do both", context: EmptyContext())
             #expect(result.content == "Both done")
+            let contents = await toolContents(llm.capturedMessages)
+            #expect(contents.count == 2)
+            #expect(contents.contains { $0.contains("sum: 7") })
+            #expect(contents.contains("fetched data"))
         }
     }
 
@@ -317,6 +322,16 @@ struct MCPIntegrationTests {
         }
         #expect(text == "valid response")
         await client.shutdown()
+    }
+}
+
+private func toolContents(_ messages: [ChatMessage]) -> [String] {
+    messages.compactMap { message in
+        if case let .tool(_, _, content) = message {
+            content
+        } else {
+            nil
+        }
     }
 }
 

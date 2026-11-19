@@ -157,6 +157,7 @@ struct AgentHistoryTests {
         )
 
         let capturedMessages = await client2.capturedMessages
+        try capturedMessages.validateForLLMRequest()
         #expect(capturedMessages == [
             .user("First message"),
             .assistant(AssistantMessage(content: "response 1")),
@@ -171,8 +172,6 @@ struct AgentHistoryTests {
         ])
     }
 }
-
-struct AgentTruncationTests {}
 
 private struct EchoParams: Codable, SchemaProviding {
     let message: String

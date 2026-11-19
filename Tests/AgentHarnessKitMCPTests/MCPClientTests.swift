@@ -578,6 +578,47 @@ struct MCPClientEdgeCaseTests {
         } catch is DecodingError {}
         await client.shutdown()
     }
+
+    @Test
+    func callToolSendsArgumentsOnWire() async throws {
+        let dataCollector = DataCollector()
+        let transport = DynamicMCPTransport { data in
+            await dataCollector.add(data)
+            guard let request = decodeRequest(data) else { return nil }
+            let idValue: Int = if case let .int(value) = request.id {
+                value
+            } else {
+                0
+            }
+            switch request.method {
+            case "initialize":
+                return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.initializeResult())
+            case "tools/list":
+                return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.emptyToolsListResult())
+            case "tools/call":
+                return MCPTestHelpers.encodeResponse(id: idValue, result: MCPTestHelpers.callToolResult(text: "ok"))
+            default:
+                return nil
+            }
+        }
+        let client = MCPClient(serverName: "test", transport: transport)
+        try await client.connectAndInitialize()
+        _ = try await client.callTool(name: "search", arguments: Data(#"{"q":"hi","n":2}"#.utf8))
+
+        let callRequest = await dataCollector.items
+            .compactMap(decodeRequest)
+            .first { $0.method == "tools/call" }
+        let request = try #require(callRequest)
+        guard case let .object(params) = request.params else {
+            Issue.record("Expected tools/call params")
+            await client.shutdown()
+            return
+        }
+
+        #expect(params["name"] == .string("search"))
+        #expect(params["arguments"] == .object(["q": .string("hi"), "n": .int(2)]))
+        await client.shutdown()
+    }
 }
 
 @Suite(.tags(.wireFormat))
