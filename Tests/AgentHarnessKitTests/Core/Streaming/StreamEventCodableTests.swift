@@ -560,6 +560,50 @@ struct StreamEventDiscriminatorTests {
         }
     }
 
+    @Test(arguments: [
+        "2026-02-30T14:22:07.123Z",
+        "2025-02-29T00:00:00.000Z",
+        "2026-04-31T00:00:00.000Z",
+        "2026-13-01T00:00:00.000Z",
+        "2026-03-30T24:00:00.000Z",
+        "2026-03-30T14:60:00.000Z",
+        "2026-03-30T14:22:60.000Z",
+    ])
+    func impossibleCalendarTimestampThrowsDecodingError(timestamp: String) throws {
+        let json = """
+        {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "timestamp": "\(timestamp)",
+            "kind": {
+                "type": "delta",
+                "text": "hello"
+            }
+        }
+        """
+        do {
+            _ = try JSONDecoder().decode(StreamEvent.self, from: Data(json.utf8))
+            Issue.record("Expected DecodingError.dataCorrupted")
+        } catch let DecodingError.dataCorrupted(context) {
+            #expect(context.codingPath.map(\.stringValue) == ["timestamp"])
+        }
+    }
+
+    @Test func timestampOutsideFourDigitYearThrowsEncodingError() throws {
+        // 10000-01-01T00:00:00Z fits in Int64 milliseconds, so only the four-digit-year guard can reject it.
+        let date = Date(timeIntervalSince1970: 253_402_300_800)
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        #expect(calendar.component(.year, from: date) == 10000)
+
+        let event = StreamEvent(timestamp: date, kind: .delta("ts"))
+        do {
+            _ = try JSONEncoder().encode(event)
+            Issue.record("Expected EncodingError.invalidValue")
+        } catch let EncodingError.invalidValue(_, context) {
+            #expect(context.codingPath.map(\.stringValue) == ["timestamp"])
+        }
+    }
+
     @Test func unknownTypeErrorMessageIncludesTypeName() throws {
         let json = """
         {

@@ -319,15 +319,9 @@ struct AgentStreamResumeObserverTests {
             iterationUsage: TokenUsage(input: 5, output: 5),
             sessionID: session, runID: RunID(), checkpointID: checkpointID
         ))
-        let longSequence: [StreamDelta] = (0 ..< 50).flatMap { index -> [StreamDelta] in
-            [.content("event-\(index)")]
-        } + [
-            .toolCallStart(index: 0, id: "call", name: "finish", kind: .function),
-            .toolCallDelta(index: 0, arguments: #"{"content":"done"}"#),
-            .finished(usage: TokenUsage(input: 1, output: 1)),
-        ]
+        let client = CancellationProbeLLMClient()
         let agent = Agent<EmptyContext>(
-            client: StreamingMockLLMClient(streamSequences: [longSequence]),
+            client: client,
             tools: []
         )
         let stream = AgentStream(agent: agent, bufferCapacity: 256)
@@ -336,12 +330,14 @@ struct AgentStreamResumeObserverTests {
         let contentBeforeCancel = stream.content
         let genBeforeCancel = stream.sendGeneration
         stream.cancel()
-        for _ in 0 ..< 50 {
-            await Task.yield()
-        }
+        await waitUntil("producer to observe cancellation") { await client.stoppedProducers == 1 }
+        try? await Task.sleep(for: .milliseconds(50))
+        let cursorAfterCancel = await stream.bufferedCursor
+        try? await Task.sleep(for: .milliseconds(50))
         #expect(stream.sendGeneration == genBeforeCancel &+ 1)
         #expect(stream.content == contentBeforeCancel)
         #expect(stream.finishReason == nil)
+        #expect(await stream.bufferedCursor == cursorAfterCancel)
     }
 
     @MainActor @Test

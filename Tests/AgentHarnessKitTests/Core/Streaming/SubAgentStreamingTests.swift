@@ -703,17 +703,13 @@ struct SubAgentCancellationTests {
             }
         }
 
-        for _ in 0 ..< 50 {
-            let started = await collector.events.contains { event in
+        await waitUntil("sub-agent to start") {
+            await collector.events.contains { event in
                 if case .subAgentStarted = event.kind {
                     return true
                 }
                 return false
             }
-            if started {
-                break
-            }
-            try await Task.sleep(for: .milliseconds(50))
         }
 
         task.cancel()

@@ -171,7 +171,7 @@ struct AgentResumeSubAgentTests {
     }
 
     @MainActor @Test
-    func subAgentStreamCancellationDoesNotEmitCompleted() async throws {
+    func subAgentStreamCancellationDoesNotEmitCompleted() async {
         let tool = CancellingSubAgentTool()
         let parentDeltas: [StreamDelta] = [
             .toolCallStart(index: 0, id: "call_block", name: "delegate", kind: .function),
@@ -184,10 +184,14 @@ struct AgentResumeSubAgentTests {
         )
         let context = SubAgentContext(inner: EmptyContext(), maxDepth: 3)
         let stream = parent.stream(userMessage: "Go", context: context)
+        var observedStart = false
         var observedCompletion = false
         let task = Task {
             do {
                 for try await event in stream {
+                    if case .subAgentStarted = event.kind {
+                        observedStart = true
+                    }
                     if case .subAgentCompleted = event.kind {
                         observedCompletion = true
                     }
@@ -197,9 +201,10 @@ struct AgentResumeSubAgentTests {
                 Issue.record("Unexpected non-cancellation error: \(error)")
             }
         }
-        try await Task.sleep(for: .milliseconds(50))
+        await waitUntil("sub-agent to start") { observedStart }
         task.cancel()
         _ = await task.value
+        #expect(observedStart)
         #expect(observedCompletion == false)
     }
 }

@@ -136,22 +136,30 @@ struct StreamEventBufferTests {
     }
 
     @Test
-    func concurrentRecordersPreserveCursorOrdering() async {
+    func concurrentRecordersPreserveCursorOrdering() async throws {
         let buffer = StreamEventBuffer(capacity: 256)
-        let cursors = await withTaskGroup(of: UInt64.self, returning: [UInt64].self) { group in
+        let assignments = await withTaskGroup(of: (UInt64, Int).self, returning: [(UInt64, Int)].self) { group in
             for index in 0 ..< 100 {
                 group.addTask {
-                    await buffer.record(makeEvent(index))
+                    let cursor = await buffer.record(makeEvent(index))
+                    return (cursor, index)
                 }
             }
-            var assigned: [UInt64] = []
-            for await cursor in group {
-                assigned.append(cursor)
+            var assigned: [(UInt64, Int)] = []
+            for await assignment in group {
+                assigned.append(assignment)
             }
             return assigned
         }
-        #expect(Set(cursors) == Set(UInt64(0) ..< UInt64(100)))
+        #expect(Set(assignments.map(\.0)) == Set(UInt64(0) ..< UInt64(100)))
         #expect(await buffer.cursor == 100)
+
+        let replayed = try await collect(buffer.replay(from: 0))
+        let replayedOrder = replayed.compactMap { event -> Int? in
+            guard case let .delta(text) = event.kind else { return nil }
+            return Int(text.dropFirst("event-".count))
+        }
+        #expect(replayedOrder == assignments.sorted { $0.0 < $1.0 }.map(\.1))
     }
 
     @Test

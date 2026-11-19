@@ -473,4 +473,32 @@ struct StreamEventKindWireShapeTests {
         ].joined()
         try expectGoldenWireFormat(event, expected)
     }
+
+    @Test func reasoningDeltaWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000712")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .reasoningDelta("Thinking out loud")
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000712","#,
+            #""kind":{"text":"Thinking out loud","type":"reasoningDelta"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
+
+    @Test func contextRestoredWireShapeIsStable() throws {
+        let event = try StreamEvent(
+            id: EventID(rawValue: uuid("00000000-0000-0000-0000-000000000713")),
+            timestamp: fixedDate(millisecondsSince1970: 1_774_880_527_123),
+            kind: .contextRestored(ContextRestore(blockID: ContextBlockID("b1"), tokensRestored: 1200))
+        )
+        let expected = [
+            #"{"id":"00000000-0000-0000-0000-000000000713","#,
+            #""kind":{"context":{"blockID":"b1","tokensRestored":1200},"type":"contextRestored"},"#,
+            #""timestamp":"2026-03-30T14:22:07.123Z"}"#,
+        ].joined()
+        try expectGoldenWireFormat(event, expected)
+    }
 }

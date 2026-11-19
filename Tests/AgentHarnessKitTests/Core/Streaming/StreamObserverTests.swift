@@ -47,6 +47,7 @@ private final class StreamObserverRecorder: @unchecked Sendable {
             }
             try? await Task.sleep(for: .milliseconds(10))
         }
+        Issue.record("Timed out waiting for \(count) stream completion(s)")
     }
 
     var requestContext: RequestContext {
