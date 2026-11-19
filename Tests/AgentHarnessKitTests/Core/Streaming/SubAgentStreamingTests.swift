@@ -682,7 +682,7 @@ private func containsCompletedToolCall(
 
 struct SubAgentCancellationTests {
     @Test
-    func cancellationDuringSubAgentTerminatesStream() async throws {
+    func cancellationDuringSubAgentTerminatesStream() async {
         let tool = BlockingSubAgentTool()
 
         let parentDeltas1: [StreamDelta] = [
